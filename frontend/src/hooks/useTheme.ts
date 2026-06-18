@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-const KEY = "gb-theme-v1";
+const KEY = "gb-theme";
 
 export function useTheme() {
   const [theme, setThemeState] = useState<"dark" | "light">("dark");

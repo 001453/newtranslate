@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { HistoryPanel } from "@/components/HistoryPanel";
 import { PackManagerBar } from "@/components/PackManagerBar";
@@ -12,11 +13,11 @@ import { useSpeechDictation } from "@/hooks/useSpeechDictation";
 import { translateText } from "@/lib/api";
 import { LANGUAGES, langName } from "@/lib/languages";
 import { cn } from "@/lib/utils";
-import { ArrowLeftRight, ClipboardPaste, Copy, FileUp, Mic, Star, Trash2 } from "lucide-react";
+import { ArrowLeftRight, ClipboardPaste, Copy, FileUp, History, Mic, Star, Trash2 } from "lucide-react";
 
 const AUTO_MS = 450;
 
-export function TranslatorPanel() {
+export function TranslatorPanel({ compact = true }: { compact?: boolean }) {
   const [from, setFrom] = useState("tr");
   const [to, setTo] = useState("en");
   const [source, setSource] = useState("");
@@ -34,6 +35,23 @@ export function TranslatorPanel() {
   const { devices, requestPermission } = useMicDevices();
 
   const dictLang = from === "auto" ? to : from;
+
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem("gb-restore");
+      if (!raw) return;
+      const h = JSON.parse(raw) as { from: string; to: string; source: string; target: string };
+      setFrom(h.from);
+      setTo(h.to);
+      setSource(h.source);
+      setTarget(h.target);
+      dictationBase.current = h.source;
+      lastHistorySource.current = h.source;
+      sessionStorage.removeItem("gb-restore");
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   const onDictation = useCallback((text: string, final: boolean) => {
     if (!text) return;
@@ -119,8 +137,17 @@ export function TranslatorPanel() {
     return () => clearTimeout(timer);
   }, [source, from, to, isPairReady, runTranslate]);
 
+  const applyHistory = (h: { from: string; to: string; source: string; target: string }) => {
+    setFrom(h.from);
+    setTo(h.to);
+    setSource(h.source);
+    setTarget(h.target);
+    dictationBase.current = h.source;
+    lastHistorySource.current = h.source;
+  };
+
   return (
-    <div className="flex flex-col gap-4 xl:flex-row">
+    <div className={cn("flex flex-col gap-4", !compact && "xl:flex-row")}>
       <div className="min-w-0 flex-1">
         {pins.length > 0 && (
           <div className="mb-2 flex flex-wrap gap-1">
@@ -245,10 +272,12 @@ export function TranslatorPanel() {
                 <button
                   type="button"
                   className="gb-btn-ghost text-xs"
-                  onClick={() => navigator.clipboard.readText().then((t) => {
-                    dictationBase.current = t;
-                    setSource(t);
-                  })}
+                  onClick={() =>
+                    navigator.clipboard.readText().then((t) => {
+                      dictationBase.current = t;
+                      setSource(t);
+                    })
+                  }
                 >
                   <ClipboardPaste className="mr-1 inline h-3 w-3" /> Yapıştır
                 </button>
@@ -288,8 +317,19 @@ export function TranslatorPanel() {
             </div>
           </div>
 
-          <div className="flex justify-between border-t border-[var(--gb-border)] bg-[var(--gb-surface-2)] px-4 py-3">
-            <span className="text-xs text-[var(--gb-muted)]">Enter gönder · Ctrl+Shift+M dikte</span>
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--gb-border)] bg-[var(--gb-surface-2)] px-4 py-3">
+            <span className="text-xs text-[var(--gb-muted)]">
+              Enter gönder · Ctrl+Shift+M dikte
+              {compact && (
+                <>
+                  {" · "}
+                  <Link href="/history" className="inline-flex items-center gap-1 text-[var(--gb-accent)] hover:underline">
+                    <History className="h-3 w-3" />
+                    Geçmiş
+                  </Link>
+                </>
+              )}
+            </span>
             <button
               type="button"
               className="gb-btn-primary"
@@ -303,32 +343,27 @@ export function TranslatorPanel() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-4 xl:w-72">
-        <MicSidebar
-          mode="dictation"
-          devices={devices}
-          deviceId={settings.deviceId}
-          onDeviceChange={(id) => update({ deviceId: id })}
-          listening={listening}
-          onMicToggle={toggle}
-          supported={supported}
-          statusLabel={listening ? "Dinleniyor…" : undefined}
-        />
-        <HistoryPanel
-          items={items}
-          onToggleFavorite={toggleFavorite}
-          onClear={clear}
-          onExport={exportJson}
-          onSelect={(h) => {
-            setFrom(h.from);
-            setTo(h.to);
-            setSource(h.source);
-            setTarget(h.target);
-            dictationBase.current = h.source;
-            lastHistorySource.current = h.source;
-          }}
-        />
-      </div>
+      {!compact && (
+        <div className="flex flex-col gap-4 xl:w-72">
+          <MicSidebar
+            mode="dictation"
+            devices={devices}
+            deviceId={settings.deviceId}
+            onDeviceChange={(id) => update({ deviceId: id })}
+            listening={listening}
+            onMicToggle={toggle}
+            supported={supported}
+            statusLabel={listening ? "Dinleniyor…" : undefined}
+          />
+          <HistoryPanel
+            items={items}
+            onToggleFavorite={toggleFavorite}
+            onClear={clear}
+            onExport={exportJson}
+            onSelect={applyHistory}
+          />
+        </div>
+      )}
     </div>
   );
 }

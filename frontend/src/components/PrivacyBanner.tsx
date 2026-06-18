@@ -11,40 +11,53 @@ interface PrivacyStatus {
   translation_provider: string;
   qvac_available: boolean;
   cloud_allowed: boolean;
-  data_egress_points: string[];
-  guarantees: string[];
+  data_egress_points?: unknown;
+  guarantees?: unknown;
+}
+
+function normalizePrivacyStatus(raw: unknown): PrivacyStatus | null {
+  if (!raw || typeof raw !== "object") return null;
+  const s = raw as Record<string, unknown>;
+  return {
+    mode: String(s.mode ?? "hybrid"),
+    local_processing_only: Boolean(s.local_processing_only),
+    translation_provider: String(s.translation_provider ?? "unknown"),
+    qvac_available: Boolean(s.qvac_available),
+    cloud_allowed: Boolean(s.cloud_allowed),
+    data_egress_points: Array.isArray(s.data_egress_points) ? s.data_egress_points : [],
+    guarantees: Array.isArray(s.guarantees) ? s.guarantees : [],
+  };
 }
 
 export function PrivacyBanner() {
   const [status, setStatus] = useState<PrivacyStatus | null>(null);
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/v1/privacy/status`)
-      .then((r) => r.json())
-      .then(setStatus)
-      .catch(() => null);
-    const interval = setInterval(() => {
+    const load = () =>
       fetch(`${API_BASE}/api/v1/privacy/status`)
         .then((r) => r.json())
-        .then(setStatus)
+        .then((data) => setStatus(normalizePrivacyStatus(data)))
         .catch(() => null);
-    }, 15000);
+
+    load();
+    const interval = setInterval(load, 15000);
     return () => clearInterval(interval);
   }, []);
 
   if (!status) return null;
 
   const isSovereign = status.mode === "sovereign" || status.local_processing_only;
+  const egress = (status.data_egress_points as string[]) ?? [];
+  const guarantees = (status.guarantees as string[]) ?? [];
 
   return (
     <div
       className={cn(
-        "rounded-xl border px-4 py-3 text-sm",
         isSovereign
-          ? "border-green-200 bg-green-50 text-green-900"
+          ? "gb-alert-success"
           : status.mode === "cloud"
-            ? "border-amber-200 bg-amber-50 text-amber-900"
-            : "border-blue-200 bg-blue-50 text-blue-900"
+            ? "gb-alert-warning"
+            : "gb-alert-info"
       )}
     >
       <div className="flex items-center gap-2 font-medium">
@@ -65,16 +78,16 @@ export function PrivacyBanner() {
         Çeviri: {status.translation_provider}
         {status.qvac_available ? " · QVAC aktif" : " · QVAC kapalı — qvac-service başlatın"}
       </div>
-      {status.guarantees.length > 0 && (
+      {guarantees.length > 0 && (
         <ul className="mt-2 list-inside list-disc text-xs opacity-75">
-          {status.guarantees.map((g, i) => (
+          {guarantees.map((g, i) => (
             <li key={i}>{g}</li>
           ))}
         </ul>
       )}
-      {status.data_egress_points.length > 0 && (
-        <ul className="mt-1 list-inside list-disc text-xs text-amber-700">
-          {status.data_egress_points.map((e, i) => (
+      {egress.length > 0 && (
+        <ul className="mt-1 list-inside list-disc text-xs opacity-75">
+          {egress.map((e, i) => (
             <li key={i}>{e}</li>
           ))}
         </ul>

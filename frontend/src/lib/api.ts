@@ -1,11 +1,19 @@
 import { API_BASE } from "./types";
 import type { PdfJob } from "./types";
 
-export async function translateText(text: string, sourceLang: string, targetLang: string) {
+export async function translateText(
+  text: string,
+  sourceLang: string,
+  targetLang: string
+) {
   const res = await fetch(`${API_BASE}/api/v1/translate`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text, source_lang: sourceLang, target_lang: targetLang }),
+    body: JSON.stringify({
+      text,
+      source_lang: sourceLang,
+      target_lang: targetLang,
+    }),
   });
   if (!res.ok) throw new Error("Translation failed");
   return res.json();
@@ -23,22 +31,29 @@ export async function fetchInstalledPacks() {
   return res.json();
 }
 
-export async function downloadLanguagePack(from: string, to: string, onProgress?: (n: number) => void) {
+export async function downloadLanguagePack(
+  from: string,
+  to: string,
+  onProgress?: (n: number) => void
+) {
   const res = await fetch(`${API_BASE}/api/v1/packs/download`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ from, to }),
   });
   if (!res.ok) throw new Error("download failed");
+
   const ct = res.headers.get("content-type") || "";
   if (!ct.includes("ndjson") && !res.body) {
     const j = await res.json();
     return { ready: Boolean(j.ready) };
   }
+
   const reader = res.body!.getReader();
   const dec = new TextDecoder();
   let buf = "";
   let ready = false;
+
   while (true) {
     const { done, value } = await reader.read();
     if (done) break;
@@ -55,6 +70,7 @@ export async function downloadLanguagePack(from: string, to: string, onProgress?
     }
     buf = buf.split("\n").pop() ?? "";
   }
+
   return { ready };
 }
 
@@ -83,19 +99,27 @@ export async function deleteGlossaryTerm(id: string) {
   await fetch(`${API_BASE}/api/v1/glossary/${id}`, { method: "DELETE" });
 }
 
-export async function uploadPdf(file: File, sourceLang: string, targetLang: string): Promise<PdfJob> {
+export async function uploadPdf(
+  file: File,
+  sourceLang: string,
+  targetLang: string
+): Promise<PdfJob> {
   const form = new FormData();
   form.append("file", file);
   form.append("source_lang", sourceLang);
   form.append("target_lang", targetLang);
-  const res = await fetch(`${API_BASE}/api/v1/pdf/upload`, { method: "POST", body: form });
-  if (!res.ok) throw new Error("upload");
+
+  const res = await fetch(`${API_BASE}/api/v1/pdf/upload`, {
+    method: "POST",
+    body: form,
+  });
+  if (!res.ok) throw new Error("Upload failed");
   return res.json();
 }
 
 export async function getPdfJob(jobId: string) {
   const res = await fetch(`${API_BASE}/api/v1/pdf/jobs/${jobId}`);
-  if (!res.ok) throw new Error("job");
+  if (!res.ok) throw new Error("Job not found");
   return res.json();
 }
 

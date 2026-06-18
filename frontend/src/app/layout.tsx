@@ -3,8 +3,8 @@ import { AppShell } from "@/components/layout/AppShell";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "GlobalBridge AI",
-  description: "Yerel çeviri ve canlı altyazı",
+  title: "GlobalBridge AI — Kurumsal Çeviri",
+  description: "Çeviri, konuşma, canlı altyazı ve PDF — cihazınızda",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
