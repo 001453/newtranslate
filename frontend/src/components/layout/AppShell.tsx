@@ -121,7 +121,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <div className="gb-sidebar-label">Mod</div>
             <NavItem href="/" icon={Languages} label="Çeviri" active={isActive("/")} badge="mic" onClick={closeMobile} />
             <NavItem href="/conversation" icon={MessageSquare} label="Konuşma" active={isActive("/conversation")} badge="mic" onClick={closeMobile} />
-            <NavItem href="/meeting" icon={Video} label="Online Toplantı" active={isActive("/meeting")} live badge="mic" onClick={closeMobile} />
+            <NavItem href="/meeting" icon={Video} label="Keet Toplantı" active={isActive("/meeting")} live badge="P2P" onClick={closeMobile} />
             <NavItem href="/live" icon={Radio} label="Canlı Altyazı" active={isActive("/live")} live badge="mic" onClick={closeMobile} />
           </div>
 
@@ -196,7 +196,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm text-[var(--gb-muted)]">
               <li><strong className="text-[var(--gb-text)]">Çeviri</strong> — ortadaki kutuya yazın veya dikte edin.</li>
               <li><strong className="text-[var(--gb-text)]">Konuşma</strong> — iki dilli diyalog modu.</li>
-              <li><strong className="text-[var(--gb-text)]">Online Toplantı / Canlı</strong> — gerçek zamanlı çeviri.</li>
+              <li><strong className="text-[var(--gb-text)]">Keet Toplantı</strong> — P2P görüşme, ana dilinizde altyazı.</li>
               <li>Veriler cihazınızda kalır.</li>
             </ol>
             <button type="button" className="gb-btn-primary mt-5 w-full" onClick={() => setShowGuide(false)}>

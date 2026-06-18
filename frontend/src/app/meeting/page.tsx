@@ -1,5 +1,5 @@
-import { LiveCaption } from "@/components/LiveCaption";
+import { KeetMeetingBridge } from "@/components/KeetMeetingBridge";
 
 export default function MeetingPage() {
-  return <LiveCaption />;
+  return <KeetMeetingBridge keetMode />;
 }

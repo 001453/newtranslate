@@ -1,5 +1,11 @@
-import { LiveCaption } from "@/components/LiveCaption";
+import { KeetMeetingBridge } from "@/components/KeetMeetingBridge";
 
 export default function LivePage() {
-  return <LiveCaption />;
+  return (
+    <KeetMeetingBridge
+      keetMode={false}
+      title="Canlı Altyazı"
+      subtitle="Zoom · Meet · Teams — ana dilinizde anlık çeviri"
+    />
+  );
 }

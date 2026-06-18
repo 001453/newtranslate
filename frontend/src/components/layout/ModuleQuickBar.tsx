@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 
 const modules = [
   { href: "/conversation", icon: MessageSquare, label: "Konuşma" },
-  { href: "/meeting", icon: Video, label: "Toplantı" },
+  { href: "/meeting", icon: Video, label: "Keet" },
   { href: "/live", icon: Radio, label: "Canlı" },
   { href: "/document", icon: ScrollText, label: "Belge" },
   { href: "/pdf", icon: FileText, label: "PDF" },

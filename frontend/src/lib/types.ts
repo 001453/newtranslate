@@ -31,6 +31,8 @@ export interface LiveSessionConfig {
   bidirectional: boolean;
   lang_a: string;
   lang_b: string;
+  /** Kişisel altyazı: her zaman bu dilde göster (Parley/Keet modu) */
+  viewer_lang?: string;
 }
 
 export interface PipelineResult {

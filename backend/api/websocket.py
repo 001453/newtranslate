@@ -79,20 +79,26 @@ async def live_caption_ws(websocket: WebSocket):
                 if glossary:
                     translation_service.set_glossary(glossary)
 
-                trans = await translation_service.translate_live(
-                    stt_result.text,
-                    detected,
-                    target,
-                    speaker=speaker,
-                    context=session_context,
-                )
+                if target.split("-")[0] == detected.split("-")[0]:
+                    translated_text = stt_result.text
+                    trans_ms = 0.0
+                else:
+                    trans = await translation_service.translate_live(
+                        stt_result.text,
+                        detected,
+                        target,
+                        speaker=speaker,
+                        context=session_context,
+                    )
+                    translated_text = trans.text
+                    trans_ms = trans.latency_ms
 
                 session_context = (session_context + " " + stt_result.text)[-500:]
                 total_ms = (time.perf_counter() - t0) * 1000
 
                 await overlay_service.show_caption(
                     original=stt_result.text,
-                    translated=trans.text,
+                    translated=translated_text,
                     source_lang=detected,
                     target_lang=target,
                     speaker=speaker,
@@ -104,11 +110,11 @@ async def live_caption_ws(websocket: WebSocket):
                     "event": "pipeline_result",
                     "payload": {
                         "original": stt_result.text,
-                        "translated": trans.text,
+                        "translated": translated_text,
                         "source_lang": detected,
                         "target_lang": target,
                         "stt_ms": stt_result.duration_ms,
-                        "translation_ms": trans.latency_ms,
+                        "translation_ms": trans_ms,
                         "total_ms": total_ms,
                     },
                 })
@@ -122,12 +128,14 @@ async def live_caption_ws(websocket: WebSocket):
 
             if action == "start_session":
                 cfg = msg.get("config", {})
+                viewer = cfg.get("viewer_lang")
                 sid = await overlay_service.start_session(
                     source_lang=cfg.get("source_lang", "auto"),
                     target_lang=cfg.get("target_lang", "en"),
                     bidirectional=cfg.get("bidirectional", True),
                     lang_a=cfg.get("lang_a", "tr"),
                     lang_b=cfg.get("lang_b", "en"),
+                    viewer_lang=viewer,
                 )
                 await websocket.send_json({"event": "session_started", "payload": {"session_id": sid}})
 

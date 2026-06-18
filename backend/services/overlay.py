@@ -61,6 +61,7 @@ class OverlayState:
     bidirectional: bool = True
     lang_a: str = "tr"
     lang_b: str = "en"
+    viewer_lang: str | None = None  # Kişisel mod: altyazılar bu dilde
     style: CaptionStyle = field(default_factory=CaptionStyle)
     current_caption: CaptionLine | None = None
     history: list[CaptionLine] = field(default_factory=list)
@@ -136,6 +137,7 @@ class OverlayService:
         bidirectional: bool = True,
         lang_a: str = "tr",
         lang_b: str = "en",
+        viewer_lang: str | None = None,
     ) -> str:
         async with self._lock:
             self.state = OverlayState(
@@ -145,12 +147,14 @@ class OverlayService:
                 bidirectional=bidirectional,
                 lang_a=lang_a,
                 lang_b=lang_b,
+                viewer_lang=viewer_lang,
             )
         await self._broadcast("session_started", {
             "session_id": self.state.session_id,
             "source_lang": source_lang,
             "target_lang": target_lang,
             "bidirectional": bidirectional,
+            "viewer_lang": viewer_lang,
         })
         return self.state.session_id
 
@@ -241,13 +245,20 @@ class OverlayService:
         ]
 
     def resolve_target_lang(self, detected_lang: str) -> str:
-        """Bidirectional: pick opposite language."""
+        """Kişisel mod: her zaman izleyicinin ana diline çevir."""
+        det = detected_lang.split("-")[0]
+
+        if self.state.viewer_lang:
+            mine = self.state.viewer_lang.split("-")[0]
+            if det == mine:
+                return detected_lang
+            return self.state.viewer_lang
+
         if not self.state.bidirectional:
             return self.state.target_lang
 
         da = self.state.lang_a.split("-")[0]
         db = self.state.lang_b.split("-")[0]
-        det = detected_lang.split("-")[0]
 
         if det == da:
             return self.state.lang_b
