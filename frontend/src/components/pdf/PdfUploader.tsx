@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import { getPdfJob, pdfDownloadUrl, uploadPdf, bilingualPreviewUrl } from "@/lib/api";
 import { useLocale } from "@/hooks/useLocale";
-import { LANGUAGES } from "@/lib/types";
+import { LANGUAGES } from "@/lib/languages";
 import { FileText, Loader2, Download, Eye } from "lucide-react";
 
 export function PdfUploader() {
@@ -104,6 +104,10 @@ export function PdfUploader() {
           disabled={uploading}
         />
       </label>
+
+      {jobs.length > 0 && (
+        <p className="text-center text-xs text-[var(--gb-muted)]">{m.pdf.jobsEphemeral}</p>
+      )}
 
       {jobs.length > 0 && (
         <div className="space-y-3">

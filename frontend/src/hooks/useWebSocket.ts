@@ -10,29 +10,60 @@ type WsMessage = {
   session_id?: string;
 };
 
+const MAX_RECONNECT_DELAY_MS = 30_000;
+
 export function useWebSocket() {
   const wsRef = useRef<WebSocket | null>(null);
+  const intentionalClose = useRef(false);
+  const reconnectAttempt = useRef(0);
+  const reconnectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const connectRef = useRef<() => void>(() => {});
   const [connected, setConnected] = useState(false);
+  const [reconnecting, setReconnecting] = useState(false);
   const [caption, setCaption] = useState<CaptionLine | null>(null);
   const [history, setHistory] = useState<CaptionLine[]>([]);
   const [lastPipeline, setLastPipeline] = useState<PipelineResult | null>(null);
   const [summary, setSummary] = useState<MeetingSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const clearReconnectTimer = useCallback(() => {
+    if (reconnectTimer.current) {
+      clearTimeout(reconnectTimer.current);
+      reconnectTimer.current = null;
+    }
+  }, []);
+
   const connect = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) return;
+    if (wsRef.current?.readyState === WebSocket.CONNECTING) return;
+
+    intentionalClose.current = false;
+    clearReconnectTimer();
 
     const ws = new WebSocket(WS_URL);
     ws.binaryType = "arraybuffer";
 
     ws.onopen = () => {
+      reconnectAttempt.current = 0;
       setConnected(true);
+      setReconnecting(false);
       setError(null);
     };
 
     ws.onclose = () => {
       setConnected(false);
       wsRef.current = null;
+      if (!intentionalClose.current) {
+        clearReconnectTimer();
+        const delay = Math.min(1000 * 2 ** reconnectAttempt.current, MAX_RECONNECT_DELAY_MS);
+        setReconnecting(true);
+        reconnectTimer.current = setTimeout(() => {
+          reconnectAttempt.current += 1;
+          connectRef.current();
+        }, delay);
+      } else {
+        setReconnecting(false);
+      }
     };
 
     ws.onerror = () => setError("WebSocket connection failed");
@@ -65,13 +96,20 @@ export function useWebSocket() {
     };
 
     wsRef.current = ws;
-  }, []);
+  }, [clearReconnectTimer]);
+
+  useEffect(() => {
+    connectRef.current = connect;
+  }, [connect]);
 
   const disconnect = useCallback(() => {
+    intentionalClose.current = true;
+    clearReconnectTimer();
+    setReconnecting(false);
     wsRef.current?.close();
     wsRef.current = null;
     setConnected(false);
-  }, []);
+  }, [clearReconnectTimer]);
 
   const send = useCallback((data: object) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
@@ -101,6 +139,7 @@ export function useWebSocket() {
 
   return {
     connected,
+    reconnecting,
     connect,
     disconnect,
     startSession,

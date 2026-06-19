@@ -33,6 +33,9 @@ export const tr: Messages = {
   home: {
     title: "Yazın veya dikte edin",
     subtitle: "Türkçe ↔ English hazır — yazın, dikte edin veya geçmişten seçin.",
+    statusApi: "API",
+    statusQvac: "QVAC",
+    servicesDown: "Çeviri için backend (8000) ve QVAC (8765) başlatın.",
   },
   translate: {
     source: "Kaynak",
@@ -106,6 +109,7 @@ export const tr: Messages = {
       completed: "Tamamlandı",
       failed: "Başarısız",
     },
+    jobsEphemeral: "Backend yeniden başlayınca işler silinir.",
   },
   meeting: {
     title: "Keet & Online Toplantı",
@@ -114,6 +118,7 @@ export const tr: Messages = {
     liveSubtitle: "Zoom · Meet · Teams — ana dilinizde anlık çeviri",
     connected: "Canlı",
     disconnected: "Bağlantı yok",
+    reconnecting: "Yeniden bağlanıyor…",
     keetStart: "Keet ile başlangıç",
     hide: "Gizle",
     downloadKeet: "Keet indir (keet.io)",

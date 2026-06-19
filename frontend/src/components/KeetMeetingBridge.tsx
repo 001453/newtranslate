@@ -40,6 +40,7 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
 
   const {
     connected,
+    reconnecting,
     connect,
     disconnect,
     startSession,
@@ -155,6 +156,10 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
             {connected ? (
               <span className="gb-badge gb-badge-accent">
                 <Wifi className="mr-1 inline h-3.5 w-3.5" /> {m.meeting.connected}
+              </span>
+            ) : reconnecting ? (
+              <span className="gb-badge gb-badge-accent">
+                <Wifi className="mr-1 inline h-3.5 w-3.5 animate-pulse" /> {m.meeting.reconnecting}
               </span>
             ) : (
               <span className="gb-badge">

@@ -66,29 +66,6 @@ export interface PdfJob {
   error?: string;
 }
 
-export const LANGUAGES = [
-  { code: "auto", name: "Auto-detect" },
-  { code: "en", name: "English" },
-  { code: "tr", name: "Türkçe" },
-  { code: "es", name: "Español" },
-  { code: "zh", name: "中文 (简体)" },
-  { code: "zh-TW", name: "中文 (繁體)" },
-  { code: "ar", name: "العربية" },
-  { code: "de", name: "Deutsch" },
-  { code: "fr", name: "Français" },
-  { code: "ja", name: "日本語" },
-  { code: "ko", name: "한국어" },
-  { code: "ru", name: "Русский" },
-  { code: "pt", name: "Português" },
-  { code: "it", name: "Italiano" },
-  { code: "hi", name: "हिन्दी" },
-  { code: "nl", name: "Nederlands" },
-  { code: "pl", name: "Polski" },
-  { code: "fa", name: "فارسی" },
-  { code: "he", name: "עברית" },
-  { code: "uk", name: "Українська" },
-] as const;
-
 export const API_BASE =
   process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://localhost:8000";
 

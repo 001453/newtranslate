@@ -31,6 +31,9 @@ export const en = {
   home: {
     title: "Type or dictate",
     subtitle: "English ↔ Turkish ready — type, dictate, or pick from history.",
+    statusApi: "API",
+    statusQvac: "QVAC",
+    servicesDown: "Start backend (8000) and QVAC (8765) for translation.",
   },
   translate: {
     source: "Source",
@@ -104,6 +107,7 @@ export const en = {
       completed: "Completed",
       failed: "Failed",
     },
+    jobsEphemeral: "Jobs are cleared when the backend restarts.",
   },
   meeting: {
     title: "Keet & Online Meeting",
@@ -112,6 +116,7 @@ export const en = {
     liveSubtitle: "Zoom · Meet · Teams — real-time translation in your language",
     connected: "Live",
     disconnected: "Disconnected",
+    reconnecting: "Reconnecting…",
     keetStart: "Getting started with Keet",
     hide: "Hide",
     downloadKeet: "Download Keet (keet.io)",

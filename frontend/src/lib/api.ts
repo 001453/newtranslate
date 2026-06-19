@@ -1,6 +1,16 @@
 import { API_BASE } from "./types";
 import type { PdfJob } from "./types";
 
+export async function fetchHealth(): Promise<{
+  status: string;
+  qvac_available?: boolean;
+  translation_provider?: string;
+}> {
+  const res = await fetch(`${API_BASE}/health`, { cache: "no-store" });
+  if (!res.ok) throw new Error("health");
+  return res.json();
+}
+
 export async function translateText(
   text: string,
   sourceLang: string,
