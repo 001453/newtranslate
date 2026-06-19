@@ -5,7 +5,7 @@ import Link from "next/link";
 import { LiveSetupPanel } from "@/components/live/LiveSetupPanel";
 import { PrivacyBanner } from "@/components/PrivacyBanner";
 import { SubtitleOverlay } from "@/components/SubtitleOverlay";
-import { type AudioCaptureError, useAudioCapture, useTabAudioCapture } from "@/hooks/useAudioCapture";
+import { type AudioCaptureError, type AudioCaptureStats, useAudioCapture, useTabAudioCapture } from "@/hooks/useAudioCapture";
 import { useMicDevices } from "@/hooks/useMicDevices";
 import { defaultTranslationPair, useLocale } from "@/hooks/useLocale";
 import { useWebSocket } from "@/hooks/useWebSocket";
@@ -88,9 +88,14 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
   const [fontSize, setFontSize] = useState(34);
   const [audioSource, setAudioSource] = useState<"tab" | "mic" | "both">("tab");
   const [audioError, setAudioError] = useState<string | null>(null);
+  const [audioStats, setAudioStats] = useState<AudioCaptureStats>({ level: 0, chunksSent: 0 });
   const [insecureContext, setInsecureContext] = useState(false);
   const sessionActiveRef = useRef(false);
   const { devices: micDevices, requestPermission: requestMicPermission } = useMicDevices();
+
+  const onAudioStats = useCallback((stats: AudioCaptureStats) => {
+    setAudioStats(stats);
+  }, []);
 
   const onChunk = useCallback(
     (pcm: ArrayBuffer) => {
@@ -99,8 +104,8 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
     [sendAudio]
   );
 
-  const { recording, start, stop, setDeviceId, deviceId } = useAudioCapture(onChunk);
-  const { capturing, startTabCapture, stopTabCapture } = useTabAudioCapture(onChunk);
+  const { recording, start, stop, setDeviceId, deviceId } = useAudioCapture(onChunk, onAudioStats);
+  const { capturing, startTabCapture, stopTabCapture } = useTabAudioCapture(onChunk, onAudioStats);
 
   const audioErrorText = (code: AudioCaptureError): string => {
     const map = m.meeting.audioErrors;
@@ -237,6 +242,7 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
     stopSession(myLang);
     setSessionActive(false);
     setAudioError(null);
+    setAudioStats({ level: 0, chunksSent: 0 });
   };
 
   const copyInvite = async () => {
@@ -434,7 +440,13 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
             )}
           </>
         ) : sessionActive ? (
-          <p className="opacity-70">{m.meeting.waitingSpeech}</p>
+          <p className="opacity-70">
+            {audioStats.chunksSent === 0
+              ? m.meeting.audioWaiting
+              : audioStats.level < 0.003
+                ? m.meeting.audioSilent
+                : m.meeting.waitingSpeech}
+          </p>
         ) : (
           <p className="opacity-70">{keetMode ? m.meeting.waitingStart : m.meeting.liveWaitingStart}</p>
         )}
@@ -477,6 +489,29 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
             </button>
           ))}
         </div>
+
+        {sessionActive && (recording || capturing) && (
+          <div className="mb-3">
+            <div className="mb-1 flex justify-between text-xs text-[var(--gb-muted)]">
+              <span>
+                {audioStats.level > 0.004 ? m.meeting.audioReceiving : m.meeting.audioWaiting}
+              </span>
+              <span>{Math.min(100, Math.round(audioStats.level * 500))}%</span>
+            </div>
+            <div className="h-1.5 overflow-hidden rounded-full bg-[var(--gb-border)]">
+              <div
+                className="h-full bg-[var(--gb-accent)] transition-all duration-150"
+                style={{ width: `${Math.min(100, audioStats.level * 500)}%` }}
+              />
+            </div>
+            {audioStats.chunksSent > 8 && audioStats.level < 0.003 && (
+              <p className="mt-2 text-xs text-[var(--gb-warning)]">{m.meeting.audioSilent}</p>
+            )}
+            {audioStats.chunksSent > 20 && audioStats.level > 0.004 && !caption && (
+              <p className="mt-2 text-xs text-[var(--gb-muted)]">{m.meeting.speechMusicHint}</p>
+            )}
+          </div>
+        )}
 
         {!sessionActive ? (
           <button

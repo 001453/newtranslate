@@ -166,6 +166,12 @@ export const en = {
     otherLangGeneric: "another language",
     captionLabel: "Live caption (your language)",
     waitingSpeech: "Waiting for speech…",
+    audioReceiving: "Audio signal detected — processing…",
+    audioWaiting: "Waiting for tab audio…",
+    audioSilent:
+      "No audio signal — when sharing, check “Share tab audio” / “Also share tab audio” in Chrome.",
+    speechMusicHint:
+      "Music and singing rarely produce captions — try a video with clear speech (news, podcast, interview).",
     waitingStart: "Start the bridge — Keet or meeting audio is captured.",
     liveWaitingStart: "Start the bridge — then pick YouTube or meeting tab and enable tab audio.",
     audioSource: "Audio source",

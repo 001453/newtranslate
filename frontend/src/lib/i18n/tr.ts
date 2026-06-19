@@ -169,6 +169,12 @@ export const tr: Messages = {
     otherLangGeneric: "diğer dilde",
     captionLabel: "Anlık altyazı (ana dilinizde)",
     waitingSpeech: "Konuşma bekleniyor…",
+    audioReceiving: "Ses sinyali alınıyor — işleniyor…",
+    audioWaiting: "Sekme sesi bekleniyor…",
+    audioSilent:
+      "Ses sinyali yok — paylaşım penceresinde “Sekme sesini paylaş” kutusunu işaretleyin.",
+    speechMusicHint:
+      "Müzik ve şarkıda altyazı zayıf olur — net konuşma içeren video deneyin (haber, podcast, röportaj).",
     waitingStart: "Köprüyü başlatın — Keet veya toplantı sesi yakalanır.",
     liveWaitingStart: "Köprüyü başlatın — ardından YouTube/toplantı sekmesini seçin ve sekme sesini açın.",
     audioSource: "Ses kaynağı",
