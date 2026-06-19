@@ -46,11 +46,11 @@ export function useHistory() {
     persist(items.map((h) => (h.id === id ? { ...h, favorite: !h.favorite } : h)));
 
   const clear = () => persist([]);
-  const exportJson = () => {
+  const exportJson = (filenamePrefix = "history") => {
     const blob = new Blob([JSON.stringify(items, null, 2)], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `gecmis-${Date.now()}.json`;
+    a.download = `${filenamePrefix}-${Date.now()}.json`;
     a.click();
   };
 

@@ -26,7 +26,7 @@ async def upload_and_translate(
     target_lang: str = Form("en"),
     doc_type: str = Form("general"),
 ):
-    allowed = {".pdf", ".docx", ".pptx"}
+    allowed = {".pdf", ".docx"}
     suffix = Path(file.filename or "").suffix.lower()
     if suffix not in allowed:
         raise HTTPException(400, f"Unsupported format. Allowed: {allowed}")

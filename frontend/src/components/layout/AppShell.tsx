@@ -216,7 +216,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <LocaleToggle />
         </header>
 
-        <main className="gb-main-inner gb-main-with-tabs flex-1">{children}</main>
+        <main
+          className={cn(
+            "gb-main-inner gb-main-with-tabs flex min-h-0 flex-1 flex-col",
+            pathname === "/" && "gb-main-home"
+          )}
+        >
+          {children}
+        </main>
 
         <nav
           className="gb-bottom-nav lg:hidden"
@@ -238,7 +245,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </nav>
 
         <footer
-          className="hidden border-t px-6 py-3 text-center text-[0.65rem] lg:block"
+          className={cn(
+            "hidden border-t px-6 py-3 text-center text-[0.65rem] lg:block",
+            pathname === "/" && "lg:hidden"
+          )}
           style={{ borderColor: "var(--gb-border-subtle)", color: "var(--gb-muted)" }}
         >
           {m.brand.footer}

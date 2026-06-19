@@ -66,13 +66,16 @@ export const en = {
     subtitle: "Recent translations — click one to restore on the translate screen.",
     panelTitle: "History",
     export: "Export",
+    exportFilename: "history",
     empty: "No translations yet.",
   },
   glossary: {
     title: "Glossary",
     subtitle: "Local term overrides — like Parley.",
-    source: "Source",
-    target: "Target",
+    sourceLang: "Source lang",
+    targetLang: "Target lang",
+    source: "Source term",
+    target: "Target term",
     add: "Add",
   },
   document: {
@@ -91,8 +94,16 @@ export const en = {
     targetLang: "Target language",
     uploading: "Uploading…",
     dropzone: "Drag PDF / DOCX or click (batch supported)",
+    pptxNote: "PPTX support coming soon",
     bilingual: "Bilingual",
     download: "Download",
+    status: {
+      pending: "Pending",
+      processing: "Processing",
+      translating: "Translating",
+      completed: "Completed",
+      failed: "Failed",
+    },
   },
   meeting: {
     title: "Keet & Online Meeting",
@@ -159,6 +170,21 @@ export const en = {
     provider: "Translation",
     qvacOn: "QVAC active",
     qvacOff: "QVAC offline — start qvac-service",
+    egress: {
+      qvac_offline: "QVAC bridge offline — translation disabled (passthrough)",
+      text_to_together: "Translated text sent to Together AI API",
+      summary_to_cloud: "Meeting summary sent to cloud",
+      together_fallback: "Together AI fallback if QVAC fails",
+    },
+    guarantees: {
+      no_audio_egress: "Audio never leaves your device",
+      no_transcript_cloud: "Transcripts are not sent to the cloud",
+      translation_local_qvac: "Translation is fully local via QVAC",
+      pdf_local: "PDF processing stays on local server",
+      stt_local: "STT always local",
+      translation_qvac_first: "Translation prefers local QVAC",
+      stt_still_local: "STT (Whisper) still local",
+    },
   },
   pack: {
     bundled: "built-in",
@@ -217,4 +243,14 @@ export const en = {
   },
 } as const;
 
-export type Messages = typeof en;
+type DeepString<T> = {
+  [K in keyof T]: T[K] extends ReadonlyArray<infer U>
+    ? U extends object
+      ? ReadonlyArray<{ [P in keyof U]: string }>
+      : ReadonlyArray<string>
+    : T[K] extends object
+      ? DeepString<T[K]>
+      : string;
+};
+
+export type Messages = DeepString<typeof en>;

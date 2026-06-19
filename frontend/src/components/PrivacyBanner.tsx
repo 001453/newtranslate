@@ -49,7 +49,13 @@ export function PrivacyBanner() {
   if (!status) return null;
 
   const isSovereign = status.mode === "sovereign" || status.local_processing_only;
-  const egress = (status.data_egress_points as string[]) ?? [];
+  const egressKeys = (status.data_egress_points as string[]) ?? [];
+  const guaranteeKeys = (status.guarantees as string[]) ?? [];
+
+  const egressLabel = (key: string) =>
+    m.privacy.egress[key as keyof typeof m.privacy.egress] ?? key;
+  const guaranteeLabel = (key: string) =>
+    m.privacy.guarantees[key as keyof typeof m.privacy.guarantees] ?? key;
 
   return (
     <div
@@ -71,10 +77,17 @@ export function PrivacyBanner() {
         {m.privacy.provider}: {status.translation_provider}
         {status.qvac_available ? ` · ${m.privacy.qvacOn}` : ` · ${m.privacy.qvacOff}`}
       </div>
-      {egress.length > 0 && (
+      {guaranteeKeys.length > 0 && (
         <ul className="mt-1 list-inside list-disc text-xs opacity-75">
-          {egress.map((e, i) => (
-            <li key={i}>{e}</li>
+          {guaranteeKeys.map((key, i) => (
+            <li key={i}>{guaranteeLabel(key)}</li>
+          ))}
+        </ul>
+      )}
+      {egressKeys.length > 0 && (
+        <ul className="mt-1 list-inside list-disc text-xs opacity-75">
+          {egressKeys.map((key, i) => (
+            <li key={i}>{egressLabel(key)}</li>
           ))}
         </ul>
       )}

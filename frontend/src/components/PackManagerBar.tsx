@@ -3,12 +3,13 @@
 import { PackManager } from "@/components/PackManager";
 import { useLanguagePacks } from "@/hooks/useLanguagePacks";
 
-export function PackManagerBar({ from, to }: { from: string; to: string }) {
+export function PackManagerBar({ from, to, compact = false }: { from: string; to: string; compact?: boolean }) {
   const packs = useLanguagePacks();
   return (
     <PackManager
       from={from}
       to={to}
+      compact={compact}
       ready={packs.isPairReady(from, to)}
       bundled={packs.isBundled(from, to)}
       modelLoaded={packs.modelLoaded}

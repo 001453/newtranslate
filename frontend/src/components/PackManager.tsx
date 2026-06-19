@@ -16,6 +16,7 @@ type Props = {
   progress: number | null;
   onDownload: () => void;
   onRefresh: () => void;
+  compact?: boolean;
 };
 
 export function PackManager(p: Props) {
@@ -23,14 +24,24 @@ export function PackManager(p: Props) {
 
   if (p.bundled) {
     return (
-      <div className="flex items-center gap-2 border-t border-[var(--gb-border)] bg-[var(--gb-surface-2)] px-4 py-3 text-sm text-[var(--gb-success)]">
+      <div
+        className={cn(
+          "flex items-center gap-2 border-t border-[var(--gb-border)] bg-[var(--gb-surface-2)] text-[var(--gb-success)]",
+          p.compact ? "gb-pack-compact text-xs" : "px-4 py-3 text-sm"
+        )}
+      >
         <CheckCircle2 className="h-4 w-4" />
         {langName(p.from)} ↔ {langName(p.to)} {m.pack.bundled}
       </div>
     );
   }
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--gb-border)] bg-[var(--gb-surface-2)] p-4">
+    <div
+      className={cn(
+        "flex flex-wrap items-center justify-between gap-3 border-t border-[var(--gb-border)] bg-[var(--gb-surface-2)]",
+        p.compact ? "gb-pack-compact" : "p-4"
+      )}
+    >
       <div>
         <p className={cn("text-sm font-medium", p.ready ? "text-[var(--gb-success)]" : "text-[var(--gb-warning)]")}>
           {p.ready ? m.pack.enabled : `${m.pack.optional}: ${langName(p.from)} → ${langName(p.to)}`}

@@ -35,7 +35,7 @@ export function ModuleQuickBar({ className }: { className?: string }) {
   const { messages: m } = useLocale();
 
   return (
-    <div className={cn("flex flex-wrap justify-center gap-2", className)}>
+    <div className={cn("flex flex-wrap items-center gap-1.5", className)}>
       {moduleKeys.map(({ href, icon: Icon, key }) => {
         const active = pathname === href || pathname.startsWith(`${href}/`);
         const label = m.modules[key];

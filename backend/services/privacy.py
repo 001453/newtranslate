@@ -53,23 +53,23 @@ class PrivacyService:
             effective_provider = "qvac" if qvac_ok else "whisper-only (qvac offline)"
             stt = "faster-whisper-local"
             guarantees = [
-                "Ses verisi cihazdan çıkmaz",
-                "Transkript buluta gönderilmez",
-                "Çeviri QVAC ile tamamen lokal",
-                "PDF işleme lokal sunucuda kalır",
+                "no_audio_egress",
+                "no_transcript_cloud",
+                "translation_local_qvac",
+                "pdf_local",
             ]
             if not qvac_ok:
-                egress.append("QVAC bridge çalışmıyor — çeviri devre dışı (passthrough)")
+                egress.append("qvac_offline")
         elif provider == TranslationProvider.TOGETHER.value:
             mode = "cloud"
             cloud_allowed = True
             effective_provider = "together-ai"
             stt = "faster-whisper-local"
             egress = [
-                "Çevrilmiş metin Together AI API'ye gider",
-                "Toplantı özeti buluta gider",
+                "text_to_together",
+                "summary_to_cloud",
             ]
-            guarantees = ["STT (Whisper) hâlâ lokal"]
+            guarantees = ["stt_still_local"]
         else:  # auto
             mode = "hybrid"
             cloud_allowed = settings.allow_cloud_fallback
@@ -77,11 +77,11 @@ class PrivacyService:
                 "together-ai" if settings.allow_cloud_fallback else "none"
             )
             stt = "faster-whisper-local"
-            guarantees = ["STT her zaman lokal"]
+            guarantees = ["stt_local"]
             if qvac_ok:
-                guarantees.append("Çeviri öncelikle QVAC lokal")
+                guarantees.append("translation_qvac_first")
             if settings.allow_cloud_fallback:
-                egress.append("QVAC başarısız olursa Together AI fallback")
+                egress.append("together_fallback")
 
         return PrivacyStatus(
             mode=mode,

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { addGlossaryTerm, deleteGlossaryTerm, listGlossary } from "@/lib/api";
 import { useLocale } from "@/hooks/useLocale";
-import { LANGUAGES } from "@/lib/languages";
+import { LANGUAGES, langName } from "@/lib/languages";
 import { Plus, Trash2 } from "lucide-react";
 
 export function GlossaryManager() {
@@ -15,6 +15,8 @@ export function GlossaryManager() {
   const [target, setTarget] = useState("");
   const [sl, setSl] = useState("en");
   const [tl, setTl] = useState("tr");
+
+  const langOptions = LANGUAGES.filter((l) => l.code !== "auto");
 
   const load = () => listGlossary().then((d) => setTerms(d.terms)).catch(() => setTerms([]));
   useEffect(() => {
@@ -28,14 +30,31 @@ export function GlossaryManager() {
         <p className="gb-page-sub mt-1">{m.glossary.subtitle}</p>
       </header>
       <div className="gb-card overflow-hidden">
-        <div className="grid gap-2 border-b border-[var(--gb-border)] p-4 sm:grid-cols-5">
-          <select className="gb-select" value={sl} onChange={(e) => setSl(e.target.value)}>
-            {LANGUAGES.filter((l) => l.code !== "auto").map((l) => (
-              <option key={l.code} value={l.code}>
-                {l.code}
-              </option>
-            ))}
-          </select>
+        <div className="grid gap-2 border-b border-[var(--gb-border)] p-4 sm:grid-cols-6">
+          <div>
+            <label className="mb-1 block text-[0.65rem] font-bold uppercase text-[var(--gb-muted)]">
+              {m.glossary.sourceLang}
+            </label>
+            <select className="gb-select" value={sl} onChange={(e) => setSl(e.target.value)}>
+              {langOptions.map((l) => (
+                <option key={l.code} value={l.code}>
+                  {langName(l.code)}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-[0.65rem] font-bold uppercase text-[var(--gb-muted)]">
+              {m.glossary.targetLang}
+            </label>
+            <select className="gb-select" value={tl} onChange={(e) => setTl(e.target.value)}>
+              {langOptions.map((l) => (
+                <option key={l.code} value={l.code}>
+                  {langName(l.code)}
+                </option>
+              ))}
+            </select>
+          </div>
           <input
             className="gb-input sm:col-span-2"
             placeholder={m.glossary.source}
@@ -50,7 +69,7 @@ export function GlossaryManager() {
           />
           <button
             type="button"
-            className="gb-btn-primary"
+            className="gb-btn-primary self-end"
             onClick={async () => {
               await addGlossaryTerm({ source, target, source_lang: sl, target_lang: tl });
               setSource("");

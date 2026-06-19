@@ -20,7 +20,7 @@ export default function HistoryPage() {
         items={items}
         onToggleFavorite={toggleFavorite}
         onClear={clear}
-        onExport={exportJson}
+        onExport={() => exportJson(m.history.exportFilename)}
         onSelect={(h) => {
           sessionStorage.setItem(
             "gb-restore",

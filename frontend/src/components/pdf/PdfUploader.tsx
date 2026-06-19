@@ -15,6 +15,11 @@ export function PdfUploader() {
   >([]);
   const [uploading, setUploading] = useState(false);
 
+  const statusLabel = (status: string) => {
+    const key = status as keyof typeof m.pdf.status;
+    return m.pdf.status[key] ?? status;
+  };
+
   const pollJob = useCallback(async (jobId: string) => {
     const interval = setInterval(async () => {
       try {
@@ -54,7 +59,10 @@ export function PdfUploader() {
     <div className="mx-auto max-w-4xl space-y-6">
       <header className="gb-hero">
         <h1 className="gb-page-title text-2xl">{m.pdf.title}</h1>
-        <p className="gb-page-sub mt-1">{m.pdf.subtitle}</p>
+        <p className="gb-page-sub mt-1">
+          {m.pdf.subtitle}
+          <span className="mt-1 block text-xs opacity-75">{m.pdf.pptxNote}</span>
+        </p>
       </header>
 
       <div className="gb-card grid gap-4 p-5 sm:grid-cols-2">
@@ -89,7 +97,7 @@ export function PdfUploader() {
         <span className="text-sm font-medium">{uploading ? m.pdf.uploading : m.pdf.dropzone}</span>
         <input
           type="file"
-          accept=".pdf,.docx,.pptx"
+          accept=".pdf,.docx"
           multiple
           className="hidden"
           onChange={(e) => handleUpload(e.target.files)}
@@ -104,7 +112,7 @@ export function PdfUploader() {
               <div>
                 <div className="font-medium">{job.filename}</div>
                 <div className="text-sm text-[var(--gb-muted)]">
-                  {job.status}
+                  {statusLabel(job.status)}
                   {job.status === "translating" && ` — ${Math.round(job.progress * 100)}%`}
                 </div>
                 {job.status !== "completed" && job.status !== "failed" && (

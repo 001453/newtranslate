@@ -8,23 +8,24 @@ export function HomePage() {
   const { messages: m } = useLocale();
 
   return (
-    <div className="mx-auto max-w-4xl space-y-8">
-      <header className="gb-hero">
-        <div>
-          <p className="gb-hero-eyebrow">GlobalBridge AI</p>
-          <h1 className="gb-page-title text-3xl">{m.home.title}</h1>
-          <p className="gb-page-sub mt-2 max-w-xl text-base">{m.home.subtitle}</p>
-        </div>
-      </header>
+    <div className="gb-home">
+      <div className="gb-card gb-home-card">
+        <header className="gb-home-head">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-base font-bold tracking-tight lg:text-lg">{m.home.title}</h1>
+            <p className="mt-0.5 text-xs text-[var(--gb-muted)]">{m.home.subtitle}</p>
+          </div>
+          <div className="gb-home-head-modules hidden shrink-0 lg:block">
+            <ModuleQuickBar />
+          </div>
+        </header>
 
-      <TranslatorPanel compact />
+        <TranslatorPanel compact unified />
 
-      <section className="hidden lg:block">
-        <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--gb-muted)]">
-          {m.nav.otherModules}
-        </p>
-        <ModuleQuickBar />
-      </section>
+        <footer className="gb-home-modules lg:hidden">
+          <ModuleQuickBar />
+        </footer>
+      </div>
     </div>
   );
 }

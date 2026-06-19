@@ -35,6 +35,8 @@ class SummaryService:
 
         transcript_text = "\n".join(lines)[-15000:]  # token limit safety
 
+        user_msg = f"Preferred output language: {language}\n\nTranscript:\n{transcript_text}"
+
         if self.settings.local_processing_only or self.settings.offline_mode:
             if await qvac_client.is_available():
                 try:
@@ -54,8 +56,6 @@ class SummaryService:
             api_key=self.settings.together_api_key,
             base_url=self.settings.together_base_url,
         )
-
-        user_msg = f"Preferred output language: {language}\n\nTranscript:\n{transcript_text}"
 
         try:
             response = await client.chat.completions.create(

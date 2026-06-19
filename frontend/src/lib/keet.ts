@@ -26,22 +26,3 @@ export function keetOpenHref(invite: string): string {
 
 export const KEET_DOWNLOAD_URL = "https://keet.io/";
 export const KEET_HELP_JOIN = "https://support.keet.io/keet-groups/joining-groups/";
-
-export const KEET_SETUP_STEPS = [
-  {
-    title: "Keet'i açın",
-    body: "Keet uçtan uca şifreli P2P görüşme sağlar — sunucu yok, doğrudan bağlantı. Henüz yoksa keet.io adresinden indirin.",
-  },
-  {
-    title: "Oda davetini yapıştırın",
-    body: "Keet'te oda oluşturun veya davet linkini alın (keet://…). Linki aşağıya yapıştırın — Keet uygulamasında açılır.",
-  },
-  {
-    title: "Ana dilinizi seçin",
-    body: "Altyazılar sizin ana dilinizde görünür. Karşı taraf farklı dilde konuşursa otomatik çevrilir; siz konuşunca kendi dilinizde görürsünüz.",
-  },
-  {
-    title: "Köprüyü başlatın",
-    body: "Keet sekmesinin sesini paylaşın (veya mikrofon). GlobalBridge yerel QVAC ile anlık altyazı üretir — ses buluta gitmez.",
-  },
-] as const;

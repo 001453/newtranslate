@@ -18,7 +18,7 @@ import { ArrowLeftRight, ClipboardPaste, Copy, FileUp, History, Mic, Star, Trash
 
 const AUTO_MS = 450;
 
-export function TranslatorPanel({ compact = true }: { compact?: boolean }) {
+export function TranslatorPanel({ compact = true, unified = false }: { compact?: boolean; unified?: boolean }) {
   const { messages: m, locale, hydrated } = useLocale();
   const [from, setFrom] = useState("en");
   const [to, setTo] = useState("tr");
@@ -158,10 +158,10 @@ export function TranslatorPanel({ compact = true }: { compact?: boolean }) {
   };
 
   return (
-    <div className={cn("flex flex-col gap-4", !compact && "xl:flex-row")}>
-      <div className="min-w-0 flex-1">
+    <div className={cn("flex flex-col", !compact && "gap-4 xl:flex-row", unified && "gb-translate-unified")}>
+      <div className={cn("min-w-0 flex-1", unified && "flex min-h-0 flex-col")}>
         {pins.length > 0 && (
-          <div className="mb-2 flex flex-wrap gap-1">
+          <div className={cn("flex flex-wrap gap-1", unified ? "px-3 pt-2" : "mb-2")}>
             {pins.map((k) => {
               const [f, t] = k.split("-");
               return (
@@ -181,11 +181,23 @@ export function TranslatorPanel({ compact = true }: { compact?: boolean }) {
           </div>
         )}
 
-        <div className="gb-card gb-translate-card overflow-hidden">
-          <div className="gb-lang-bar flex items-end gap-2 border-b border-[var(--gb-border)] bg-[var(--gb-surface-2)] p-3">
+        <div
+          className={cn(
+            !unified && "gb-card gb-translate-card overflow-hidden",
+            unified && "gb-translate-body flex min-h-0 flex-1 flex-col overflow-hidden"
+          )}
+        >
+          <div
+            className={cn(
+              "gb-lang-bar flex items-end gap-2 border-b border-[var(--gb-border)]",
+              unified ? "px-3 py-2" : "p-3"
+            )}
+          >
             <div className="flex-1">
-              <label className="text-[0.65rem] font-bold uppercase text-[var(--gb-muted)]">{m.translate.source}</label>
-              <select className="gb-select mt-1" value={from} onChange={(e) => setFrom(e.target.value)}>
+              <label className={cn("font-bold uppercase text-[var(--gb-muted)]", unified ? "text-[0.6rem]" : "text-[0.65rem]")}>
+                {m.translate.source}
+              </label>
+              <select className={cn("gb-select", unified ? "mt-0.5 py-1 text-xs" : "mt-1")} value={from} onChange={(e) => setFrom(e.target.value)}>
                 {LANGUAGES.map((l) => (
                   <option key={l.code} value={l.code}>
                     {l.name}
@@ -196,7 +208,10 @@ export function TranslatorPanel({ compact = true }: { compact?: boolean }) {
             <button
               type="button"
               disabled={from === "auto"}
-              className="mb-1 flex h-9 w-9 items-center justify-center rounded-full border border-[var(--gb-border)]"
+              className={cn(
+                "flex items-center justify-center rounded-full border border-[var(--gb-border)]",
+                unified ? "mb-0.5 h-8 w-8" : "mb-1 h-9 w-9"
+              )}
               onClick={() => {
                 setFrom(to);
                 setTo(from);
@@ -207,8 +222,10 @@ export function TranslatorPanel({ compact = true }: { compact?: boolean }) {
               <ArrowLeftRight className="h-4 w-4" />
             </button>
             <div className="flex-1">
-              <label className="text-[0.65rem] font-bold uppercase text-[var(--gb-muted)]">{m.translate.target}</label>
-              <select className="gb-select mt-1" value={to} onChange={(e) => setTo(e.target.value)}>
+              <label className={cn("font-bold uppercase text-[var(--gb-muted)]", unified ? "text-[0.6rem]" : "text-[0.65rem]")}>
+                {m.translate.target}
+              </label>
+              <select className={cn("gb-select", unified ? "mt-0.5 py-1 text-xs" : "mt-1")} value={to} onChange={(e) => setTo(e.target.value)}>
                 {LANGUAGES.filter((l) => l.code !== "auto").map((l) => (
                   <option key={l.code} value={l.code}>
                     {l.name}
@@ -218,25 +235,38 @@ export function TranslatorPanel({ compact = true }: { compact?: boolean }) {
             </div>
             <button
               type="button"
-              className={cn("mb-1 rounded-lg border p-2", isPinned(from, to) && "border-amber-400 text-amber-400")}
+              className={cn("rounded-lg border p-2", unified ? "mb-0.5" : "mb-1", isPinned(from, to) && "border-amber-400 text-amber-400")}
               onClick={() => togglePin(from, to)}
             >
               <Star className={cn("h-4 w-4", isPinned(from, to) && "fill-amber-400")} />
             </button>
           </div>
 
-          <div className="grid md:grid-cols-2">
-            <div className="border-[var(--gb-border)] md:border-r">
-              <div className="gb-panel-head flex items-center justify-between">
-                <span>{m.translate.source}</span>
-                {listening && (
-                  <span className="flex items-center gap-1 font-normal normal-case text-[var(--gb-danger)]">
-                    <Mic className="h-3 w-3 animate-pulse" /> {m.translate.listening}
-                  </span>
-                )}
-              </div>
-              <textarea
-                className="min-h-[240px] w-full resize-none bg-transparent p-4 text-[0.95rem] leading-relaxed outline-none"
+          <div className={cn("grid md:grid-cols-2", unified && "gb-translate-panes min-h-0 flex-1")}>
+            <div className={cn("border-[var(--gb-border)] md:border-r", unified && "gb-translate-pane")}>
+              {!unified && (
+                <div className="gb-panel-head flex items-center justify-between">
+                  <span>{m.translate.source}</span>
+                  {listening && (
+                    <span className="flex items-center gap-1 font-normal normal-case text-[var(--gb-danger)]">
+                      <Mic className="h-3 w-3 animate-pulse" /> {m.translate.listening}
+                    </span>
+                  )}
+                </div>
+              )}
+              {unified && listening && (
+                <div className="flex items-center gap-1 border-b border-[var(--gb-border-subtle)] px-3 py-1 text-xs text-[var(--gb-danger)]">
+                  <Mic className="h-3 w-3 animate-pulse" /> {m.translate.listening}
+                </div>
+              )}
+              <div className={cn(unified && "relative min-h-[10rem] flex-1")}>
+                <textarea
+                  className={cn(
+                    "w-full bg-transparent outline-none",
+                    unified
+                      ? "gb-translate-editor absolute inset-0 h-full w-full p-3 text-sm leading-snug"
+                      : "min-h-[240px] resize-none p-4 text-[0.95rem] leading-relaxed"
+                  )}
                 placeholder={m.translate.placeholder}
                 value={source}
                 onChange={(e) => {
@@ -250,7 +280,8 @@ export function TranslatorPanel({ compact = true }: { compact?: boolean }) {
                   }
                 }}
               />
-              <div className="flex flex-wrap gap-1 border-t border-[var(--gb-border)] p-2">
+              </div>
+              <div className={cn("flex flex-wrap gap-1 border-t border-[var(--gb-border)]", unified ? "p-1.5" : "p-2")}>
                 <input
                   ref={fileRef}
                   type="file"
@@ -307,17 +338,34 @@ export function TranslatorPanel({ compact = true }: { compact?: boolean }) {
                 </button>
               </div>
             </div>
-            <div>
-              <div className="gb-panel-head flex items-center justify-between">
-                <span>{m.translate.translation}</span>
-                {loading && (
-                  <span className="font-normal normal-case text-[var(--gb-accent)]">{m.translate.translating}</span>
-                )}
+            <div className={cn(unified && "gb-translate-pane")}>
+              {!unified && (
+                <div className="gb-panel-head flex items-center justify-between">
+                  <span>{m.translate.translation}</span>
+                  {loading && (
+                    <span className="font-normal normal-case text-[var(--gb-accent)]">{m.translate.translating}</span>
+                  )}
+                </div>
+              )}
+              {unified && loading && (
+                <div className="border-b border-[var(--gb-border-subtle)] px-3 py-1 text-xs text-[var(--gb-accent)]">
+                  {m.translate.translating}
+                </div>
+              )}
+              <div className={cn(unified && "relative min-h-[10rem] flex-1")}>
+                <div
+                  className={cn(
+                    "whitespace-pre-wrap",
+                    unified
+                      ? "gb-translate-output absolute inset-0 h-full overflow-y-auto p-3 text-sm leading-snug"
+                      : "min-h-[240px] p-4 text-[0.95rem] leading-relaxed",
+                    loading && "opacity-70"
+                  )}
+                >
+                  {target || (source.trim() ? "…" : m.translate.result)}
+                </div>
               </div>
-              <div className={cn("min-h-[240px] whitespace-pre-wrap p-4 text-[0.95rem] leading-relaxed", loading && "opacity-70")}>
-                {target || (source.trim() ? "…" : m.translate.result)}
-              </div>
-              <div className="flex justify-end gap-1 border-t border-[var(--gb-border)] p-2">
+              <div className={cn("flex justify-end gap-1 border-t border-[var(--gb-border)]", unified ? "p-1.5" : "p-2")}>
                 <button
                   type="button"
                   className="gb-btn-ghost text-xs"
@@ -330,7 +378,12 @@ export function TranslatorPanel({ compact = true }: { compact?: boolean }) {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--gb-border)] bg-[var(--gb-surface-2)] px-4 py-3">
+          <div
+            className={cn(
+              "flex flex-wrap items-center justify-between gap-2 border-t border-[var(--gb-border)] bg-[var(--gb-surface-2)]",
+              unified ? "px-3 py-2" : "px-4 py-3"
+            )}
+          >
             <span className="text-xs text-[var(--gb-muted)]">
               {m.translate.shortcuts}
               {compact && (
@@ -352,7 +405,7 @@ export function TranslatorPanel({ compact = true }: { compact?: boolean }) {
               {m.translate.send}
             </button>
           </div>
-          <PackManagerBar from={from} to={to} />
+          <PackManagerBar from={from} to={to} compact={unified} />
         </div>
       </div>
 
@@ -366,13 +419,13 @@ export function TranslatorPanel({ compact = true }: { compact?: boolean }) {
             listening={listening}
             onMicToggle={toggle}
             supported={supported}
-            statusLabel={listening ? "Dinleniyor…" : undefined}
+            statusLabel={listening ? m.mic.stopDictation : undefined}
           />
           <HistoryPanel
             items={items}
             onToggleFavorite={toggleFavorite}
             onClear={clear}
-            onExport={exportJson}
+            onExport={() => exportJson(m.history.exportFilename)}
             onSelect={applyHistory}
           />
         </div>

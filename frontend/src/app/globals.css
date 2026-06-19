@@ -347,4 +347,67 @@ body {
   .gb-lang-bar {
     background: linear-gradient(180deg, var(--gb-surface-2) 0%, var(--gb-surface) 100%);
   }
+
+  .gb-main-home {
+    @apply mx-0 w-full max-w-none p-3 lg:p-4;
+  }
+
+  .gb-home {
+    @apply flex min-h-0 w-full flex-1 flex-col;
+  }
+
+  .gb-home-card {
+    @apply flex min-h-0 flex-1 flex-col overflow-hidden;
+    box-shadow: var(--gb-shadow);
+  }
+
+  .gb-home-head {
+    @apply flex flex-wrap items-center gap-3 border-b px-4 py-2.5;
+    border-color: var(--gb-border-subtle);
+    background: linear-gradient(135deg, var(--gb-surface) 0%, var(--gb-surface-2) 100%);
+  }
+
+  .gb-home-head-modules {
+    @apply max-w-[52%];
+  }
+
+  .gb-home-modules {
+    @apply shrink-0 border-t px-3 py-2;
+    border-color: var(--gb-border-subtle);
+    background: var(--gb-surface-2);
+  }
+
+  .gb-home-head-modules .gb-module-chip,
+  .gb-home-modules .gb-module-chip {
+    @apply px-2.5 py-1 text-[0.7rem];
+  }
+
+  .gb-translate-unified {
+    @apply flex min-h-0 flex-1 flex-col;
+  }
+
+  .gb-translate-unified .gb-translate-body {
+    @apply flex min-h-0 flex-1 flex-col;
+  }
+
+  .gb-translate-unified .gb-translate-panes {
+    @apply min-h-0 flex-1 md:grid-rows-[1fr];
+  }
+
+  .gb-translate-unified .gb-translate-pane {
+    @apply flex min-h-0 flex-col;
+  }
+
+  .gb-translate-unified .gb-translate-editor,
+  .gb-translate-unified .gb-translate-output {
+    @apply resize-none;
+  }
+
+  .gb-translate-unified .gb-lang-bar select {
+    @apply py-1 text-xs;
+  }
+
+  .gb-translate-unified .gb-pack-compact {
+    @apply px-4 py-2 text-xs;
+  }
 }

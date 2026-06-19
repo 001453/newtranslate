@@ -146,6 +146,9 @@ async def privacy_status():
         "mode": status.mode,
         "local_processing_only": status.local_processing_only,
         "translation_provider": status.translation_provider,
+        "stt_provider": status.stt_provider,
         "qvac_available": status.qvac_available,
+        "cloud_allowed": status.cloud_allowed,
+        "data_egress_points": status.data_egress_points,
         "guarantees": status.guarantees,
     }
