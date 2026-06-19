@@ -40,10 +40,6 @@ export function TranslatorPanel({ compact = true, unified = false }: { compact?:
 
   const dictLang = from === "auto" ? defaultTranslationPair(locale).from : from;
 
-  const dictationStatus = listening
-    ? fmt(m.conversation.listeningLang, { lang: langName(dictLang) })
-    : fmt(m.conversation.dictateLang, { lang: langName(dictLang) });
-
   const dictationErrorText = (code: string | null): string | null => {
     if (!code) return null;
     const map = m.mic.dictationErrors;
@@ -96,6 +92,10 @@ export function TranslatorPanel({ compact = true, unified = false }: { compact?:
   }, []);
 
   const { listening, supported, error: dictationError, toggle, stop } = useSpeechDictation(dictLang, onDictation);
+
+  const dictationStatus = listening
+    ? fmt(m.conversation.listeningLang, { lang: langName(dictLang) })
+    : fmt(m.conversation.dictateLang, { lang: langName(dictLang) });
 
   useEffect(() => {
     if (settingsReady) requestPermission();
