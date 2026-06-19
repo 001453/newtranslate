@@ -5,10 +5,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { HistoryPanel } from "@/components/HistoryPanel";
 import { PackManagerBar } from "@/components/PackManagerBar";
 import { MicSidebar } from "@/components/shared/MicSidebar";
+import { AudioLevelBar } from "@/components/shared/AudioLevelBar";
 import { useHistory, usePinnedPairs } from "@/hooks/useLocalStore";
 import { defaultTranslationPair, useLocale } from "@/hooks/useLocale";
 import { useLanguagePacks } from "@/hooks/useLanguagePacks";
 import { useMicDevices } from "@/hooks/useMicDevices";
+import { useMicLevel } from "@/hooks/useMicLevel";
 import { useMicSettings } from "@/hooks/useMicSettings";
 import { useSpeechDictation } from "@/hooks/useSpeechDictation";
 import { translateText } from "@/lib/api";
@@ -92,6 +94,7 @@ export function TranslatorPanel({ compact = true, unified = false }: { compact?:
   }, []);
 
   const { listening, supported, error: dictationError, toggle, stop } = useSpeechDictation(dictLang, onDictation);
+  const micLevel = useMicLevel(listening, settings.deviceId || undefined);
 
   const dictationStatus = listening
     ? fmt(m.conversation.listeningLang, { lang: langName(dictLang) })
@@ -281,8 +284,11 @@ export function TranslatorPanel({ compact = true, unified = false }: { compact?:
                 </div>
               )}
               {unified && listening && (
-                <div className="flex items-center gap-1 border-b border-[var(--gb-border-subtle)] px-3 py-1 text-xs text-[var(--gb-danger)]">
-                  <Mic className="h-3 w-3 animate-pulse" /> {m.translate.listening}
+                <div className="space-y-2 border-b border-[var(--gb-border-subtle)] px-3 py-2">
+                  <div className="flex items-center gap-1 text-xs text-[var(--gb-danger)]">
+                    <Mic className="h-3 w-3 animate-pulse" /> {m.translate.listening}
+                  </div>
+                  <AudioLevelBar level={micLevel} active={listening} compact />
                 </div>
               )}
               <div className={cn(unified && "relative min-h-[10rem] flex-1")}>

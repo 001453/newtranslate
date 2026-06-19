@@ -190,7 +190,7 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }); // eslint-disable-line react-hooks/exhaustive-deps
+  });
 
   const saveInvite = (v: string) => {
     setKeetInvite(v);

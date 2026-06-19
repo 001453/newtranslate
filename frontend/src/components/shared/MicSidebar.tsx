@@ -1,6 +1,8 @@
 "use client";
 
 import { Keyboard, Mic, Volume2 } from "lucide-react";
+import { AudioLevelBar } from "@/components/shared/AudioLevelBar";
+import { useMicLevel } from "@/hooks/useMicLevel";
 import { useLocale } from "@/hooks/useLocale";
 import { cn } from "@/lib/utils";
 
@@ -33,6 +35,7 @@ export function MicSidebar({
 }) {
   const { messages: m } = useLocale();
   const locked = mode === "live" && sessionActive;
+  const audioLevel = useMicLevel(listening, deviceId || undefined);
 
   const hotkeys =
     mode === "live"
@@ -116,6 +119,8 @@ export function MicSidebar({
             />
             {defaultStatus}
           </div>
+
+          {listening && <AudioLevelBar level={audioLevel} active={listening} />}
 
           {!supported && (
             <p className="text-[0.65rem] text-[var(--gb-danger)]">{m.mic.unsupported}</p>
