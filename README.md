@@ -101,37 +101,58 @@ newtranslate/
 
 ### Requirements
 
-- **Node.js 20+**
-- **Python 3.12+**
-- **Google Chrome** (recommended for tab audio / YouTube / meetings)
-- **[QVAC SDK](https://qvac.tether.io/)** (via `qvac-service`)
-- NVIDIA GPU + CUDA (optional, speeds up Whisper)
+| Tool | Version | Notes |
+|------|---------|-------|
+| **Node.js** | 20+ | `node -v` |
+| **Python** | 3.12+ | Used for backend + Whisper |
+| **Google Chrome** | Latest | Required for tab audio (YouTube / Keet / Zoom) |
+| **Git** | Any | Clone the repo |
+| **NVIDIA GPU + CUDA** | Optional | Speeds up Whisper STT |
 
-### Install & run
+On Windows, install Python from [python.org](https://www.python.org/) and check **“Add Python to PATH”**.
+
+---
+
+### 1. First-time install
 
 ```bash
 git clone https://github.com/001453/newtranslate.git
 cd newtranslate
-npm run setup    # Creates .env + frontend/.env.local from examples
-npm run dev      # QVAC :8765 + API :8000 + Web :3000
+npm run setup
 ```
 
-Open **http://localhost:3000**
+`npm run setup` does the following automatically:
 
-| Service | Port | Role |
-|---------|------|------|
-| QVAC bridge | 8765 | Local NMT + LLM (`@qvac/sdk`) |
-| Backend | 8000 | FastAPI API + WebSocket |
-| Frontend | 3000 | Next.js UI |
+1. Copies `.env.example` → `.env` and syncs to `backend/.env`
+2. Copies `frontend/.env.example` → `frontend/.env.local`
+3. Runs `npm install` in `qvac-service/` and `frontend/`
+4. Creates `backend/.venv` (if missing) and installs Python deps from `requirements.txt`
+5. Creates `backend/data/` for uploads and SQLite
 
-**Windows (separate terminal windows):**
+**No API keys required** for Sovereign Mode — QVAC runs locally.
+
+---
+
+### 2. Run all services
+
+**Option A — single terminal (recommended):**
+
+```bash
+npm run dev
+```
+
+Starts **QVAC (8765) + API (8000) + Web (3000)** in one window. Press **Ctrl+C** to stop all.
+
+**Option B — separate terminal windows:**
+
+Windows:
 
 ```powershell
-npm run setup
+npm run setup          # skip if already done
 .\scripts\start-dev.ps1
 ```
 
-**Linux / macOS:**
+Linux / macOS:
 
 ```bash
 npm run setup
@@ -139,16 +160,132 @@ chmod +x scripts/start-dev.sh
 ./scripts/start-dev.sh
 ```
 
-### Configuration
+**Option C — run services individually** (debugging):
 
-Copy is automatic on first `npm run setup`. Edit locally (never committed):
+```bash
+npm run dev:qvac    # QVAC bridge only  → :8765
+npm run dev:api     # FastAPI backend only → :8000
+npm run dev:web     # Next.js frontend only → :3000
+```
+
+---
+
+### 3. Stop services
+
+| Method | Command |
+|--------|---------|
+| Single terminal (`npm run dev`) | **Ctrl+C** |
+| Stale ports / crashed session | `npm run dev:stop` |
+| Windows separate windows | Close each PowerShell window |
+
+`npm run dev:stop` frees ports **8765, 8000, 3000** before the next start.
+
+---
+
+### 4. Verify everything is running
+
+Open in your browser:
+
+| URL | Expected |
+|-----|----------|
+| http://localhost:3000 | GlobalBridge UI |
+| http://127.0.0.1:8000/health | JSON with `"status": "ok"` and `"qvac_available": true` |
+| http://127.0.0.1:8765/health | QVAC bridge health (if exposed) |
+
+In the UI, the top bar should show **API** and **QVAC** as connected (green).
+
+If QVAC shows offline → wait 30–60 s on first start (model load), or check the QVAC terminal for errors.
+
+---
+
+### 5. Configuration
+
+Files are created by `npm run setup`. Edit locally — **never commit** these:
 
 | File | Purpose |
 |------|---------|
-| `.env` | QVAC URL, Whisper model, privacy flags |
+| `.env` | Backend: QVAC, Whisper, privacy, security |
+| `backend/.env` | Auto-synced copy of root `.env` |
 | `frontend/.env.local` | `NEXT_PUBLIC_API_URL=http://localhost:8000` |
 
+**Sovereign Mode (recommended):**
+
+```env
+LOCAL_PROCESSING_ONLY=true
+TRANSLATION_PROVIDER=qvac
+ALLOW_CLOUD_FALLBACK=false
+QVAC_BRIDGE_URL=http://127.0.0.1:8765
+```
+
+**Security (defaults — safe for local use):**
+
+```env
+API_BIND_HOST=127.0.0.1          # API not reachable from LAN
+API_KEY=                         # empty = no auth on localhost
+MAX_UPLOAD_BYTES=52428800        # 50 MB PDF upload limit
+MAX_BATCH_UPLOADS=10
+```
+
+To expose the API on your LAN, set `API_BIND_HOST=0.0.0.0` **and** a strong `API_KEY`. See [docs/SECURITY.md](docs/SECURITY.md).
+
+**Whisper on CPU (no GPU):**
+
+```env
+WHISPER_MODEL=medium
+WHISPER_DEVICE=cpu
+```
+
 ---
+
+### 6. Update after `git pull`
+
+```bash
+git pull
+npm run setup    # reinstalls Python + npm deps if requirements changed
+npm run dev
+```
+
+---
+
+### 7. Troubleshooting
+
+| Problem | Fix |
+|---------|-----|
+| `Backend venv missing` | Run `npm run setup` |
+| Port already in use (`EADDRINUSE`) | `npm run dev:stop` then `npm run dev` |
+| UI: “QVAC / API offline” | Check `NEXT_PUBLIC_API_URL=http://localhost:8000` in `frontend/.env.local` |
+| Dictation / mic no signal | Windows mic not muted; pick correct device in sidebar; use Chrome |
+| Live captions silent | Chrome → share tab → enable **“Share tab audio”** |
+| Translation 503 | QVAC not running — check port 8765 |
+| `spawn EINVAL` on Windows | Use `npm run dev` (not raw `npm.cmd` in old scripts) |
+
+**Health check from terminal:**
+
+```bash
+curl http://127.0.0.1:8000/health
+```
+
+---
+
+### Service ports
+
+| Service | Port | URL |
+|---------|------|-----|
+| QVAC bridge | 8765 | http://127.0.0.1:8765 |
+| Backend API | 8000 | http://127.0.0.1:8000 |
+| Frontend UI | 3000 | http://localhost:3000 |
+
+All three must run for full translation. API binds to **127.0.0.1** by default (localhost only).
+
+---
+
+### Docker (Sovereign profile)
+
+```bash
+docker compose --profile sovereign up --build
+```
+
+For local development, `npm run dev` is simpler.
 
 ## Usage
 
@@ -168,12 +305,6 @@ Copy is automatic on first `npm run setup`. Edit locally (never committed):
 
 1. Open `/live` — same flow as Keet, but optimized for any browser tab with audio.
 2. Use Chrome; check the setup guide on the page.
-
-### Docker (Sovereign profile)
-
-```bash
-docker compose --profile sovereign up --build
-```
 
 ---
 

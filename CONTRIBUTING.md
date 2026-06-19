@@ -14,7 +14,7 @@ Direct pushes to `main` are **not allowed** (including admins). All changes go t
 ```bash
 git clone https://github.com/001453/newtranslate.git
 cd newtranslate
-npm run setup    # Creates .env + frontend/.env.local
+npm run setup    # .env + frontend/.env.local + Python venv + npm deps
 npm run dev      # QVAC :8765 + API :8000 + Web :3000
 ```
 
