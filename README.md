@@ -209,4 +209,8 @@ Pull requests only — `main` is protected. See [CONTRIBUTING.md](CONTRIBUTING.m
 
 ## License
 
-MIT — see [LICENSE](LICENSE) if present, otherwise MIT applies to this repository.
+MIT — see [LICENSE](LICENSE).
+
+## Security
+
+Local sovereign defaults: API binds to **127.0.0.1**, optional `API_KEY` for LAN deploy. See **[docs/SECURITY.md](docs/SECURITY.md)**.

@@ -26,7 +26,7 @@ trap 'kill 0' EXIT INT TERM
 
 (cd "$ROOT/qvac-service" && npm start) &
 sleep 2
-(cd "$ROOT/backend" && .venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000 --reload) &
+(cd "$ROOT/backend" && .venv/bin/uvicorn main:app --host 127.0.0.1 --port 8000 --reload) &
 sleep 2
 (cd "$ROOT/frontend" && npm run dev) &
 

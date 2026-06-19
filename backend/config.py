@@ -79,6 +79,12 @@ class Settings(BaseSettings):
     local_processing_only: bool = False
     auto_delete_sessions_hours: int = 24
 
+    # Security — sovereign local default: localhost only, no auth required
+    api_bind_host: str = "127.0.0.1"
+    api_key: str = ""
+    max_upload_bytes: int = 52_428_800  # 50 MB
+    max_batch_uploads: int = 10
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]

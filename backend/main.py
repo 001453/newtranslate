@@ -5,10 +5,12 @@ Real-time STT + Translation + Overlay + PDF.
 
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from api.pdf import router as pdf_router
+from api.security import verify_api_key_http
 from api.stt import router as stt_router
 from api.translate import router as translate_router
 from api.websocket import router as ws_router
@@ -40,6 +42,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.middleware("http")
+async def api_key_middleware(request: Request, call_next):
+    try:
+        verify_api_key_http(request)
+    except HTTPException as exc:
+        return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
+    return await call_next(request)
+
+
 app.include_router(ws_router, prefix=settings.api_prefix)
 app.include_router(stt_router, prefix=settings.api_prefix)
 app.include_router(pdf_router, prefix=settings.api_prefix)
@@ -63,4 +75,9 @@ async def health():
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=settings.debug)
+    uvicorn.run(
+        "main:app",
+        host=settings.api_bind_host,
+        port=8000,
+        reload=settings.debug,
+    )

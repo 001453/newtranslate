@@ -2,15 +2,11 @@
 
 from __future__ import annotations
 
-import asyncio
-import shutil
-import uuid
-from pathlib import Path
-
 from fastapi import APIRouter, BackgroundTasks, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 
-from config import UPLOAD_DIR
+from api.upload_utils import save_document_upload
+from config import get_settings
 from services.glossary import glossary_service
 from services.pdf_translate import JobStatus, pdf_service
 from services.translation import translation_service
@@ -26,14 +22,7 @@ async def upload_and_translate(
     target_lang: str = Form("en"),
     doc_type: str = Form("general"),
 ):
-    allowed = {".pdf", ".docx"}
-    suffix = Path(file.filename or "").suffix.lower()
-    if suffix not in allowed:
-        raise HTTPException(400, f"Unsupported format. Allowed: {allowed}")
-
-    save_path = UPLOAD_DIR / f"{uuid.uuid4()}{suffix}"
-    with open(save_path, "wb") as f:
-        shutil.copyfileobj(file.file, f)
+    save_path = await save_document_upload(file)
 
     glossary = glossary_service.to_dict(
         source_lang if source_lang != "auto" else "en",
@@ -59,13 +48,18 @@ async def batch_upload(
     source_lang: str = Form("auto"),
     target_lang: str = Form("en"),
 ):
-    paths: list[Path] = []
+    settings = get_settings()
+    if len(files) > settings.max_batch_uploads:
+        raise HTTPException(
+            400,
+            f"Too many files (max {settings.max_batch_uploads} per batch)",
+        )
+    if not files:
+        raise HTTPException(400, "No files provided")
+
+    paths = []
     for file in files:
-        suffix = Path(file.filename or "").suffix.lower()
-        save_path = UPLOAD_DIR / f"{uuid.uuid4()}{suffix}"
-        with open(save_path, "wb") as f:
-            shutil.copyfileobj(file.file, f)
-        paths.append(save_path)
+        paths.append(await save_document_upload(file))
 
     jobs = []
     for path in paths:

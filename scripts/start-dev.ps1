@@ -53,7 +53,7 @@ Start-Sleep -Seconds 2
 
 Start-Process powershell -ArgumentList @(
     "-NoExit", "-Command",
-    "cd '$Root\backend'; Write-Host '[API] 8000' -ForegroundColor Green; .\.venv\Scripts\uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
+    "cd '$Root\backend'; Write-Host '[API] 8000' -ForegroundColor Green; .\.venv\Scripts\uvicorn main:app --host 127.0.0.1 --port 8000 --reload"
 )
 
 Start-Sleep -Seconds 2

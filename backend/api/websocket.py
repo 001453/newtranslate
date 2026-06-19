@@ -8,8 +8,9 @@ from __future__ import annotations
 import json
 import logging
 
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
 
+from api.security import verify_api_key_ws
 from config import get_settings
 from services.live_pipeline import LiveAudioProcessor
 from services.meeting_export import build_meeting_export
@@ -39,6 +40,12 @@ overlay_service.subscribe(_overlay_broadcast)
 
 @router.websocket("/ws/live")
 async def live_caption_ws(websocket: WebSocket):
+    try:
+        verify_api_key_ws(websocket)
+    except HTTPException:
+        await websocket.close(code=4403)
+        return
+
     await websocket.accept()
     _ws_clients.add(websocket)
     settings = get_settings()
