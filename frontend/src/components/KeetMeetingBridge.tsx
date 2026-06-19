@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { LiveSetupPanel } from "@/components/live/LiveSetupPanel";
 import { PrivacyBanner } from "@/components/PrivacyBanner";
 import { SubtitleOverlay } from "@/components/SubtitleOverlay";
 import { useAudioCapture, useTabAudioCapture } from "@/hooks/useAudioCapture";
@@ -59,6 +60,7 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
   const [keetInvite, setKeetInvite] = useState("");
   const [copied, setCopied] = useState(false);
   const [showGuide, setShowGuide] = useState(keetMode);
+  const [showLiveGuide, setShowLiveGuide] = useState(!keetMode);
   const [fontSize, setFontSize] = useState(34);
   const [audioSource, setAudioSource] = useState<"tab" | "mic" | "both">("tab");
 
@@ -136,7 +138,7 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
   const otherLabel = otherLang === "en" ? m.common.english : m.meeting.otherLangGeneric;
 
   const audioSources = [
-    { id: "tab" as const, label: m.meeting.sourceTab, icon: Monitor },
+    { id: "tab" as const, label: keetMode ? m.meeting.sourceTab : m.meeting.sourceTabLive, icon: Monitor },
     { id: "mic" as const, label: m.meeting.sourceMic, icon: Mic },
     { id: "both" as const, label: m.meeting.sourceBoth, icon: Radio },
   ];
@@ -172,6 +174,14 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
 
       {error && <div className="gb-alert-danger">{error}</div>}
       <PrivacyBanner />
+
+      {!keetMode && showLiveGuide && <LiveSetupPanel onHide={() => setShowLiveGuide(false)} />}
+
+      {!keetMode && !showLiveGuide && (
+        <button type="button" className="gb-btn-ghost w-full text-xs" onClick={() => setShowLiveGuide(true)}>
+          {m.meeting.liveGuideTitle}
+        </button>
+      )}
 
       {keetMode && showGuide && (
         <div className="gb-card p-5">
@@ -289,7 +299,7 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
         ) : sessionActive ? (
           <p className="opacity-70">{m.meeting.waitingSpeech}</p>
         ) : (
-          <p className="opacity-70">{m.meeting.waitingStart}</p>
+          <p className="opacity-70">{keetMode ? m.meeting.waitingStart : m.meeting.liveWaitingStart}</p>
         )}
       </div>
 
