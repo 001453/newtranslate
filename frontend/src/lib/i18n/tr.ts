@@ -179,6 +179,15 @@ export const tr: Messages = {
     stopBridge: "Bitir",
     tabShort: "Sekme",
     latency: "Gecikme {ms}",
+    audioErrors: {
+      secureContext:
+        "Mikrofon ve sekme sesi için HTTPS veya localhost gerekir. Bu PC'de http://localhost:3000 açın — http://192.168.x.x değil.",
+      denied: "Mikrofon veya ekran paylaşımı izni reddedildi. Tarayıcıda izin verin veya site ayarlarından açın.",
+      notFound: "Mikrofon bulunamadı. Mikrofon bağlayın veya başka giriş cihazı seçin.",
+      tabNoAudio: "Sekme sesi yok — YouTube/toplantı sekmesini seçerken “Sekme sesini paylaş” kutusunu işaretleyin.",
+      cancelled: "Ekran paylaşımı iptal edildi. Tekrar başlatıp doğru sekmeyi seçin.",
+      unknown: "Ses yakalama başarısız. Chrome deneyin, izinleri açın ve backend'in çalıştığından emin olun.",
+    },
     shortcutHint: "Ctrl+Shift+L başlat/bitir",
     captionSize: "Altyazı boyutu: {px}px",
     transcript: "Transkript ({n})",

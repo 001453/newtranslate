@@ -176,6 +176,15 @@ export const en = {
     stopBridge: "Stop",
     tabShort: "Tab",
     latency: "Latency {ms}",
+    audioErrors: {
+      secureContext:
+        "Microphone and tab audio require HTTPS or localhost. Open http://localhost:3000 on this PC — not http://192.168.x.x.",
+      denied: "Microphone or screen-share permission denied. Allow access in the browser prompt or site settings.",
+      notFound: "No microphone found. Connect a mic or choose another input device.",
+      tabNoAudio: "No tab audio — check “Share tab audio” when selecting the YouTube or meeting tab.",
+      cancelled: "Screen share cancelled. Start again and pick the correct tab.",
+      unknown: "Audio capture failed. Try Chrome, allow permissions, and ensure backend is running.",
+    },
     shortcutHint: "Ctrl+Shift+L start/stop",
     captionSize: "Caption size: {px}px",
     transcript: "Transcript ({n})",

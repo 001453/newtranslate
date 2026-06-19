@@ -5,7 +5,8 @@ import Link from "next/link";
 import { LiveSetupPanel } from "@/components/live/LiveSetupPanel";
 import { PrivacyBanner } from "@/components/PrivacyBanner";
 import { SubtitleOverlay } from "@/components/SubtitleOverlay";
-import { useAudioCapture, useTabAudioCapture } from "@/hooks/useAudioCapture";
+import { type AudioCaptureError, useAudioCapture, useTabAudioCapture } from "@/hooks/useAudioCapture";
+import { useMicDevices } from "@/hooks/useMicDevices";
 import { defaultTranslationPair, useLocale } from "@/hooks/useLocale";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { KEET_DOWNLOAD_URL, isKeetInvite, keetOpenHref, normalizeKeetInvite } from "@/lib/keet";
@@ -85,19 +86,43 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
   const [showLiveGuide, setShowLiveGuide] = useState(!keetMode);
   const [fontSize, setFontSize] = useState(34);
   const [audioSource, setAudioSource] = useState<"tab" | "mic" | "both">("tab");
+  const [audioError, setAudioError] = useState<string | null>(null);
+  const [insecureContext, setInsecureContext] = useState(false);
+  const sessionActiveRef = useRef(false);
+  const { devices: micDevices, requestPermission: requestMicPermission } = useMicDevices();
 
   const onChunk = useCallback(
     (pcm: ArrayBuffer) => {
-      if (sessionActive) sendAudio(pcm);
+      if (sessionActiveRef.current) sendAudio(pcm);
     },
-    [sessionActive, sendAudio]
+    [sendAudio]
   );
 
-  const { recording, start, stop } = useAudioCapture(onChunk);
+  const { recording, start, stop, setDeviceId, deviceId } = useAudioCapture(onChunk);
   const { capturing, startTabCapture, stopTabCapture } = useTabAudioCapture(onChunk);
+
+  const audioErrorText = (code: AudioCaptureError): string => {
+    const map = m.meeting.audioErrors;
+    switch (code) {
+      case "secure_context":
+        return map.secureContext;
+      case "denied":
+        return map.denied;
+      case "not_found":
+        return map.notFound;
+      case "no_tab_audio":
+        return map.tabNoAudio;
+      case "cancelled":
+        return map.cancelled;
+      default:
+        return map.unknown;
+    }
+  };
 
   useEffect(() => {
     connect();
+    setInsecureContext(typeof window !== "undefined" && !window.isSecureContext);
+    void requestMicPermission();
     try {
       const saved = localStorage.getItem(KEET_INVITE_KEY);
       if (saved) setKeetInvite(saved);
@@ -105,7 +130,7 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
       /* ignore */
     }
     return () => disconnect();
-  }, [connect, disconnect]);
+  }, [connect, disconnect, requestMicPermission]);
 
   useEffect(() => {
     if (!hydrated || langInit.current) return;
@@ -171,6 +196,12 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
   };
 
   const handleStart = async () => {
+    if (!connected) return;
+    setAudioError(null);
+
+    sessionActiveRef.current = true;
+    setSessionActive(true);
+
     startSession({
       source_lang: "auto",
       target_lang: otherLang,
@@ -179,16 +210,26 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
       lang_b: otherLang,
       viewer_lang: myLang,
     });
-    setSessionActive(true);
-    if (audioSource === "mic" || audioSource === "both") await start();
-    if (audioSource === "tab" || audioSource === "both") await startTabCapture();
+
+    const errors: string[] = [];
+    if (audioSource === "mic" || audioSource === "both") {
+      const err = await start();
+      if (err) errors.push(audioErrorText(err));
+    }
+    if (audioSource === "tab" || audioSource === "both") {
+      const err = await startTabCapture();
+      if (err) errors.push(audioErrorText(err));
+    }
+    if (errors.length) setAudioError(errors.join(" "));
   };
 
   const handleStop = () => {
+    sessionActiveRef.current = false;
     stop();
     stopTabCapture();
     stopSession(myLang);
     setSessionActive(false);
+    setAudioError(null);
   };
 
   const copyInvite = async () => {
@@ -239,6 +280,8 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
       </div>
 
       {error && <div className="gb-alert-danger">{error}</div>}
+      {insecureContext && <div className="gb-alert-danger">{m.meeting.audioErrors.secureContext}</div>}
+      {audioError && <div className="gb-alert-danger">{audioError}</div>}
       <PrivacyBanner />
 
       {!keetMode && showLiveGuide && <LiveSetupPanel onHide={() => setShowLiveGuide(false)} />}
@@ -392,6 +435,24 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
 
       <div className="gb-card p-4">
         <h3 className="gb-panel-head mb-3 border-0 px-0">{m.meeting.audioSource}</h3>
+        {(audioSource === "mic" || audioSource === "both") && (
+          <div className="mb-3">
+            <label className="mb-1 block text-xs text-[var(--gb-muted)]">{m.mic.inputDevice}</label>
+            <select
+              className="gb-select"
+              value={deviceId || ""}
+              disabled={sessionActive}
+              onChange={(e) => setDeviceId(e.target.value || undefined)}
+            >
+              <option value="">{m.mic.defaultMic}</option>
+              {micDevices.map((d) => (
+                <option key={d.deviceId} value={d.deviceId}>
+                  {d.label || m.mic.micFallback}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         <div className="mb-4 flex flex-wrap gap-2">
           {audioSources.map(({ id, label, icon: Icon }) => (
             <button
@@ -431,14 +492,26 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
           <div className="mt-2 flex gap-2">
             <button
               type="button"
-              onClick={recording ? stop : () => void start()}
+              onClick={() => {
+                if (recording) {
+                  stop();
+                  return;
+                }
+                void start().then((err) => setAudioError(err ? audioErrorText(err) : null));
+              }}
               className={cn("gb-btn-ghost flex-1 text-xs", recording && "text-[var(--gb-danger)]")}
             >
               {recording ? <MicOff className="inline h-3 w-3" /> : <Mic className="inline h-3 w-3" />} Mic
             </button>
             <button
               type="button"
-              onClick={capturing ? stopTabCapture : () => void startTabCapture()}
+              onClick={() => {
+                if (capturing) {
+                  stopTabCapture();
+                  return;
+                }
+                void startTabCapture().then((err) => setAudioError(err ? audioErrorText(err) : null));
+              }}
               className={cn("gb-btn-ghost flex-1 text-xs", capturing && "text-[var(--gb-accent)]")}
             >
               <Monitor className="inline h-3 w-3" /> {m.meeting.tabShort}
