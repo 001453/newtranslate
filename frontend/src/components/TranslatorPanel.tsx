@@ -12,6 +12,7 @@ import { useMicDevices } from "@/hooks/useMicDevices";
 import { useMicSettings } from "@/hooks/useMicSettings";
 import { useSpeechDictation } from "@/hooks/useSpeechDictation";
 import { translateText } from "@/lib/api";
+import { fmt } from "@/lib/i18n/fmt";
 import { LANGUAGES, langName } from "@/lib/languages";
 import { cn } from "@/lib/utils";
 import { ArrowLeftRight, ClipboardPaste, Copy, FileUp, History, Mic, Star, Trash2 } from "lucide-react";
@@ -37,7 +38,20 @@ export function TranslatorPanel({ compact = true, unified = false }: { compact?:
   const { settings, update, ready: settingsReady } = useMicSettings();
   const { devices, requestPermission } = useMicDevices();
 
-  const dictLang = from === "auto" ? to : from;
+  const dictLang = from === "auto" ? defaultTranslationPair(locale).from : from;
+
+  const dictationStatus = listening
+    ? fmt(m.conversation.listeningLang, { lang: langName(dictLang) })
+    : fmt(m.conversation.dictateLang, { lang: langName(dictLang) });
+
+  const dictationErrorText = (code: string | null): string | null => {
+    if (!code) return null;
+    const map = m.mic.dictationErrors;
+    if (code === "denied") return map.denied;
+    if (code === "secure_context") return map.secureContext;
+    if (code === "unsupported") return map.unsupported;
+    return map.unknown;
+  };
 
   useEffect(() => {
     if (!hydrated || pairInit.current) return;
@@ -81,7 +95,7 @@ export function TranslatorPanel({ compact = true, unified = false }: { compact?:
     }
   }, []);
 
-  const { listening, supported, toggle, stop } = useSpeechDictation(dictLang, onDictation);
+  const { listening, supported, error: dictationError, toggle, stop } = useSpeechDictation(dictLang, onDictation);
 
   useEffect(() => {
     if (settingsReady) requestPermission();
@@ -158,8 +172,15 @@ export function TranslatorPanel({ compact = true, unified = false }: { compact?:
   };
 
   return (
-    <div className={cn("flex flex-col", !compact && "gap-4 xl:flex-row", unified && "gb-translate-unified")}>
-      <div className={cn("min-w-0 flex-1", unified && "flex min-h-0 flex-col")}>
+    <div
+      className={cn(
+        "flex flex-col",
+        unified && "min-h-0 flex-1",
+        (!compact || unified) && "gap-4 xl:flex-row",
+        !compact && !unified && "gap-4 xl:flex-row"
+      )}
+    >
+      <div className={cn("min-w-0 flex-1", unified && "flex min-h-0 flex-col gb-translate-unified")}>
         {pins.length > 0 && (
           <div className={cn("flex flex-wrap gap-1", unified ? "px-3 pt-2" : "mb-2")}>
             {pins.map((k) => {
@@ -187,6 +208,11 @@ export function TranslatorPanel({ compact = true, unified = false }: { compact?:
             unified && "gb-translate-body flex min-h-0 flex-1 flex-col overflow-hidden"
           )}
         >
+          {dictationErrorText(dictationError) && (
+            <div className="border-b border-[var(--gb-border-subtle)] bg-[var(--gb-danger)]/10 px-3 py-2 text-xs text-[var(--gb-danger)]">
+              {dictationErrorText(dictationError)}
+            </div>
+          )}
           <div
             className={cn(
               "gb-lang-bar flex items-end gap-2 border-b border-[var(--gb-border)]",
@@ -304,10 +330,14 @@ export function TranslatorPanel({ compact = true, unified = false }: { compact?:
                   type="button"
                   className={cn("gb-btn-ghost text-xs", listening && "text-[var(--gb-danger)]")}
                   onClick={toggle}
+                  title={dictationStatus}
                 >
                   <Mic className="mr-1 inline h-3 w-3" />
                   {listening ? m.translate.stop : m.translate.dictate}
                 </button>
+                {!listening && unified && (
+                  <span className="self-center text-[0.65rem] text-[var(--gb-muted)]">{dictationStatus}</span>
+                )}
                 <button type="button" className="gb-btn-ghost text-xs" onClick={() => fileRef.current?.click()}>
                   <FileUp className="mr-1 inline h-3 w-3" /> .txt
                 </button>
@@ -409,8 +439,13 @@ export function TranslatorPanel({ compact = true, unified = false }: { compact?:
         </div>
       </div>
 
-      {!compact && (
-        <div className="flex flex-col gap-4 xl:w-72">
+      {(!compact || unified) && (
+        <div
+          className={cn(
+            "flex flex-col gap-4 shrink-0",
+            unified ? "hidden xl:flex xl:w-64" : "xl:w-72"
+          )}
+        >
           <MicSidebar
             mode="dictation"
             devices={devices}
@@ -419,15 +454,17 @@ export function TranslatorPanel({ compact = true, unified = false }: { compact?:
             listening={listening}
             onMicToggle={toggle}
             supported={supported}
-            statusLabel={listening ? m.mic.stopDictation : undefined}
+            statusLabel={listening ? dictationStatus : dictationStatus}
           />
-          <HistoryPanel
-            items={items}
-            onToggleFavorite={toggleFavorite}
-            onClear={clear}
-            onExport={() => exportJson(m.history.exportFilename)}
-            onSelect={applyHistory}
-          />
+          {!compact && (
+            <HistoryPanel
+              items={items}
+              onToggleFavorite={toggleFavorite}
+              onClear={clear}
+              onExport={() => exportJson(m.history.exportFilename)}
+              onSelect={applyHistory}
+            />
+          )}
         </div>
       )}
     </div>

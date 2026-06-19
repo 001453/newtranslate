@@ -57,7 +57,7 @@ export function ConversationMode() {
     }
   }, []);
 
-  const { listening, supported, toggle, stop } = useSpeechDictation(activeLang, onDictation);
+  const { listening, supported, error: dictationError, toggle, stop } = useSpeechDictation(activeLang, onDictation);
 
   useEffect(() => {
     if (settingsReady) requestPermission();
@@ -101,12 +101,27 @@ export function ConversationMode() {
     ? fmt(m.conversation.listeningLang, { lang: langName(activeLang) })
     : fmt(m.conversation.dictateLang, { lang: langName(activeLang) });
 
+  const dictationErrorText =
+    dictationError === "denied"
+      ? m.mic.dictationErrors.denied
+      : dictationError === "secure_context"
+        ? m.mic.dictationErrors.secureContext
+        : dictationError === "unsupported"
+          ? m.mic.dictationErrors.unsupported
+          : dictationError
+            ? m.mic.dictationErrors.unknown
+            : null;
+
   return (
     <div className="mx-auto max-w-6xl">
       <header className="gb-hero mb-6">
         <h1 className="gb-page-title text-2xl">{m.conversation.title}</h1>
         <p className="gb-page-sub mt-1">{m.conversation.subtitle}</p>
       </header>
+
+      {dictationErrorText && (
+        <div className="gb-alert-danger mb-4 text-sm">{dictationErrorText}</div>
+      )}
 
       <div className="grid gap-4 lg:grid-cols-[1fr_280px]">
         <div className="gb-card gb-translate-card overflow-hidden">

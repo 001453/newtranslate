@@ -274,6 +274,12 @@ export const en = {
     dictationHint: "Text is written to the input field; translation follows on send.",
     dictationToField: "Dictated to input field",
     unsupported: "Speech recognition not supported (Chrome recommended).",
+    dictationErrors: {
+      denied: "Microphone permission denied — allow mic access for this site in Chrome.",
+      secureContext: "Dictation requires localhost or HTTPS. Use http://localhost:3000.",
+      unsupported: "Speech recognition not supported — use Chrome on desktop.",
+      unknown: "Dictation failed — check microphone and try again.",
+    },
     shortcuts: "Shortcuts",
     caption: "Caption",
     fontSize: "Font size",

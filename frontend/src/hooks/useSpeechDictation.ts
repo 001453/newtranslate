@@ -75,6 +75,7 @@ export function useSpeechDictation(
 ) {
   const [listening, setListening] = useState(false);
   const [supported, setSupported] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const recRef = useRef<SpeechRecognitionLike | null>(null);
   const onTranscriptRef = useRef(onTranscript);
   const intentionalStopRef = useRef(false);
@@ -127,15 +128,17 @@ export function useSpeechDictation(
     };
 
     rec.onerror = (e: SpeechRecognitionErrorEvent) => {
-      // Chrome: no-speech after silence — onend will restart
       if (e.error === "no-speech" || e.error === "network") return;
       if (e.error === "aborted") return;
       if (e.error === "not-allowed" || e.error === "service-not-allowed") {
         intentionalStopRef.current = true;
         activeRef.current = false;
         setListening(false);
+        setError("denied");
         recRef.current = null;
+        return;
       }
+      setError(e.error || "unknown");
     };
 
     rec.onend = () => {
@@ -172,11 +175,17 @@ export function useSpeechDictation(
     const Ctor = getSpeechRecognitionCtor();
     if (!Ctor) {
       setSupported(false);
+      setError("unsupported");
+      return;
+    }
+    if (typeof window !== "undefined" && !window.isSecureContext) {
+      setError("secure_context");
       return;
     }
     clearRestartTimer();
     intentionalStopRef.current = false;
     activeRef.current = true;
+    setError(null);
     setListening(true);
     recRef.current?.abort();
     recRef.current = null;
@@ -190,5 +199,5 @@ export function useSpeechDictation(
 
   useEffect(() => () => stop(), [stop]);
 
-  return { listening, supported, start, stop, toggle };
+  return { listening, supported, error, start, stop, toggle };
 }

@@ -277,6 +277,12 @@ export const tr: Messages = {
     dictationHint: "Konuştuğunuz metin giriş alanına yazılır; gönderince çeviri gelir.",
     dictationToField: "Giriş alanına dikte edilir",
     unsupported: "Tarayıcınız ses tanımayı desteklemiyor (Chrome önerilir).",
+    dictationErrors: {
+      denied: "Mikrofon izni reddedildi — Chrome'da bu site için mikrofonu açın.",
+      secureContext: "Dikte için localhost veya HTTPS gerekir. http://localhost:3000 kullanın.",
+      unsupported: "Ses tanıma desteklenmiyor — masaüstü Chrome deneyin.",
+      unknown: "Dikte başarısız — mikrofonu kontrol edip tekrar deneyin.",
+    },
     shortcuts: "Kısayol tuşları",
     caption: "Altyazı",
     fontSize: "Yazı boyutu",
