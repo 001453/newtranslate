@@ -139,6 +139,25 @@ async def live_caption_ws(websocket: WebSocket):
                 )
                 await websocket.send_json({"event": "session_started", "payload": {"session_id": sid}})
 
+            elif action == "update_languages":
+                cfg = msg.get("config", {})
+                await overlay_service.update_languages(
+                    source_lang=cfg.get("source_lang"),
+                    target_lang=cfg.get("target_lang"),
+                    bidirectional=cfg.get("bidirectional"),
+                    lang_a=cfg.get("lang_a"),
+                    lang_b=cfg.get("lang_b"),
+                    viewer_lang=cfg.get("viewer_lang"),
+                )
+                await websocket.send_json({
+                    "event": "languages_updated",
+                    "payload": {
+                        "lang_a": cfg.get("lang_a"),
+                        "lang_b": cfg.get("lang_b"),
+                        "viewer_lang": cfg.get("viewer_lang"),
+                    },
+                })
+
             elif action == "stop_session":
                 await overlay_service.stop_session()
                 summary = await summary_service.generate_summary(

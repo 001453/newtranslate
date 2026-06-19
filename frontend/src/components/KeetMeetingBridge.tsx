@@ -1,18 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { LiveSetupPanel } from "@/components/live/LiveSetupPanel";
 import { PrivacyBanner } from "@/components/PrivacyBanner";
 import { SubtitleOverlay } from "@/components/SubtitleOverlay";
 import { useAudioCapture, useTabAudioCapture } from "@/hooks/useAudioCapture";
-import { useLocale } from "@/hooks/useLocale";
+import { defaultTranslationPair, useLocale } from "@/hooks/useLocale";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { KEET_DOWNLOAD_URL, isKeetInvite, keetOpenHref, normalizeKeetInvite } from "@/lib/keet";
 import { fmt } from "@/lib/i18n/fmt";
-import { LANGUAGES } from "@/lib/languages";
+import { LANGUAGES, langName } from "@/lib/languages";
 import { cn, formatLatency } from "@/lib/utils";
 import {
+  ArrowLeftRight,
   Copy,
   ExternalLink,
   Link2,
@@ -27,6 +28,25 @@ import {
 } from "lucide-react";
 
 const KEET_INVITE_KEY = "gb-keet-invite";
+const LIVE_LANG_KEY = "gb-live-langs-v1";
+
+function loadLiveLangs(locale: "en" | "tr"): { my: string; other: string } {
+  const fallback = defaultTranslationPair(locale);
+  try {
+    const raw = localStorage.getItem(LIVE_LANG_KEY);
+    if (raw) {
+      const p = JSON.parse(raw) as { my?: string; other?: string };
+      if (p.my && p.other && p.my !== p.other) return { my: p.my, other: p.other };
+    }
+  } catch {
+    /* ignore */
+  }
+  return { my: fallback.from, other: fallback.to };
+}
+
+function isWebUrl(raw: string): boolean {
+  return /^https?:\/\//i.test(raw.trim());
+}
 
 type Props = {
   keetMode?: boolean;
@@ -35,7 +55,7 @@ type Props = {
 };
 
 export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
-  const { messages: m } = useLocale();
+  const { messages: m, locale, hydrated } = useLocale();
   const pageTitle = title ?? m.meeting.title;
   const pageSubtitle = subtitle ?? m.meeting.subtitle;
 
@@ -52,11 +72,13 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
     lastPipeline,
     summary,
     error,
+    send,
   } = useWebSocket();
 
   const [sessionActive, setSessionActive] = useState(false);
   const [myLang, setMyLang] = useState("tr");
   const [otherLang, setOtherLang] = useState("en");
+  const langInit = useRef(false);
   const [keetInvite, setKeetInvite] = useState("");
   const [copied, setCopied] = useState(false);
   const [showGuide, setShowGuide] = useState(keetMode);
@@ -84,6 +106,49 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
     }
     return () => disconnect();
   }, [connect, disconnect]);
+
+  useEffect(() => {
+    if (!hydrated || langInit.current) return;
+    const { my, other } = loadLiveLangs(locale);
+    setMyLang(my);
+    setOtherLang(other);
+    langInit.current = true;
+  }, [locale, hydrated]);
+
+  const persistLangs = (my: string, other: string) => {
+    try {
+      localStorage.setItem(LIVE_LANG_KEY, JSON.stringify({ my, other }));
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const pushLangConfig = useCallback(
+    (my: string, other: string) => {
+      send({
+        action: "update_languages",
+        config: {
+          source_lang: "auto",
+          target_lang: other,
+          bidirectional: true,
+          lang_a: my,
+          lang_b: other,
+          viewer_lang: my,
+        },
+      });
+    },
+    [send]
+  );
+
+  const applyLangPair = (my: string, other: string) => {
+    if (my === other) return;
+    setMyLang(my);
+    setOtherLang(other);
+    persistLangs(my, other);
+    if (sessionActive) pushLangConfig(my, other);
+  };
+
+  const swapLangs = () => applyLangPair(otherLang, myLang);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -135,7 +200,8 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
   };
 
   const keetHref = keetInvite ? keetOpenHref(keetInvite) : "";
-  const otherLabel = otherLang === "en" ? m.common.english : m.meeting.otherLangGeneric;
+  const invalidKeetLink = keetMode && keetInvite.trim() && isWebUrl(keetInvite);
+  const langOptions = LANGUAGES.filter((l) => l.code !== "auto");
 
   const audioSources = [
     { id: "tab" as const, label: keetMode ? m.meeting.sourceTab : m.meeting.sourceTabLive, icon: Monitor },
@@ -229,8 +295,11 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
             onChange={(e) => saveInvite(e.target.value)}
             disabled={sessionActive}
           />
+          {invalidKeetLink && (
+            <p className="mt-2 text-xs text-[var(--gb-warning)]">{m.meeting.invalidKeetLink}</p>
+          )}
           <div className="mt-2 flex flex-wrap gap-2">
-            {isKeetInvite(keetInvite) && (
+            {isKeetInvite(keetInvite) && !invalidKeetLink && (
               <a href={keetHref} className="gb-btn-primary text-sm">
                 {m.meeting.openInKeet}
               </a>
@@ -251,33 +320,48 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
       <div className="gb-card p-5">
         <h2 className="mb-3 text-sm font-semibold">{m.meeting.languagesTitle}</h2>
         <p className="mb-3 text-xs text-[var(--gb-muted)]">
-          {fmt(m.meeting.languagesHint, { other: otherLabel })}
+          {fmt(m.meeting.languagesHint, { mine: langName(myLang), other: langName(otherLang) })}
         </p>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[var(--gb-border)] bg-[var(--gb-surface-2)] px-3 py-1 text-xs font-medium text-[var(--gb-accent)]">
+          {langName(myLang)} ↔ {langName(otherLang)}
+        </div>
+        <div className="grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-end">
           <div>
             <label className="text-xs text-[var(--gb-muted)]">{m.meeting.myLang}</label>
             <select
               className="gb-select mt-1"
               value={myLang}
-              disabled={sessionActive}
-              onChange={(e) => setMyLang(e.target.value)}
+              onChange={(e) => {
+                const next = e.target.value;
+                if (next !== otherLang) applyLangPair(next, otherLang);
+              }}
             >
-              {LANGUAGES.filter((l) => l.code !== "auto").map((l) => (
+              {langOptions.map((l) => (
                 <option key={l.code} value={l.code}>
                   {l.name}
                 </option>
               ))}
             </select>
           </div>
+          <button
+            type="button"
+            className="gb-btn-ghost mb-0.5 flex h-10 w-10 items-center justify-center rounded-full border border-[var(--gb-border)]"
+            onClick={swapLangs}
+            title={m.meeting.swapLangs}
+          >
+            <ArrowLeftRight className="h-4 w-4" />
+          </button>
           <div>
             <label className="text-xs text-[var(--gb-muted)]">{m.meeting.otherLang}</label>
             <select
               className="gb-select mt-1"
               value={otherLang}
-              disabled={sessionActive}
-              onChange={(e) => setOtherLang(e.target.value)}
+              onChange={(e) => {
+                const next = e.target.value;
+                if (next !== myLang) applyLangPair(myLang, next);
+              }}
             >
-              {LANGUAGES.filter((l) => l.code !== "auto").map((l) => (
+              {langOptions.map((l) => (
                 <option key={l.code} value={l.code}>
                   {l.name}
                 </option>
@@ -285,6 +369,9 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
             </select>
           </div>
         </div>
+        {sessionActive && (
+          <p className="mt-2 text-xs text-[var(--gb-success)]">{m.meeting.langLiveUpdate}</p>
+        )}
       </div>
 
       <div className="gb-live-box">

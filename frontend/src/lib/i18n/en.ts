@@ -156,7 +156,11 @@ export const en = {
     copied: "Copied",
     copyLink: "Copy link",
     languagesTitle: "Languages — personal subtitles",
-    languagesHint: "My native language: subtitles appear in this language. When the other party speaks {other}, it is translated automatically.",
+    languagesHint:
+      "Subtitles in {mine}. When the other party speaks {other}, it is translated automatically.",
+    swapLangs: "Swap languages",
+    langLiveUpdate: "Language pair updated for the active session.",
+    invalidKeetLink: "Not a Keet link — use keet://… only (not X, YouTube, or other web URLs).",
     myLang: "My native language",
     otherLang: "Other party language",
     otherLangGeneric: "another language",

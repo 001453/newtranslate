@@ -158,6 +158,37 @@ class OverlayService:
         })
         return self.state.session_id
 
+    async def update_languages(
+        self,
+        *,
+        source_lang: str | None = None,
+        target_lang: str | None = None,
+        bidirectional: bool | None = None,
+        lang_a: str | None = None,
+        lang_b: str | None = None,
+        viewer_lang: str | None = None,
+    ) -> None:
+        async with self._lock:
+            if source_lang is not None:
+                self.state.source_lang = source_lang
+            if target_lang is not None:
+                self.state.target_lang = target_lang
+            if bidirectional is not None:
+                self.state.bidirectional = bidirectional
+            if lang_a is not None:
+                self.state.lang_a = lang_a
+            if lang_b is not None:
+                self.state.lang_b = lang_b
+            if viewer_lang is not None:
+                self.state.viewer_lang = viewer_lang
+            payload = {
+                "lang_a": self.state.lang_a,
+                "lang_b": self.state.lang_b,
+                "viewer_lang": self.state.viewer_lang,
+                "target_lang": self.state.target_lang,
+            }
+        await self._broadcast("languages_updated", payload)
+
     async def stop_session(self) -> None:
         async with self._lock:
             self.state.active = False

@@ -160,7 +160,10 @@ export const tr: Messages = {
     copyLink: "Linki kopyala",
     languagesTitle: "Diller — kişisel altyazı",
     languagesHint:
-      "Ana diliniz: altyazılar bu dilde. Karşı taraf {other} konuşunca otomatik çevrilir.",
+      "Altyazılar {mine} dilinde. Karşı taraf {other} konuşunca otomatik çevrilir.",
+    swapLangs: "Dilleri değiştir",
+    langLiveUpdate: "Dil çifti aktif oturumda güncellendi.",
+    invalidKeetLink: "Keet linki değil — sadece keet://… kullanın (X, YouTube vb. web adresi değil).",
     myLang: "Benim ana dilim",
     otherLang: "Karşı taraf dili",
     otherLangGeneric: "diğer dilde",
