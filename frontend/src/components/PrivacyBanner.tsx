@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { API_BASE } from "@/lib/types";
+import { apiV1 } from "@/lib/types";
 import { useLocale } from "@/hooks/useLocale";
 import { Shield, ShieldAlert, Cloud } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -36,7 +36,7 @@ export function PrivacyBanner() {
 
   useEffect(() => {
     const load = () =>
-      fetch(`${API_BASE}/api/v1/privacy/status`)
+      fetch(apiV1("privacy/status"))
         .then((r) => r.json())
         .then((data) => setStatus(normalizePrivacyStatus(data)))
         .catch(() => null);

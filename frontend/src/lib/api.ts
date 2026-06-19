@@ -1,4 +1,4 @@
-import { API_BASE } from "./types";
+import { apiHealth, apiV1 } from "./types";
 import type { PdfJob } from "./types";
 
 export async function fetchHealth(): Promise<{
@@ -6,7 +6,7 @@ export async function fetchHealth(): Promise<{
   qvac_available?: boolean;
   translation_provider?: string;
 }> {
-  const res = await fetch(`${API_BASE}/health`, { cache: "no-store" });
+  const res = await fetch(apiHealth(), { cache: "no-store" });
   if (!res.ok) throw new Error("health");
   return res.json();
 }
@@ -16,7 +16,7 @@ export async function translateText(
   sourceLang: string,
   targetLang: string
 ) {
-  const res = await fetch(`${API_BASE}/api/v1/translate`, {
+  const res = await fetch(apiV1("translate"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -30,13 +30,13 @@ export async function translateText(
 }
 
 export async function fetchPackStatus(from: string, to: string) {
-  const res = await fetch(`${API_BASE}/api/v1/packs/status?from=${from}&to=${to}`);
+  const res = await fetch(apiV1(`packs/status?from=${from}&to=${to}`));
   if (!res.ok) throw new Error("pack status");
   return res.json();
 }
 
 export async function fetchInstalledPacks() {
-  const res = await fetch(`${API_BASE}/api/v1/packs/installed`);
+  const res = await fetch(apiV1("packs/installed"));
   if (!res.ok) throw new Error("installed");
   return res.json();
 }
@@ -46,7 +46,7 @@ export async function downloadLanguagePack(
   to: string,
   onProgress?: (n: number) => void
 ) {
-  const res = await fetch(`${API_BASE}/api/v1/packs/download`, {
+  const res = await fetch(apiV1("packs/download"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ from, to }),
@@ -85,7 +85,7 @@ export async function downloadLanguagePack(
 }
 
 export async function listGlossary() {
-  const res = await fetch(`${API_BASE}/api/v1/glossary`);
+  const res = await fetch(apiV1("glossary"));
   if (!res.ok) throw new Error("glossary");
   return res.json();
 }
@@ -96,7 +96,7 @@ export async function addGlossaryTerm(term: {
   source_lang: string;
   target_lang: string;
 }) {
-  const res = await fetch(`${API_BASE}/api/v1/glossary`, {
+  const res = await fetch(apiV1("glossary"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ ...term, category: "user" }),
@@ -106,7 +106,7 @@ export async function addGlossaryTerm(term: {
 }
 
 export async function deleteGlossaryTerm(id: string) {
-  await fetch(`${API_BASE}/api/v1/glossary/${id}`, { method: "DELETE" });
+  await fetch(apiV1(`glossary/${id}`), { method: "DELETE" });
 }
 
 export async function uploadPdf(
@@ -119,7 +119,7 @@ export async function uploadPdf(
   form.append("source_lang", sourceLang);
   form.append("target_lang", targetLang);
 
-  const res = await fetch(`${API_BASE}/api/v1/pdf/upload`, {
+  const res = await fetch(apiV1("pdf/upload"), {
     method: "POST",
     body: form,
   });
@@ -128,15 +128,15 @@ export async function uploadPdf(
 }
 
 export async function getPdfJob(jobId: string) {
-  const res = await fetch(`${API_BASE}/api/v1/pdf/jobs/${jobId}`);
+  const res = await fetch(apiV1(`pdf/jobs/${jobId}`));
   if (!res.ok) throw new Error("Job not found");
   return res.json();
 }
 
 export function pdfDownloadUrl(jobId: string) {
-  return `${API_BASE}/api/v1/pdf/jobs/${jobId}/download`;
+  return apiV1(`pdf/jobs/${jobId}/download`);
 }
 
 export function bilingualPreviewUrl(jobId: string) {
-  return `${API_BASE}/api/v1/pdf/jobs/${jobId}/bilingual`;
+  return apiV1(`pdf/jobs/${jobId}/bilingual`);
 }

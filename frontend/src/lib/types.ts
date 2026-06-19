@@ -66,9 +66,26 @@ export interface PdfJob {
   error?: string;
 }
 
-export const API_BASE =
+const SERVER_API =
   process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://localhost:8000";
+
+/** Browser: same-origin via Next.js rewrites. SSR: direct backend. */
+export function getApiBase(): string {
+  return typeof window !== "undefined" ? "" : SERVER_API;
+}
+
+export function apiV1(path: string): string {
+  const p = path.startsWith("/") ? path.slice(1) : path;
+  return `${getApiBase()}/api/${p}`;
+}
+
+export function apiHealth(): string {
+  return `${getApiBase()}/health`;
+}
+
+/** Full backend URL (WebSocket, server-side). */
+export const API_BASE = SERVER_API;
 
 export const WS_URL =
   process.env.NEXT_PUBLIC_WS_URL ||
-  API_BASE.replace(/^http/, "ws") + "/api/v1/ws/live";
+  SERVER_API.replace(/^http/, "ws") + "/api/v1/ws/live";
