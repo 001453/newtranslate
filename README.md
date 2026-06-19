@@ -197,7 +197,7 @@ This project is designed for the **Tether / QVAC sovereign AI** ecosystem and **
 - **Keet**: Adds multilingual accessibility to private P2P calls without centralized servers.
 - **Open source**: MIT license, self-hostable, auditable pipeline.
 
-See **[docs/GRANT.md](docs/GRANT.md)** for a structured project summary suitable for grant applications.
+See **[docs/GRANT.md](docs/GRANT.md)** for the full **Tether grant application** (copy-paste form text, milestones, $7,500 USD₮ breakdown). Apply at [tether.dev](https://tether.dev).
 
 ---
 
