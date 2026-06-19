@@ -9,6 +9,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from api.pdf import router as pdf_router
+from api.stt import router as stt_router
 from api.translate import router as translate_router
 from api.websocket import router as ws_router
 from config import get_settings
@@ -40,6 +41,7 @@ app.add_middleware(
 )
 
 app.include_router(ws_router, prefix=settings.api_prefix)
+app.include_router(stt_router, prefix=settings.api_prefix)
 app.include_router(pdf_router, prefix=settings.api_prefix)
 app.include_router(translate_router, prefix=settings.api_prefix)
 

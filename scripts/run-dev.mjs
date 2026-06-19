@@ -2,7 +2,7 @@
 /**
  * Start QVAC (8765) + Backend (8000) + Frontend (3000) together.
  */
-import { spawn } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -17,6 +17,7 @@ const services = [
     cwd: join(root, "qvac-service"),
     cmd: isWin ? "npm.cmd" : "npm",
     args: ["start"],
+    shell: isWin,
   },
   {
     name: "API",
@@ -24,6 +25,7 @@ const services = [
     cwd: root,
     cmd: process.execPath,
     args: [join(root, "scripts", "run-backend.mjs")],
+    shell: false,
   },
   {
     name: "WEB",
@@ -31,6 +33,7 @@ const services = [
     cwd: join(root, "frontend"),
     cmd: isWin ? "npm.cmd" : "npm",
     args: ["run", "dev"],
+    shell: isWin,
   },
 ];
 
@@ -48,7 +51,8 @@ function startService(svc) {
   const child = spawn(svc.cmd, svc.args, {
     cwd: svc.cwd,
     env: { ...process.env, FORCE_COLOR: "1" },
-    shell: false,
+    shell: svc.shell ?? false,
+    stdio: ["ignore", "pipe", "pipe"],
   });
 
   child.stdout?.on("data", (d) => prefix(svc.name, svc.color, d));
@@ -68,7 +72,7 @@ function shutdown(code = 0) {
   stopping = true;
   for (const c of children) {
     if (!c.killed) {
-      if (isWin) spawn("taskkill", ["/pid", String(c.pid), "/f", "/t"], { shell: true });
+      if (isWin) spawn("taskkill", ["/pid", String(c.pid), "/f"], { shell: true });
       else c.kill("SIGTERM");
     }
   }
@@ -77,6 +81,15 @@ function shutdown(code = 0) {
 
 process.on("SIGINT", () => shutdown(0));
 process.on("SIGTERM", () => shutdown(0));
+
+function clearStaleDevProcesses() {
+  try {
+    execFileSync(process.execPath, [join(root, "scripts", "stop-dev.mjs")], { stdio: "inherit" });
+  } catch {
+    console.error("\nCould not clear previous dev session. Run: npm run dev:stop\n");
+    process.exit(1);
+  }
+}
 
 // Quick preflight
 const venv = join(root, "backend", ".venv", isWin ? "Scripts/python.exe" : "bin/python");
@@ -91,4 +104,5 @@ console.log("  API   → http://127.0.0.1:8000");
 console.log("  WEB   → http://localhost:3000");
 console.log("Press Ctrl+C to stop all.\n");
 
+clearStaleDevProcesses();
 for (const svc of services) startService(svc);

@@ -1,9 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { micConstraints, resumeAudioContext, type MicProfile } from "@/lib/micConstraints";
 
 /** Live microphone RMS level (0–1) while `active`. */
-export function useMicLevel(active: boolean, deviceId?: string) {
+export function useMicLevel(
+  active: boolean,
+  deviceId?: string,
+  opts?: { startDelayMs?: number; micProfile?: MicProfile }
+) {
+  const startDelayMs = opts?.startDelayMs ?? 0;
+  const micProfile = opts?.micProfile ?? "default";
   const [level, setLevel] = useState(0);
   const rafRef = useRef<number | null>(null);
 
@@ -28,10 +35,18 @@ export function useMicLevel(active: boolean, deviceId?: string) {
 
     const run = async () => {
       try {
-        const audio: MediaTrackConstraints = deviceId ? { deviceId: { exact: deviceId } } : {};
-        stream = await navigator.mediaDevices.getUserMedia({ audio });
-        ctx = new AudioContext();
-        if (ctx.state === "suspended") await ctx.resume();
+        if (startDelayMs > 0) {
+          await new Promise((r) => setTimeout(r, startDelayMs));
+          if (cancelled) return;
+        }
+
+        ctx = new AudioContext({ latencyHint: "interactive" });
+        await resumeAudioContext(ctx);
+
+        stream = await navigator.mediaDevices.getUserMedia({
+          audio: micConstraints(deviceId, micProfile, Boolean(deviceId)),
+        });
+        await resumeAudioContext(ctx);
 
         const analyser = ctx.createAnalyser();
         analyser.fftSize = 512;
@@ -63,7 +78,7 @@ export function useMicLevel(active: boolean, deviceId?: string) {
       stop();
       setLevel(0);
     };
-  }, [active, deviceId]);
+  }, [active, deviceId, micProfile, startDelayMs]);
 
   return level;
 }

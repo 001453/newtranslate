@@ -142,6 +142,10 @@ export const en = {
         title: "Enable tab audio",
         body: "Check “Share tab audio” in the browser dialog. Without it, captions stay silent.",
       },
+      {
+        title: "Files download when you stop",
+        body: "After Stop, transcript auto-downloads as .txt, .json, and .srt.",
+      },
     ],
     connected: "Live",
     disconnected: "Disconnected",
@@ -178,6 +182,16 @@ export const en = {
     sourceTab: "Keet / meeting tab",
     sourceMic: "Microphone",
     sourceBoth: "Both",
+    sourceBothHint: "“Both” uses tab audio only (dual streams break captions). Pick the meeting tab for call audio.",
+    chromeRequiredTitle: "Chrome required",
+    chromeRequiredBody:
+      "Use desktop Google Chrome for tab audio and YouTube captions. Edge/Firefox have limited or no “Share tab audio”.",
+    recordingActive: "Recording — speech is saved to the transcript automatically",
+    transcriptDownloaded: "Meeting files downloaded ({n} lines) — .txt, .json, and .srt",
+    transcriptEmptyExport: "Session ended — no speech captured; empty transcript downloaded.",
+    downloadTranscript: "Download again",
+    keetGuideHint:
+      "Start the bridge while Keet is open. In Chrome, select the Keet tab and check “Share tab audio”.",
     startBridge: "Start Bridge",
     stopBridge: "Stop",
     tabShort: "Tab",
@@ -213,7 +227,11 @@ export const en = {
       },
       {
         title: "Start the bridge",
-        body: "Share Keet tab audio (or microphone). GlobalBridge produces live subtitles locally with QVAC — audio does not leave your device.",
+        body: "Share Keet tab audio. GlobalBridge produces live subtitles locally with QVAC — audio does not leave your device.",
+      },
+      {
+        title: "Files download when you stop",
+        body: "After Stop, transcript auto-downloads as .txt, .json, and .srt. Summary appears below.",
       },
     ],
   },
@@ -285,9 +303,19 @@ export const en = {
       secureContext: "Dictation requires localhost or HTTPS. Use http://localhost:3000.",
       unsupported: "Speech recognition not supported — use Chrome on desktop.",
       unknown: "Dictation failed — check microphone and try again.",
+      noSpeech:
+        "No speech detected — speak clearly in the SOURCE language ({lang}). Check Windows default mic and Chrome mic permission.",
+      network: "Speech recognition network error — check internet (Chrome uses cloud STT).",
+      audioSuspended:
+        "Browser audio engine could not start — click the page again, then press Start dictation (Chrome audio lock).",
     },
     audioReceiving: "Microphone signal detected",
     audioSilent: "No mic signal — check device or speak louder",
+    deviceUnknown: "Selected microphone not found — pick your HyperX / headset input from the list.",
+    refreshDevices: "Refresh devices",
+    devicePlugHint:
+      "If you plugged in a USB headset, choose the correct input below. “Default” uses Windows’ system default mic.",
+    micPreviewHint: "Speak — the level bar should move. If not, check the input device in Windows sound settings.",
     audioLevel: "Input level",
     shortcuts: "Shortcuts",
     caption: "Caption",

@@ -82,12 +82,11 @@ globalbridge-ai/
 │       │   ├── KeetMeetingBridge.tsx
 │       │   ├── ConversationMode.tsx
 │       │   └── DocumentTranslator.tsx
-│       ├── hooks/              # useSpeechDictation, useLanguagePacks, …
-│       └── lib/                # api.ts, keet.ts, languages.ts
+│       ├── hooks/              # useWhisperDictation, useWebSocket, …
+│       └── lib/                # api.ts, keet.ts, meetingExport.ts
 ├── qvac-service/               # @qvac/sdk local AI bridge
 ├── electron/                   # Floating overlay (opsiyonel)
 ├── docs/
-│   └── AGENT-STATUS.md         # Geliştirici durum notu
 └── docker-compose.yml
 ```
 
@@ -106,9 +105,11 @@ globalbridge-ai/
 ```bash
 git clone https://github.com/001453/newtranslate.git
 cd newtranslate
-npm run setup    # .env + npm + Python venv
+npm run setup    # .env + frontend/.env.local (kendi ayarlarınız)
 npm run dev      # QVAC 8765 + API 8000 + WEB 3000 (tek terminal)
 ```
+
+> **İlk kurulum:** `npm run setup` kök `.env` ve `frontend/.env.local` dosyalarını örneklerden oluşturur. API adresini değiştirmek için `frontend/.env.local` içinde `NEXT_PUBLIC_API_URL=http://localhost:8000` kullanın.
 
 **Windows (ayrı pencereler):**
 

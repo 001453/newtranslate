@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CaptionLine, LiveSessionConfig, MeetingSummary, PipelineResult } from "@/lib/types";
+import type { MeetingExportPayload } from "@/lib/meetingExport";
 import { WS_URL } from "@/lib/types";
 
 type WsMessage = {
@@ -24,6 +25,7 @@ export function useWebSocket() {
   const [history, setHistory] = useState<CaptionLine[]>([]);
   const [lastPipeline, setLastPipeline] = useState<PipelineResult | null>(null);
   const [summary, setSummary] = useState<MeetingSummary | null>(null);
+  const [transcriptExport, setTranscriptExport] = useState<MeetingExportPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const clearReconnectTimer = useCallback(() => {
@@ -33,12 +35,25 @@ export function useWebSocket() {
     }
   }, []);
 
+  const closeSocket = useCallback((intentional: boolean) => {
+    intentionalClose.current = intentional;
+    clearReconnectTimer();
+    const ws = wsRef.current;
+    if (!ws) return;
+    ws.onopen = null;
+    ws.onclose = null;
+    ws.onmessage = null;
+    ws.onerror = null;
+    ws.close();
+    wsRef.current = null;
+  }, [clearReconnectTimer]);
+
   const connect = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) return;
     if (wsRef.current?.readyState === WebSocket.CONNECTING) return;
 
+    closeSocket(true);
     intentionalClose.current = false;
-    clearReconnectTimer();
 
     const ws = new WebSocket(WS_URL);
     ws.binaryType = "arraybuffer";
@@ -74,12 +89,17 @@ export function useWebSocket() {
 
       switch (msg.event) {
         case "caption_show":
-        case "caption_update":
-          setCaption(msg.payload as unknown as CaptionLine);
+        case "caption_update": {
+          const line = msg.payload as unknown as CaptionLine;
+          setCaption(line);
           if (msg.event === "caption_show") {
-            setHistory((h) => [...h.slice(-99), msg.payload as unknown as CaptionLine]);
+            setHistory((h) => {
+              if (h.some((x) => x.id === line.id)) return h;
+              return [...h.slice(-99), line];
+            });
           }
           break;
+        }
         case "caption_hide":
           setCaption(null);
           break;
@@ -89,6 +109,9 @@ export function useWebSocket() {
         case "meeting_summary":
           setSummary(msg.payload as unknown as MeetingSummary);
           break;
+        case "transcript_export":
+          setTranscriptExport(msg.payload as unknown as MeetingExportPayload);
+          break;
         case "error":
           setError(String((msg.payload as { message?: string }).message));
           break;
@@ -96,20 +119,17 @@ export function useWebSocket() {
     };
 
     wsRef.current = ws;
-  }, [clearReconnectTimer]);
+  }, [clearReconnectTimer, closeSocket]);
 
   useEffect(() => {
     connectRef.current = connect;
   }, [connect]);
 
   const disconnect = useCallback(() => {
-    intentionalClose.current = true;
-    clearReconnectTimer();
     setReconnecting(false);
-    wsRef.current?.close();
-    wsRef.current = null;
     setConnected(false);
-  }, [clearReconnectTimer]);
+    closeSocket(true);
+  }, [closeSocket]);
 
   const send = useCallback((data: object) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
@@ -119,6 +139,8 @@ export function useWebSocket() {
 
   const startSession = useCallback(
     (config: LiveSessionConfig) => {
+      setSummary(null);
+      setTranscriptExport(null);
       send({ action: "start_session", config });
     },
     [send]
@@ -180,6 +202,7 @@ export function useWebSocket() {
     history,
     lastPipeline,
     summary,
+    transcriptExport,
     error,
   };
 }

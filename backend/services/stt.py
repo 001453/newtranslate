@@ -7,10 +7,8 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import tempfile
 import time
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -22,6 +20,76 @@ logger = logging.getLogger(__name__)
 # Lazy-loaded model singleton
 _whisper_model: Any = None
 _model_lock = asyncio.Lock()
+
+# Common Whisper hallucinations on silence / music (especially short chunks)
+_HALLUCINATION_PHRASES = (
+    "thank you for watching",
+    "thanks for watching",
+    "please subscribe",
+    "subscribe to",
+    "like and subscribe",
+    "see you next time",
+    "请不吝点赞",
+    "字幕",
+    "明镜",
+    "点点栏目",
+    "感谢观看",
+    "中文字幕",
+)
+
+# CJK / Arabic / etc. — used to detect script-mix garbage
+def _script_flags(text: str) -> tuple[bool, bool, bool]:
+    cjk = arabic = latin = False
+    for ch in text:
+        o = ord(ch)
+        if o < 128 and ch.isalpha():
+            latin = True
+        elif "\u4e00" <= ch <= "\u9fff" or "\u3040" <= ch <= "\u30ff" or "\uac00" <= ch <= "\ud7af":
+            cjk = True
+        elif "\u0600" <= ch <= "\u06ff":
+            arabic = True
+    return cjk, arabic, latin
+
+
+def _audio_rms(audio: np.ndarray) -> float:
+    if len(audio) == 0:
+        return 0.0
+    return float(np.sqrt(np.mean(audio * audio)))
+
+
+def _is_likely_hallucination(
+    text: str,
+    language_probability: float,
+    min_lang_prob: float | None = None,
+) -> bool:
+    settings = get_settings()
+    threshold = min_lang_prob if min_lang_prob is not None else settings.min_stt_language_probability
+    cleaned = text.strip()
+    if len(cleaned) < 2:
+        return True
+    if language_probability < threshold:
+        return True
+
+    lower = cleaned.lower()
+    for phrase in _HALLUCINATION_PHRASES:
+        if phrase in lower or phrase in cleaned:
+            return True
+
+    cjk, arabic, latin = _script_flags(cleaned)
+    # Mixed Latin + CJK in one short phrase → typical noise hallucination
+    if cjk and latin and len(cleaned) < 120:
+        non_space = sum(1 for c in cleaned if not c.isspace())
+        if non_space > 8:
+            return True
+    if arabic and latin and len(cleaned) < 80:
+        return True
+
+    # Very low letter density or mostly punctuation/symbols
+    letters = sum(1 for c in cleaned if c.isalpha())
+    if letters < max(2, len(cleaned) * 0.25):
+        return True
+
+    return False
 
 
 @dataclass
@@ -102,6 +170,12 @@ class WhisperSTTService:
         audio: np.ndarray | bytes,
         sample_rate: int = 16000,
         language: str | None = None,
+        *,
+        condition_on_previous_text: bool = True,
+        initial_prompt: str | None = None,
+        min_rms: float | None = None,
+        min_lang_prob: float | None = None,
+        beam_size: int | None = None,
     ) -> TranscriptionResult:
         """
         Transcribe audio chunk.
@@ -109,6 +183,16 @@ class WhisperSTTService:
         """
         if isinstance(audio, bytes):
             audio = np.frombuffer(audio, dtype=np.int16).astype(np.float32) / 32768.0
+
+        settings = get_settings()
+        rms_floor = min_rms if min_rms is not None else settings.min_audio_rms
+        if _audio_rms(audio) < rms_floor:
+            return TranscriptionResult(
+                text="",
+                language=language or "unknown",
+                language_probability=0.0,
+                is_final=False,
+            )
 
         if len(audio) < sample_rate * 0.1:  # < 100ms
             return TranscriptionResult(
@@ -123,47 +207,51 @@ class WhisperSTTService:
 
         def _run():
             start = time.perf_counter()
-            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
-                tmp_path = tmp.name
-                import wave
+            lang = language or self.config.language
+            beam = beam_size if beam_size is not None else self.config.beam_size
+            prompt = (initial_prompt or "").strip()[-200:] or None
+            segments_iter, info = model.transcribe(
+                audio,
+                language=lang,
+                beam_size=beam,
+                vad_filter=self.config.vad_filter,
+                word_timestamps=True,
+                condition_on_previous_text=condition_on_previous_text,
+                initial_prompt=prompt,
+                no_speech_threshold=0.6,
+                log_prob_threshold=-1.0,
+                compression_ratio_threshold=2.4,
+            )
+            segments = []
+            texts = []
+            for seg in segments_iter:
+                if getattr(seg, "no_speech_prob", 0.0) > 0.55:
+                    continue
+                if getattr(seg, "avg_logprob", 0.0) < -1.0:
+                    continue
+                line = seg.text.strip()
+                if not line:
+                    continue
+                segments.append({
+                    "start": seg.start,
+                    "end": seg.end,
+                    "text": line,
+                })
+                texts.append(line)
 
-                with wave.open(tmp_path, "wb") as wf:
-                    wf.setnchannels(1)
-                    wf.setsampwidth(2)
-                    wf.setframerate(sample_rate)
-                    int16 = (np.clip(audio, -1, 1) * 32767).astype(np.int16)
-                    wf.writeframes(int16.tobytes())
+            full_text = " ".join(texts).strip()
+            lang_prob = info.language_probability or 0.0
+            if _is_likely_hallucination(full_text, lang_prob, min_lang_prob):
+                full_text = ""
 
-            try:
-                lang = language or self.config.language
-                segments_iter, info = model.transcribe(
-                    tmp_path,
-                    language=lang,
-                    beam_size=self.config.beam_size,
-                    vad_filter=self.config.vad_filter,
-                    word_timestamps=True,
-                    condition_on_previous_text=True,
-                )
-                segments = []
-                texts = []
-                for seg in segments_iter:
-                    segments.append({
-                        "start": seg.start,
-                        "end": seg.end,
-                        "text": seg.text.strip(),
-                    })
-                    texts.append(seg.text.strip())
-
-                elapsed = (time.perf_counter() - start) * 1000
-                return TranscriptionResult(
-                    text=" ".join(texts).strip(),
-                    language=info.language or "unknown",
-                    language_probability=info.language_probability or 0.0,
-                    segments=segments,
-                    duration_ms=elapsed,
-                )
-            finally:
-                Path(tmp_path).unlink(missing_ok=True)
+            elapsed = (time.perf_counter() - start) * 1000
+            return TranscriptionResult(
+                text=full_text,
+                language=info.language or "unknown",
+                language_probability=lang_prob,
+                segments=segments,
+                duration_ms=elapsed,
+            )
 
         return await loop.run_in_executor(None, _run)
 
@@ -186,7 +274,75 @@ class WhisperSTTService:
                 is_final=False,
             )
 
-        return await self.transcribe(audio, sample_rate, language)
+        return await self.transcribe(
+            audio,
+            sample_rate,
+            language,
+            condition_on_previous_text=False,
+        )
+
+    async def transcribe_dictation_chunk(
+        self,
+        pcm_chunk: bytes,
+        sample_rate: int = 16000,
+        language: str | None = None,
+        previous_text: str | None = None,
+    ) -> TranscriptionResult:
+        """Dictation-optimized chunk — longer context, lower RMS floor, word continuity."""
+        settings = get_settings()
+        min_samples = int(sample_rate * settings.min_audio_duration_ms / 1000)
+        audio = np.frombuffer(pcm_chunk, dtype=np.int16).astype(np.float32) / 32768.0
+
+        if len(audio) < min_samples:
+            return TranscriptionResult(
+                text="",
+                language=language or "unknown",
+                language_probability=0.0,
+                is_final=False,
+            )
+
+        return await self.transcribe(
+            audio,
+            sample_rate,
+            language,
+            condition_on_previous_text=True,
+            initial_prompt=previous_text,
+            min_rms=settings.dictation_min_audio_rms,
+            min_lang_prob=settings.dictation_min_language_probability,
+            beam_size=settings.whisper_dictation_beam_size,
+        )
+
+    async def transcribe_live_chunk(
+        self,
+        pcm_chunk: bytes,
+        sample_rate: int = 16000,
+        language: str | None = None,
+        *,
+        context: str | None = None,
+        previous_text: str | None = None,
+    ) -> TranscriptionResult:
+        """Live caption chunk — VAD + context, tuned for tab/meeting audio."""
+        settings = get_settings()
+        min_samples = int(sample_rate * settings.live_min_audio_duration_ms / 1000)
+        audio = np.frombuffer(pcm_chunk, dtype=np.int16).astype(np.float32) / 32768.0
+
+        if len(audio) < min_samples:
+            return TranscriptionResult(
+                text="",
+                language=language or "unknown",
+                language_probability=0.0,
+                is_final=False,
+            )
+
+        prompt = (context or previous_text or "").strip()[-300:] or None
+        return await self.transcribe(
+            audio,
+            sample_rate,
+            language,
+            condition_on_previous_text=True,
+            initial_prompt=prompt,
+            beam_size=settings.whisper_live_beam_size,
+        )
 
     @staticmethod
     def detect_language_hint(text: str) -> str | None:

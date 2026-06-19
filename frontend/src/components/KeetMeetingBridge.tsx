@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { LiveSetupPanel } from "@/components/live/LiveSetupPanel";
+import { ChromeRequiredBanner } from "@/components/shared/ChromeRequiredBanner";
 import { PrivacyBanner } from "@/components/PrivacyBanner";
 import { SubtitleOverlay } from "@/components/SubtitleOverlay";
 import { type AudioCaptureError, type AudioCaptureStats, useAudioCapture, useTabAudioCapture } from "@/hooks/useAudioCapture";
@@ -10,6 +11,7 @@ import { useMicDevices } from "@/hooks/useMicDevices";
 import { defaultTranslationPair, useLocale } from "@/hooks/useLocale";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { KEET_DOWNLOAD_URL, isKeetInvite, keetOpenHref, normalizeKeetInvite } from "@/lib/keet";
+import { downloadMeetingExport } from "@/lib/meetingExport";
 import { fmt } from "@/lib/i18n/fmt";
 import { LANGUAGES, langName } from "@/lib/languages";
 import { cn, formatLatency } from "@/lib/utils";
@@ -26,6 +28,8 @@ import {
   Users,
   Wifi,
   WifiOff,
+  Download,
+  Circle,
 } from "lucide-react";
 
 const KEET_INVITE_KEY = "gb-keet-invite";
@@ -72,6 +76,7 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
     history,
     lastPipeline,
     summary,
+    transcriptExport,
     error,
     send,
     waitForOpen,
@@ -90,6 +95,7 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
   const [audioError, setAudioError] = useState<string | null>(null);
   const [audioStats, setAudioStats] = useState<AudioCaptureStats>({ level: 0, chunksSent: 0 });
   const [insecureContext, setInsecureContext] = useState(false);
+  const [exportNotice, setExportNotice] = useState<string | null>(null);
   const sessionActiveRef = useRef(false);
   const { devices: micDevices, requestPermission: requestMicPermission } = useMicDevices();
 
@@ -124,6 +130,17 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
         return map.unknown;
     }
   };
+
+  useEffect(() => {
+    if (!transcriptExport) return;
+    const prefix = keetMode ? "keet-toplanti" : "canli-altyazi";
+    downloadMeetingExport(transcriptExport, prefix);
+    setExportNotice(
+      transcriptExport.segment_count > 0
+        ? fmt(m.meeting.transcriptDownloaded, { n: String(transcriptExport.segment_count) })
+        : m.meeting.transcriptEmptyExport
+    );
+  }, [transcriptExport, keetMode, m.meeting.transcriptDownloaded, m.meeting.transcriptEmptyExport]);
 
   useEffect(() => {
     connect();
@@ -224,11 +241,11 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
     });
 
     const errors: string[] = [];
-    if (audioSource === "mic" || audioSource === "both") {
+    if (audioSource === "mic") {
       const err = await start();
       if (err) errors.push(audioErrorText(err));
-    }
-    if (audioSource === "tab" || audioSource === "both") {
+    } else {
+      // tab or both — single tab stream (both would duplicate PCM to WS)
       const err = await startTabCapture();
       if (err) errors.push(audioErrorText(err));
     }
@@ -243,6 +260,7 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
     setSessionActive(false);
     setAudioError(null);
     setAudioStats({ level: 0, chunksSent: 0 });
+    setExportNotice(null);
   };
 
   const copyInvite = async () => {
@@ -294,8 +312,16 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
 
       {error && <div className="gb-alert-danger">{error}</div>}
       {insecureContext && <div className="gb-alert-danger">{m.meeting.audioErrors.secureContext}</div>}
+      <ChromeRequiredBanner />
       {audioError && <div className="gb-alert-danger">{audioError}</div>}
+      {exportNotice && <div className="gb-alert-success text-sm">{exportNotice}</div>}
       <PrivacyBanner />
+
+      {keetMode && !showGuide && (
+        <button type="button" className="gb-btn-ghost w-full text-xs" onClick={() => setShowGuide(true)}>
+          {m.meeting.keetStart}
+        </button>
+      )}
 
       {!keetMode && showLiveGuide && <LiveSetupPanel onHide={() => setShowLiveGuide(false)} />}
 
@@ -313,6 +339,7 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
               {m.meeting.hide}
             </button>
           </div>
+          <p className="mb-3 text-xs text-[var(--gb-muted)]">{m.meeting.keetGuideHint}</p>
           <ol className="space-y-3">
             {m.meeting.steps.map((s, i) => (
               <li key={s.title} className="flex gap-3 text-sm">
@@ -489,6 +516,9 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
             </button>
           ))}
         </div>
+        {audioSource === "both" && (
+          <p className="mb-3 text-[0.65rem] text-[var(--gb-muted)]">{m.meeting.sourceBothHint}</p>
+        )}
 
         {sessionActive && (recording || capturing) && (
           <div className="mb-3">
@@ -510,6 +540,13 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
             {audioStats.chunksSent > 20 && audioStats.level > 0.004 && !caption && (
               <p className="mt-2 text-xs text-[var(--gb-muted)]">{m.meeting.speechMusicHint}</p>
             )}
+          </div>
+        )}
+
+        {sessionActive && (
+          <div className="mb-3 flex items-center gap-2 rounded-lg border border-[var(--gb-danger)]/40 bg-[var(--gb-danger)]/5 px-3 py-2 text-xs text-[var(--gb-danger)]">
+            <Circle className="h-2 w-2 fill-current animate-pulse" />
+            {m.meeting.recordingActive}
           </div>
         )}
 
@@ -584,9 +621,21 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
       </div>
 
       <div className="gb-card p-4">
-        <h2 className="mb-2 text-sm font-semibold">
-          {fmt(m.meeting.transcript, { n: history.length })}
-        </h2>
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <h2 className="text-sm font-semibold">
+            {fmt(m.meeting.transcript, { n: history.length })}
+          </h2>
+          {transcriptExport && (
+            <button
+              type="button"
+              className="gb-btn-ghost flex items-center gap-1 text-xs"
+              onClick={() => downloadMeetingExport(transcriptExport, keetMode ? "keet-toplanti" : "canli-altyazi")}
+            >
+              <Download className="h-3 w-3" />
+              {m.meeting.downloadTranscript}
+            </button>
+          )}
+        </div>
         <div className="max-h-48 space-y-2 overflow-y-auto text-sm">
           {history.length === 0 && <p className="text-[var(--gb-muted)]">{m.meeting.transcriptEmpty}</p>}
           {history.map((h, i) => (

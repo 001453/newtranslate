@@ -11,6 +11,26 @@ export async function fetchHealth(): Promise<{
   return res.json();
 }
 
+export async function transcribePcm(
+  pcm: ArrayBuffer,
+  lang?: string,
+  opts?: { prevText?: string; mode?: "dictation" | "live" }
+): Promise<{ text: string; language: string; confidence: number }> {
+  const params = new URLSearchParams();
+  if (lang && lang !== "auto") params.set("lang", lang.split("-")[0]);
+  params.set("mode", opts?.mode ?? "dictation");
+  if (opts?.prevText?.trim()) params.set("prev", opts.prevText.trim().slice(-200));
+
+  const q = params.toString() ? `?${params.toString()}` : "";
+  const res = await fetch(apiV1(`transcribe${q}`), {
+    method: "POST",
+    headers: { "Content-Type": "application/octet-stream" },
+    body: pcm,
+  });
+  if (!res.ok) throw new Error("transcribe");
+  return res.json();
+}
+
 export async function translateText(
   text: string,
   sourceLang: string,

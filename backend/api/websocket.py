@@ -1,32 +1,29 @@
 """
 GlobalBridge AI - Real-time WebSocket pipeline.
-Audio chunk → STT → Translation → Overlay broadcast.
+Audio chunk → queued STT → Translation → Overlay broadcast.
 """
 
 from __future__ import annotations
 
-import asyncio
 import json
 import logging
-import time
-from typing import Any
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
-from services.glossary import glossary_service
+from config import get_settings
+from services.live_pipeline import LiveAudioProcessor
+from services.meeting_export import build_meeting_export
 from services.overlay import overlay_service
-from services.stt import stt_service
 from services.summary import summary_service
 from services.translation import translation_service
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-# Active WebSocket connections for overlay sync
 _ws_clients: set[WebSocket] = set()
 
 
-async def _overlay_broadcast(message: dict[str, Any]) -> None:
+async def _overlay_broadcast(message: dict) -> None:
     dead: list[WebSocket] = []
     for ws in list(_ws_clients):
         try:
@@ -37,7 +34,6 @@ async def _overlay_broadcast(message: dict[str, Any]) -> None:
         _ws_clients.discard(ws)
 
 
-# Register overlay subscriber once
 overlay_service.subscribe(_overlay_broadcast)
 
 
@@ -45,7 +41,9 @@ overlay_service.subscribe(_overlay_broadcast)
 async def live_caption_ws(websocket: WebSocket):
     await websocket.accept()
     _ws_clients.add(websocket)
-    session_context = ""
+    settings = get_settings()
+    processor = LiveAudioProcessor(websocket, queue_max=settings.live_queue_max)
+    processor.start()
     speaker = "Speaker 1"
 
     try:
@@ -61,63 +59,7 @@ async def live_caption_ws(websocket: WebSocket):
                 break
 
             if "bytes" in raw and raw["bytes"]:
-                # Binary PCM int16 @ 16kHz
-                pcm = raw["bytes"]
-                t0 = time.perf_counter()
-
-                stt_result = await stt_service.transcribe_stream_chunk(pcm)
-                if not stt_result.text:
-                    continue
-
-                detected = stt_result.language
-                target = overlay_service.resolve_target_lang(detected)
-
-                glossary = glossary_service.to_dict(
-                    detected.split("-")[0],
-                    target.split("-")[0],
-                )
-                if glossary:
-                    translation_service.set_glossary(glossary)
-
-                if target.split("-")[0] == detected.split("-")[0]:
-                    translated_text = stt_result.text
-                    trans_ms = 0.0
-                else:
-                    trans = await translation_service.translate_live(
-                        stt_result.text,
-                        detected,
-                        target,
-                        speaker=speaker,
-                        context=session_context,
-                    )
-                    translated_text = trans.text
-                    trans_ms = trans.latency_ms
-
-                session_context = (session_context + " " + stt_result.text)[-500:]
-                total_ms = (time.perf_counter() - t0) * 1000
-
-                await overlay_service.show_caption(
-                    original=stt_result.text,
-                    translated=translated_text,
-                    source_lang=detected,
-                    target_lang=target,
-                    speaker=speaker,
-                    is_final=True,
-                    confidence=stt_result.language_probability,
-                )
-
-                await websocket.send_json({
-                    "event": "pipeline_result",
-                    "payload": {
-                        "original": stt_result.text,
-                        "translated": translated_text,
-                        "source_lang": detected,
-                        "target_lang": target,
-                        "stt_ms": stt_result.duration_ms,
-                        "translation_ms": trans_ms,
-                        "total_ms": total_ms,
-                    },
-                })
+                await processor.submit(raw["bytes"])
                 continue
 
             if "text" not in raw:
@@ -137,6 +79,7 @@ async def live_caption_ws(websocket: WebSocket):
                     lang_b=cfg.get("lang_b", "en"),
                     viewer_lang=viewer,
                 )
+                processor.reset_session()
                 await websocket.send_json({"event": "session_started", "payload": {"session_id": sid}})
 
             elif action == "update_languages":
@@ -159,18 +102,30 @@ async def live_caption_ws(websocket: WebSocket):
                 })
 
             elif action == "stop_session":
-                await overlay_service.stop_session()
+                await processor.stop()
+                processor = LiveAudioProcessor(websocket, queue_max=settings.live_queue_max)
+
+                transcript = await overlay_service.get_transcript()
                 summary = await summary_service.generate_summary(
-                    await overlay_service.get_transcript(),
+                    transcript,
                     language=msg.get("language", "en"),
                 )
+                export = build_meeting_export(
+                    transcript,
+                    overlay_service.state.session_id,
+                    summary,
+                )
+                await overlay_service.stop_session()
+
+                await websocket.send_json({"event": "transcript_export", "payload": export})
                 await websocket.send_json({"event": "meeting_summary", "payload": summary})
+                processor.start()
 
             elif action == "set_speaker":
                 speaker = msg.get("speaker", speaker)
+                processor.speaker = speaker
 
             elif action == "translate_text":
-                # Text-only path (no audio)
                 text = msg.get("text", "")
                 src = msg.get("source_lang", "auto")
                 tgt = msg.get("target_lang", "en")
@@ -196,4 +151,5 @@ async def live_caption_ws(websocket: WebSocket):
         except Exception:
             pass
     finally:
+        await processor.stop()
         _ws_clients.discard(websocket)

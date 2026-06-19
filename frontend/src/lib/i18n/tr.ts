@@ -144,6 +144,10 @@ export const tr: Messages = {
         title: "Sekme sesini açın",
         body: "Tarayıcı penceresinde “Share tab audio” / “Sekme sesini paylaş” kutusunu işaretleyin. İşaretlenmezse altyazı gelmez.",
       },
+      {
+        title: "Toplantı bitince dosya indirilir",
+        body: "Stop / Bitir sonrası transkript .txt, .json ve .srt olarak otomatik indirilir.",
+      },
     ],
     connected: "Canlı",
     disconnected: "Bağlantı yok",
@@ -181,6 +185,16 @@ export const tr: Messages = {
     sourceTab: "Keet / toplantı sekmesi",
     sourceMic: "Mikrofon",
     sourceBoth: "İkisi birden",
+    sourceBothHint: "“İkisi” modunda yalnızca sekme sesi kullanılır (çift akış altyazıyı bozar). Toplantı sesi için sekme seçin.",
+    chromeRequiredTitle: "Chrome gerekli",
+    chromeRequiredBody:
+      "Sekme sesi ve YouTube altyazı için masaüstü Google Chrome kullanın. Edge/Firefox’ta “Sekme sesini paylaş” sınırlı veya yoktur.",
+    recordingActive: "Kayıt aktif — konuşmalar otomatik transkripte yazılıyor",
+    transcriptDownloaded: "Toplantı dosyaları indirildi ({n} satır) — .txt, .json ve .srt",
+    transcriptEmptyExport: "Toplantı bitti — konuşma kaydedilmedi, boş transkript indirildi.",
+    downloadTranscript: "Dosyayı tekrar indir",
+    keetGuideHint:
+      "Keet uygulamasında görüşme açıkken GlobalBridge’te köprüyü başlatın. Chrome’da Keet sekmesini seçin ve mutlaka “Sekme sesini paylaş” kutusunu işaretleyin.",
     startBridge: "Köprüyü Başlat",
     stopBridge: "Bitir",
     tabShort: "Sekme",
@@ -216,7 +230,11 @@ export const tr: Messages = {
       },
       {
         title: "Köprüyü başlatın",
-        body: "Keet sekmesinin sesini paylaşın (veya mikrofon). GlobalBridge yerel QVAC ile anlık altyazı üretir — ses buluta gitmez.",
+        body: "Keet sekmesinin sesini paylaşın. GlobalBridge yerel QVAC ile anlık altyazı üretir — ses buluta gitmez.",
+      },
+      {
+        title: "Toplantı bitince dosya indirilir",
+        body: "Bitir’e basınca transkript otomatik .txt, .json ve .srt olarak indirilir. Özet aşağıda görünür.",
       },
     ],
   },
@@ -288,9 +306,19 @@ export const tr: Messages = {
       secureContext: "Dikte için localhost veya HTTPS gerekir. http://localhost:3000 kullanın.",
       unsupported: "Ses tanıma desteklenmiyor — masaüstü Chrome deneyin.",
       unknown: "Dikte başarısız — mikrofonu kontrol edip tekrar deneyin.",
+      noSpeech:
+        "Konuşma algılanmadı — KAYNAK dilinde ({lang}) net konuşun. Windows varsayılan mikrofonu ve Chrome mikrofon iznini kontrol edin.",
+      network: "Ses tanıma ağına ulaşılamıyor — internet bağlantınızı kontrol edin (Chrome bulut STT kullanır).",
+      audioSuspended:
+        "Tarayıcı ses motoru başlatılamadı — sayfaya tekrar tıklayıp Dikte başlat’a basın (Chrome ses kilidi).",
     },
     audioReceiving: "Mikrofon sinyali alınıyor",
     audioSilent: "Ses yok — cihazı kontrol edin veya daha yüksek konuşun",
+    deviceUnknown: "Seçili mikrofon bulunamadı — listeden HyperX / kulaklık girişini seçin.",
+    refreshDevices: "Cihazları yenile",
+    devicePlugHint:
+      "USB kulaklık taktıysanız listeden doğru girişi seçin. “Varsayılan” Windows’un seçtiği mikrofonu kullanır.",
+    micPreviewHint: "Konuşun — seviye çubuğu hareket etmeli. Hareket yoksa Windows ses ayarından girişi kontrol edin.",
     audioLevel: "Giriş seviyesi",
     shortcuts: "Kısayol tuşları",
     caption: "Altyazı",

@@ -6,9 +6,10 @@ import { MicSidebar } from "@/components/shared/MicSidebar";
 import { useConversation } from "@/hooks/useLocalStore";
 import { defaultTranslationPair, useLocale } from "@/hooks/useLocale";
 import { useLanguagePacks } from "@/hooks/useLanguagePacks";
+import { useMicDeviceGuard } from "@/hooks/useMicDeviceGuard";
 import { useMicDevices } from "@/hooks/useMicDevices";
 import { useMicSettings } from "@/hooks/useMicSettings";
-import { useSpeechDictation } from "@/hooks/useSpeechDictation";
+import { useWhisperDictation } from "@/hooks/useWhisperDictation";
 import { translateText } from "@/lib/api";
 import { fmt } from "@/lib/i18n/fmt";
 import { LANGUAGES, langName } from "@/lib/languages";
@@ -29,6 +30,8 @@ export function ConversationMode() {
   const { isPairReady } = useLanguagePacks();
   const { settings, update, ready: settingsReady } = useMicSettings();
   const { devices, requestPermission } = useMicDevices();
+
+  useMicDeviceGuard(settings.deviceId, devices, settingsReady, (patch) => update(patch));
 
   const activeLang = speaker === "a" ? langA : langB;
 
@@ -57,7 +60,8 @@ export function ConversationMode() {
     }
   }, []);
 
-  const { listening, supported, error: dictationError, toggle, stop } = useSpeechDictation(activeLang, onDictation);
+  const { listening, supported, error: dictationError, toggle, stop, debug: dictationDebug, level: dictationLevel } =
+    useWhisperDictation(activeLang, settings.deviceId || undefined, onDictation);
 
   useEffect(() => {
     if (settingsReady) requestPermission();
@@ -108,9 +112,15 @@ export function ConversationMode() {
         ? m.mic.dictationErrors.secureContext
         : dictationError === "unsupported"
           ? m.mic.dictationErrors.unsupported
-          : dictationError
-            ? m.mic.dictationErrors.unknown
-            : null;
+          : dictationError === "no_speech"
+            ? fmt(m.mic.dictationErrors.noSpeech, { lang: langName(activeLang) })
+            : dictationError === "network"
+              ? m.mic.dictationErrors.network
+              : dictationError === "audio_suspended"
+                ? m.mic.dictationErrors.audioSuspended
+                : dictationError
+                ? m.mic.dictationErrors.unknown
+                : null;
 
   return (
     <div className="mx-auto max-w-6xl">
@@ -259,6 +269,9 @@ export function ConversationMode() {
           onMicToggle={toggle}
           supported={supported}
           statusLabel={statusLabel}
+          dictationDebug={dictationDebug}
+          dictationLevel={dictationLevel}
+          onRefreshDevices={() => void requestPermission()}
         />
       </div>
     </div>

@@ -62,8 +62,18 @@ class Settings(BaseSettings):
     # Real-time pipeline
     target_latency_ms: int = 2000
     subtitle_display_seconds: float = 3.5
-    audio_chunk_ms: int = 500
-    min_audio_duration_ms: int = 300
+    audio_chunk_ms: int = 1200
+    dictation_chunk_ms: int = 2000
+    dictation_overlap_ms: int = 400
+    min_audio_duration_ms: int = 800
+    min_audio_rms: float = 0.008
+    dictation_min_audio_rms: float = 0.003
+    dictation_min_language_probability: float = 0.35
+    whisper_dictation_beam_size: int = 3
+    min_stt_language_probability: float = 0.45
+    live_min_audio_duration_ms: int = 1000
+    live_queue_max: int = 5
+    whisper_live_beam_size: int = 3
 
     # Privacy
     local_processing_only: bool = False

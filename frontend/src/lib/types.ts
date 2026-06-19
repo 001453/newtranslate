@@ -86,6 +86,11 @@ export function apiHealth(): string {
 /** Full backend URL (WebSocket, server-side). */
 export const API_BASE = SERVER_API;
 
-export const WS_URL =
-  process.env.NEXT_PUBLIC_WS_URL ||
-  SERVER_API.replace(/^http/, "ws") + "/api/v1/ws/live";
+/** WebSocket — always same host/port as REST API (avoids stale NEXT_PUBLIC_WS_URL). */
+export function getWsUrl(): string {
+  const base = SERVER_API.replace(/\/$/, "");
+  const wsBase = base.replace(/^https/, "wss").replace(/^http/, "ws");
+  return `${wsBase}/api/v1/ws/live`;
+}
+
+export const WS_URL = getWsUrl();

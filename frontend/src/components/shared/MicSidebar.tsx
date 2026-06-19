@@ -1,9 +1,11 @@
 "use client";
 
-import { Keyboard, Mic, Volume2 } from "lucide-react";
+import { Keyboard, Mic, RefreshCw, Volume2 } from "lucide-react";
 import { AudioLevelBar } from "@/components/shared/AudioLevelBar";
+import { DictationDebugPanel } from "@/components/shared/DictationDebugPanel";
 import { useMicLevel } from "@/hooks/useMicLevel";
 import { useLocale } from "@/hooks/useLocale";
+import type { DictationDebugState } from "@/lib/dictationDebug";
 import { cn } from "@/lib/utils";
 
 type Device = { deviceId: string; label: string };
@@ -20,6 +22,10 @@ export function MicSidebar({
   onFontSizeChange,
   sessionActive,
   statusLabel,
+  hideAudioMeter = false,
+  dictationDebug,
+  dictationLevel,
+  onRefreshDevices,
 }: {
   mode: "live" | "dictation";
   devices: Device[];
@@ -32,10 +38,21 @@ export function MicSidebar({
   onFontSizeChange?: (n: number) => void;
   sessionActive?: boolean;
   statusLabel?: string;
+  hideAudioMeter?: boolean;
+  dictationDebug?: DictationDebugState;
+  /** Whisper dictation level (0–1) — no extra mic stream. */
+  dictationLevel?: number;
+  onRefreshDevices?: () => void;
 }) {
   const { messages: m } = useLocale();
   const locked = mode === "live" && sessionActive;
-  const audioLevel = useMicLevel(listening, deviceId || undefined);
+  const meterActive = listening && !hideAudioMeter && mode === "live";
+  const audioLevel = useMicLevel(meterActive, deviceId || undefined);
+  const previewActive = mode === "dictation" && !listening;
+  const previewLevel = useMicLevel(previewActive, deviceId || undefined, { micProfile: "headset" });
+  const dictationMeterActive = listening && mode === "dictation" && dictationLevel != null;
+  const deviceKnown =
+    !deviceId || devices.length === 0 || devices.some((d) => d.deviceId === deviceId);
 
   const hotkeys =
     mode === "live"
@@ -68,7 +85,21 @@ export function MicSidebar({
         </div>
         <div className="space-y-3 p-4">
           <div>
-            <label className="mb-1 block text-xs text-[var(--gb-muted)]">{m.mic.inputDevice}</label>
+            <div className="mb-1 flex items-center justify-between gap-2">
+              <label className="text-xs text-[var(--gb-muted)]">{m.mic.inputDevice}</label>
+              {onRefreshDevices && (
+                <button
+                  type="button"
+                  onClick={onRefreshDevices}
+                  disabled={locked || listening}
+                  className="flex items-center gap-1 text-[0.65rem] text-[var(--gb-accent)] hover:underline disabled:opacity-40"
+                  title={m.mic.refreshDevices}
+                >
+                  <RefreshCw className="h-3 w-3" />
+                  {m.mic.refreshDevices}
+                </button>
+              )}
+            </div>
             <select
               className="gb-select"
               value={deviceId}
@@ -82,6 +113,12 @@ export function MicSidebar({
                 </option>
               ))}
             </select>
+            {!deviceKnown && (
+              <p className="mt-1 text-[0.65rem] text-[var(--gb-warning)]">{m.mic.deviceUnknown}</p>
+            )}
+            <p className="mt-1 text-[0.65rem] leading-relaxed text-[var(--gb-muted)]">
+              {m.mic.devicePlugHint}
+            </p>
           </div>
 
           <button
@@ -120,10 +157,30 @@ export function MicSidebar({
             {defaultStatus}
           </div>
 
-          {listening && <AudioLevelBar level={audioLevel} active={listening} />}
+          {previewActive && (
+            <AudioLevelBar level={previewLevel} active={previewActive} variant="dictation" />
+          )}
+
+          {meterActive && <AudioLevelBar level={audioLevel} active={meterActive} />}
+
+          {previewActive && (
+            <p className="text-[0.65rem] leading-relaxed text-[var(--gb-muted)]">{m.mic.micPreviewHint}</p>
+          )}
+
+          {dictationMeterActive && (
+            <AudioLevelBar
+              level={dictationLevel ?? 0}
+              active={dictationMeterActive}
+              variant="dictation"
+            />
+          )}
 
           {!supported && (
             <p className="text-[0.65rem] text-[var(--gb-danger)]">{m.mic.unsupported}</p>
+          )}
+
+          {mode === "dictation" && listening && dictationDebug && (
+            <DictationDebugPanel debug={dictationDebug} />
           )}
 
           {mode === "dictation" && (

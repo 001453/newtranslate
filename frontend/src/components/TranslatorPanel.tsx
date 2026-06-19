@@ -5,14 +5,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { HistoryPanel } from "@/components/HistoryPanel";
 import { PackManagerBar } from "@/components/PackManagerBar";
 import { MicSidebar } from "@/components/shared/MicSidebar";
-import { AudioLevelBar } from "@/components/shared/AudioLevelBar";
 import { useHistory, usePinnedPairs } from "@/hooks/useLocalStore";
 import { defaultTranslationPair, useLocale } from "@/hooks/useLocale";
 import { useLanguagePacks } from "@/hooks/useLanguagePacks";
+import { useMicDeviceGuard } from "@/hooks/useMicDeviceGuard";
 import { useMicDevices } from "@/hooks/useMicDevices";
-import { useMicLevel } from "@/hooks/useMicLevel";
 import { useMicSettings } from "@/hooks/useMicSettings";
-import { useSpeechDictation } from "@/hooks/useSpeechDictation";
+import { useWhisperDictation } from "@/hooks/useWhisperDictation";
 import { translateText } from "@/lib/api";
 import { fmt } from "@/lib/i18n/fmt";
 import { LANGUAGES, langName } from "@/lib/languages";
@@ -40,6 +39,8 @@ export function TranslatorPanel({ compact = true, unified = false }: { compact?:
   const { settings, update, ready: settingsReady } = useMicSettings();
   const { devices, requestPermission } = useMicDevices();
 
+  useMicDeviceGuard(settings.deviceId, devices, settingsReady, (patch) => update(patch));
+
   const dictLang = from === "auto" ? defaultTranslationPair(locale).from : from;
 
   const dictationErrorText = (code: string | null): string | null => {
@@ -48,6 +49,10 @@ export function TranslatorPanel({ compact = true, unified = false }: { compact?:
     if (code === "denied") return map.denied;
     if (code === "secure_context") return map.secureContext;
     if (code === "unsupported") return map.unsupported;
+    if (code === "no_speech") return fmt(map.noSpeech, { lang: langName(dictLang) });
+    if (code === "network") return map.network;
+    if (code === "not_found") return map.unknown;
+    if (code === "audio_suspended") return map.audioSuspended;
     return map.unknown;
   };
 
@@ -93,8 +98,8 @@ export function TranslatorPanel({ compact = true, unified = false }: { compact?:
     }
   }, []);
 
-  const { listening, supported, error: dictationError, toggle, stop } = useSpeechDictation(dictLang, onDictation);
-  const micLevel = useMicLevel(listening, settings.deviceId || undefined);
+  const { listening, supported, error: dictationError, toggle, stop, debug: dictationDebug, level: dictationLevel } =
+    useWhisperDictation(dictLang, settings.deviceId || undefined, onDictation);
 
   const dictationStatus = listening
     ? fmt(m.conversation.listeningLang, { lang: langName(dictLang) })
@@ -284,11 +289,10 @@ export function TranslatorPanel({ compact = true, unified = false }: { compact?:
                 </div>
               )}
               {unified && listening && (
-                <div className="space-y-2 border-b border-[var(--gb-border-subtle)] px-3 py-2">
+                <div className="border-b border-[var(--gb-border-subtle)] px-3 py-2">
                   <div className="flex items-center gap-1 text-xs text-[var(--gb-danger)]">
                     <Mic className="h-3 w-3 animate-pulse" /> {m.translate.listening}
                   </div>
-                  <AudioLevelBar level={micLevel} active={listening} compact />
                 </div>
               )}
               <div className={cn(unified && "relative min-h-[10rem] flex-1")}>
@@ -461,6 +465,9 @@ export function TranslatorPanel({ compact = true, unified = false }: { compact?:
             onMicToggle={toggle}
             supported={supported}
             statusLabel={listening ? dictationStatus : dictationStatus}
+            dictationDebug={dictationDebug}
+            dictationLevel={dictationLevel}
+            onRefreshDevices={() => void requestPermission()}
           />
           {!compact && (
             <HistoryPanel

@@ -1,6 +1,26 @@
-# GlobalBridge AI — 3 servisi ayrı PowerShell pencerelerinde başlatır
-$ErrorActionPreference = "Stop"
+# GlobalBridge AI — eski süreçleri kapat, 3 servisi başlat
+$ErrorActionPreference = "Continue"
 $Root = Split-Path -Parent $PSScriptRoot
+
+function Stop-DevPorts {
+    foreach ($port in 8765, 8000, 3000) {
+        $matches = netstat -ano | Select-String ":$port\s" | Select-String "LISTENING"
+        foreach ($line in $matches) {
+            if ($line -match '\s(\d+)\s*$') {
+                $procId = [int]$Matches[1]
+                if ($procId -gt 4) {
+                    Write-Host "Durduruluyor: PID $procId (port $port)" -ForegroundColor Yellow
+                    Start-Process -FilePath "taskkill.exe" -ArgumentList "/F", "/PID", "$procId" -Wait -NoNewWindow -ErrorAction SilentlyContinue | Out-Null
+                }
+            }
+        }
+    }
+    Start-Sleep -Seconds 2
+}
+
+Stop-DevPorts
+
+$ErrorActionPreference = "Stop"
 
 if (-not (Test-Path "$Root\backend\.venv\Scripts\python.exe")) {
     Write-Host "Kurulum eksik. Once calistirin: npm run setup" -ForegroundColor Yellow

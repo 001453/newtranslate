@@ -29,6 +29,13 @@ function ensureEnv() {
     copyFileSync(rootEnv, backendEnv);
     console.log(`Synced ${backendEnv}`);
   }
+
+  const feExample = join(root, "frontend", ".env.example");
+  const feLocal = join(root, "frontend", ".env.local");
+  if (!existsSync(feLocal) && existsSync(feExample)) {
+    copyFileSync(feExample, feLocal);
+    console.log(`Created ${feLocal}`);
+  }
 }
 
 function ensureBackendVenv() {
