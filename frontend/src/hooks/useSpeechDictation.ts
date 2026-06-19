@@ -66,6 +66,9 @@ function toSpeechLang(code: string): string {
   return SPEECH_LANG[base] || "en-US";
 }
 
+/** Chrome stops recognition after each pause even with continuous=true — restart unless user stopped. */
+const RESTART_MS = 120;
+
 export function useSpeechDictation(
   langCode: string,
   onTranscript: (text: string, final: boolean) => void
@@ -74,28 +77,40 @@ export function useSpeechDictation(
   const [supported, setSupported] = useState(true);
   const recRef = useRef<SpeechRecognitionLike | null>(null);
   const onTranscriptRef = useRef(onTranscript);
+  const intentionalStopRef = useRef(false);
+  const activeRef = useRef(false);
+  const langRef = useRef(langCode);
+  const restartTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   onTranscriptRef.current = onTranscript;
+  langRef.current = langCode;
 
   useEffect(() => {
     setSupported(Boolean(getSpeechRecognitionCtor()));
   }, []);
 
+  const clearRestartTimer = useCallback(() => {
+    if (restartTimerRef.current) {
+      clearTimeout(restartTimerRef.current);
+      restartTimerRef.current = null;
+    }
+  }, []);
+
   const stop = useCallback(() => {
+    intentionalStopRef.current = true;
+    activeRef.current = false;
+    clearRestartTimer();
     recRef.current?.stop();
     recRef.current = null;
     setListening(false);
-  }, []);
+  }, [clearRestartTimer]);
 
-  const start = useCallback(() => {
+  const bindRecognition = useCallback(() => {
     const Ctor = getSpeechRecognitionCtor();
-    if (!Ctor) {
-      setSupported(false);
-      return;
-    }
-    stop();
+    if (!Ctor || !activeRef.current) return;
 
     const rec = new Ctor();
-    rec.lang = toSpeechLang(langCode);
+    rec.lang = toSpeechLang(langRef.current);
     rec.continuous = true;
     rec.interimResults = true;
 
@@ -111,20 +126,62 @@ export function useSpeechDictation(
       else if (interim) onTranscriptRef.current(interim.trim(), false);
     };
 
-    rec.onerror = () => {
-      setListening(false);
-      recRef.current = null;
+    rec.onerror = (e: SpeechRecognitionErrorEvent) => {
+      // Chrome: no-speech after silence — onend will restart
+      if (e.error === "no-speech" || e.error === "network") return;
+      if (e.error === "aborted") return;
+      if (e.error === "not-allowed" || e.error === "service-not-allowed") {
+        intentionalStopRef.current = true;
+        activeRef.current = false;
+        setListening(false);
+        recRef.current = null;
+      }
     };
 
     rec.onend = () => {
-      setListening(false);
       recRef.current = null;
+      if (intentionalStopRef.current || !activeRef.current) {
+        setListening(false);
+        return;
+      }
+      // Chrome cuts session after pause — keep dictation alive
+      clearRestartTimer();
+      restartTimerRef.current = setTimeout(() => {
+        if (!activeRef.current || intentionalStopRef.current) return;
+        try {
+          bindRecognition();
+        } catch {
+          activeRef.current = false;
+          setListening(false);
+        }
+      }, RESTART_MS);
     };
 
     recRef.current = rec;
-    rec.start();
+    try {
+      rec.start();
+    } catch {
+      clearRestartTimer();
+      restartTimerRef.current = setTimeout(() => {
+        if (activeRef.current && !intentionalStopRef.current) bindRecognition();
+      }, RESTART_MS);
+    }
+  }, [clearRestartTimer]);
+
+  const start = useCallback(() => {
+    const Ctor = getSpeechRecognitionCtor();
+    if (!Ctor) {
+      setSupported(false);
+      return;
+    }
+    clearRestartTimer();
+    intentionalStopRef.current = false;
+    activeRef.current = true;
     setListening(true);
-  }, [langCode, stop]);
+    recRef.current?.abort();
+    recRef.current = null;
+    bindRecognition();
+  }, [bindRecognition, clearRestartTimer]);
 
   const toggle = useCallback(() => {
     if (listening) stop();

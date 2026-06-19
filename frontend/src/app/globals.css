@@ -191,6 +191,15 @@ body {
     background: var(--gb-accent-hover);
   }
 
+  .gb-btn-danger {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white transition;
+    background: var(--gb-danger);
+  }
+
+  .gb-btn-danger:hover:not(:disabled) {
+    filter: brightness(0.92);
+  }
+
   .gb-btn-ghost {
     @apply inline-flex items-center justify-center gap-1 rounded-lg border px-3 py-1.5 text-sm transition;
     border-color: var(--gb-border);
@@ -277,5 +286,65 @@ body {
     border-color: rgba(43, 125, 233, 0.35);
     background: var(--gb-accent-muted);
     color: var(--gb-accent);
+  }
+
+  .gb-brand-mark {
+    @apply flex h-10 w-10 items-center justify-center rounded-xl text-lg font-bold text-white shadow-lg;
+    background: linear-gradient(135deg, var(--gb-accent), #1a4d8c);
+  }
+
+  .gb-lang-toggle {
+    @apply inline-flex rounded-lg border p-0.5;
+    border-color: var(--gb-border);
+    background: var(--gb-surface-2);
+  }
+
+  .gb-lang-btn {
+    @apply rounded-md px-2.5 py-1 text-[0.65rem] font-bold tracking-wide transition;
+    color: var(--gb-muted);
+  }
+
+  .gb-lang-btn.active {
+    color: var(--gb-text);
+    background: var(--gb-accent);
+    box-shadow: 0 1px 4px rgba(43, 125, 233, 0.35);
+  }
+
+  .gb-lang-btn:not(.active):hover {
+    color: var(--gb-text);
+    background: var(--gb-accent-muted);
+  }
+
+  .gb-topbar {
+    @apply sticky top-0 z-20 flex items-center gap-3 border-b px-4 py-3;
+    background: var(--gb-bg-elevated);
+    border-color: var(--gb-border-subtle);
+  }
+
+  .gb-topbar-desktop {
+    @apply sticky top-0 z-10 items-center justify-end border-b px-6 py-2;
+    background: transparent;
+    border-color: transparent;
+  }
+
+  .gb-hero {
+    @apply rounded-2xl border px-6 py-5;
+    border-color: var(--gb-border-subtle);
+    background: linear-gradient(135deg, var(--gb-surface) 0%, var(--gb-surface-2) 100%);
+    box-shadow: var(--gb-shadow);
+  }
+
+  .gb-hero-eyebrow {
+    @apply mb-1 text-xs font-semibold uppercase tracking-widest;
+    color: var(--gb-accent);
+  }
+
+  .gb-translate-card {
+    border-color: var(--gb-border);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  }
+
+  .gb-lang-bar {
+    background: linear-gradient(180deg, var(--gb-surface-2) 0%, var(--gb-surface) 100%);
   }
 }

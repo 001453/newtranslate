@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { API_BASE } from "@/lib/types";
+import { useLocale } from "@/hooks/useLocale";
 import { Shield, ShieldAlert, Cloud } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -30,6 +31,7 @@ function normalizePrivacyStatus(raw: unknown): PrivacyStatus | null {
 }
 
 export function PrivacyBanner() {
+  const { messages: m } = useLocale();
   const [status, setStatus] = useState<PrivacyStatus | null>(null);
 
   useEffect(() => {
@@ -48,16 +50,11 @@ export function PrivacyBanner() {
 
   const isSovereign = status.mode === "sovereign" || status.local_processing_only;
   const egress = (status.data_egress_points as string[]) ?? [];
-  const guarantees = (status.guarantees as string[]) ?? [];
 
   return (
     <div
       className={cn(
-        isSovereign
-          ? "gb-alert-success"
-          : status.mode === "cloud"
-            ? "gb-alert-warning"
-            : "gb-alert-info"
+        isSovereign ? "gb-alert-success" : status.mode === "cloud" ? "gb-alert-warning" : "gb-alert-info"
       )}
     >
       <div className="flex items-center gap-2 font-medium">
@@ -68,23 +65,12 @@ export function PrivacyBanner() {
         ) : (
           <ShieldAlert className="h-4 w-4" />
         )}
-        {isSovereign
-          ? "Sovereign Mode — Veriler cihazınızda kalır (QVAC)"
-          : status.mode === "cloud"
-            ? "Cloud Mode — Çeviri buluta gider"
-            : "Hybrid Mode — QVAC öncelikli"}
+        {isSovereign ? m.privacy.sovereign : status.mode === "cloud" ? m.privacy.cloud : m.privacy.hybrid}
       </div>
       <div className="mt-1 text-xs opacity-80">
-        Çeviri: {status.translation_provider}
-        {status.qvac_available ? " · QVAC aktif" : " · QVAC kapalı — qvac-service başlatın"}
+        {m.privacy.provider}: {status.translation_provider}
+        {status.qvac_available ? ` · ${m.privacy.qvacOn}` : ` · ${m.privacy.qvacOff}`}
       </div>
-      {guarantees.length > 0 && (
-        <ul className="mt-2 list-inside list-disc text-xs opacity-75">
-          {guarantees.map((g, i) => (
-            <li key={i}>{g}</li>
-          ))}
-        </ul>
-      )}
       {egress.length > 0 && (
         <ul className="mt-1 list-inside list-disc text-xs opacity-75">
           {egress.map((e, i) => (

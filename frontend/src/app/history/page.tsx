@@ -3,17 +3,19 @@
 import { useRouter } from "next/navigation";
 import { HistoryPanel } from "@/components/HistoryPanel";
 import { useHistory } from "@/hooks/useLocalStore";
+import { useLocale } from "@/hooks/useLocale";
 
 export default function HistoryPage() {
   const router = useRouter();
+  const { messages: m } = useLocale();
   const { items, toggleFavorite, clear, exportJson } = useHistory();
 
   return (
     <div className="mx-auto max-w-lg space-y-4">
-      <div>
-        <h1 className="gb-page-title">Geçmiş</h1>
-        <p className="gb-page-sub">Son çevirileriniz — birine tıklayarak çeviri ekranına dönün.</p>
-      </div>
+      <header className="gb-hero">
+        <h1 className="gb-page-title text-2xl">{m.history.title}</h1>
+        <p className="gb-page-sub mt-1">{m.history.subtitle}</p>
+      </header>
       <HistoryPanel
         items={items}
         onToggleFavorite={toggleFavorite}

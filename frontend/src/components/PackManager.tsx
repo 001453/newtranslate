@@ -1,6 +1,7 @@
 "use client";
 
 import { Download, RefreshCw, CheckCircle2 } from "lucide-react";
+import { useLocale } from "@/hooks/useLocale";
 import { langName } from "@/lib/languages";
 import { cn } from "@/lib/utils";
 
@@ -18,11 +19,13 @@ type Props = {
 };
 
 export function PackManager(p: Props) {
+  const { messages: m } = useLocale();
+
   if (p.bundled) {
     return (
       <div className="flex items-center gap-2 border-t border-[var(--gb-border)] bg-[var(--gb-surface-2)] px-4 py-3 text-sm text-[var(--gb-success)]">
         <CheckCircle2 className="h-4 w-4" />
-        {langName(p.from)} ↔ {langName(p.to)} dahili kurulu
+        {langName(p.from)} ↔ {langName(p.to)} {m.pack.bundled}
       </div>
     );
   }
@@ -30,10 +33,10 @@ export function PackManager(p: Props) {
     <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--gb-border)] bg-[var(--gb-surface-2)] p-4">
       <div>
         <p className={cn("text-sm font-medium", p.ready ? "text-[var(--gb-success)]" : "text-[var(--gb-warning)]")}>
-          {p.ready ? "Etkinleştirildi" : `İsteğe bağlı: ${langName(p.from)} → ${langName(p.to)}`}
+          {p.ready ? m.pack.enabled : `${m.pack.optional}: ${langName(p.from)} → ${langName(p.to)}`}
         </p>
         <p className="text-xs text-[var(--gb-muted)]">
-          {p.modelLoaded ? "Model yüklü — anında etkinleşir" : "İlk paket ~600 MB (tek sefer)"}
+          {p.modelLoaded ? m.pack.modelLoaded : m.pack.firstPack}
         </p>
         {p.downloading && p.progress != null && (
           <div className="mt-2 h-1 w-48 rounded bg-[var(--gb-border)]">
@@ -44,12 +47,12 @@ export function PackManager(p: Props) {
       <div className="flex gap-2">
         <button type="button" className="gb-btn-ghost border border-[var(--gb-border)]" onClick={p.onRefresh}>
           <RefreshCw className="mr-1 inline h-3 w-3" />
-          Yenile
+          {m.pack.refresh}
         </button>
         {!p.ready && (
           <button type="button" className="gb-btn-primary" disabled={p.downloading} onClick={p.onDownload}>
             <Download className="mr-1 inline h-4 w-4" />
-            {p.downloading ? "…" : p.modelLoaded ? "Etkinleştir" : "İndir"}
+            {p.downloading ? "…" : p.modelLoaded ? m.pack.activate : m.pack.download}
           </button>
         )}
       </div>

@@ -1,17 +1,20 @@
 import type { Metadata } from "next";
 import { AppShell } from "@/components/layout/AppShell";
+import { LocaleProvider } from "@/hooks/useLocale";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "GlobalBridge AI — Kurumsal Çeviri",
-  description: "Çeviri, konuşma, canlı altyazı ve PDF — cihazınızda",
+  title: "GlobalBridge AI — Enterprise Translation",
+  description: "Translation, conversation, live captions & PDF — on your device",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="tr" data-theme="dark" suppressHydrationWarning>
+    <html lang="en" data-theme="dark" suppressHydrationWarning>
       <body>
-        <AppShell>{children}</AppShell>
+        <LocaleProvider>
+          <AppShell>{children}</AppShell>
+        </LocaleProvider>
       </body>
     </html>
   );

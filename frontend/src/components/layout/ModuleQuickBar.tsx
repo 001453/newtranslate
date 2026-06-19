@@ -11,33 +11,41 @@ import {
   ScrollText,
   Video,
 } from "lucide-react";
+import { useLocale } from "@/hooks/useLocale";
 import { cn } from "@/lib/utils";
 
-const modules = [
-  { href: "/conversation", icon: MessageSquare, label: "Konuşma" },
-  { href: "/meeting", icon: Video, label: "Keet" },
-  { href: "/live", icon: Radio, label: "Canlı" },
-  { href: "/document", icon: ScrollText, label: "Belge" },
-  { href: "/pdf", icon: FileText, label: "PDF" },
-  { href: "/glossary", icon: BookOpen, label: "Sözlük" },
+export const moduleKeys = [
+  { href: "/conversation", icon: MessageSquare, key: "conversation" as const },
+  { href: "/meeting", icon: Video, key: "keet" as const },
+  { href: "/live", icon: Radio, key: "live" as const },
+  { href: "/document", icon: ScrollText, key: "document" as const },
+  { href: "/pdf", icon: FileText, key: "pdf" as const },
+  { href: "/glossary", icon: BookOpen, key: "glossary" as const },
 ];
+
+export const bottomTabKeys = [
+  { href: "/", icon: Languages, key: "translate" as const },
+  { href: "/conversation", icon: MessageSquare, key: "conversation" as const },
+  { href: "/live", icon: Radio, key: "live" as const },
+  { href: "/document", icon: ScrollText, key: "document" as const },
+] as const;
 
 export function ModuleQuickBar({ className }: { className?: string }) {
   const pathname = usePathname();
+  const { messages: m } = useLocale();
 
   return (
     <div className={cn("flex flex-wrap justify-center gap-2", className)}>
-      {modules.map(({ href, icon: Icon, label }) => {
+      {moduleKeys.map(({ href, icon: Icon, key }) => {
         const active = pathname === href || pathname.startsWith(`${href}/`);
+        const label = m.modules[key];
         return (
           <Link
             key={href}
             href={href}
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition",
-              active
-                ? "border-[var(--gb-accent)] bg-[var(--gb-accent-muted)] text-[var(--gb-accent)]"
-                : "border-[var(--gb-border)] text-[var(--gb-muted)] hover:border-[var(--gb-accent)] hover:text-[var(--gb-accent)]"
+              "gb-module-chip",
+              active && "active"
             )}
           >
             <Icon className="h-3.5 w-3.5" />
@@ -48,10 +56,3 @@ export function ModuleQuickBar({ className }: { className?: string }) {
     </div>
   );
 }
-
-export const bottomTabs = [
-  { href: "/", icon: Languages, label: "Çeviri" },
-  { href: "/conversation", icon: MessageSquare, label: "Konuşma" },
-  { href: "/live", icon: Radio, label: "Canlı" },
-  { href: "/document", icon: ScrollText, label: "Belge" },
-] as const;

@@ -1,6 +1,7 @@
 "use client";
 
 import type { HistoryItem } from "@/hooks/useLocalStore";
+import { useLocale } from "@/hooks/useLocale";
 import { langName } from "@/lib/languages";
 import { cn } from "@/lib/utils";
 import { Star, Trash2 } from "lucide-react";
@@ -18,13 +19,15 @@ export function HistoryPanel({
   onClear: () => void;
   onExport: () => void;
 }) {
+  const { messages: m } = useLocale();
+
   return (
     <aside className="gb-card w-full lg:w-64">
       <div className="flex items-center justify-between border-b border-[var(--gb-border)] px-3 py-2">
-        <span className="text-sm font-semibold">Geçmiş</span>
+        <span className="text-sm font-semibold">{m.history.panelTitle}</span>
         <div className="flex gap-1">
           <button type="button" className="gb-btn-ghost text-xs" onClick={onExport}>
-            Dışa aktar
+            {m.history.export}
           </button>
           <button type="button" className="gb-btn-ghost" onClick={onClear}>
             <Trash2 className="h-3.5 w-3.5" />
@@ -33,7 +36,7 @@ export function HistoryPanel({
       </div>
       <ul className="max-h-96 overflow-y-auto p-2">
         {items.length === 0 ? (
-          <li className="p-2 text-xs text-[var(--gb-muted)]">Henüz çeviri yok.</li>
+          <li className="p-2 text-xs text-[var(--gb-muted)]">{m.history.empty}</li>
         ) : (
           items.map((h) => (
             <li key={h.id}>

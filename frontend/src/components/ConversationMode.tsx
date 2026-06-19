@@ -4,22 +4,26 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { PackManagerBar } from "@/components/PackManagerBar";
 import { MicSidebar } from "@/components/shared/MicSidebar";
 import { useConversation } from "@/hooks/useLocalStore";
+import { defaultTranslationPair, useLocale } from "@/hooks/useLocale";
 import { useLanguagePacks } from "@/hooks/useLanguagePacks";
 import { useMicDevices } from "@/hooks/useMicDevices";
 import { useMicSettings } from "@/hooks/useMicSettings";
 import { useSpeechDictation } from "@/hooks/useSpeechDictation";
 import { translateText } from "@/lib/api";
+import { fmt } from "@/lib/i18n/fmt";
 import { LANGUAGES, langName } from "@/lib/languages";
 import { cn } from "@/lib/utils";
 import { Mic, Send, Trash2 } from "lucide-react";
 
 export function ConversationMode() {
-  const [langA, setLangA] = useState("tr");
-  const [langB, setLangB] = useState("en");
+  const { messages: m, locale, hydrated } = useLocale();
+  const [langA, setLangA] = useState("en");
+  const [langB, setLangB] = useState("tr");
   const [speaker, setSpeaker] = useState<"a" | "b">("a");
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const dictationBase = useRef("");
+  const pairInit = useRef(false);
 
   const { messages, push, clear } = useConversation();
   const { isPairReady } = useLanguagePacks();
@@ -27,6 +31,14 @@ export function ConversationMode() {
   const { devices, requestPermission } = useMicDevices();
 
   const activeLang = speaker === "a" ? langA : langB;
+
+  useEffect(() => {
+    if (!hydrated || pairInit.current) return;
+    const pair = defaultTranslationPair(locale);
+    setLangA(pair.from);
+    setLangB(pair.to);
+    pairInit.current = true;
+  }, [locale, hydrated]);
 
   const onDictation = useCallback((text: string, final: boolean) => {
     if (!text) return;
@@ -85,131 +97,155 @@ export function ConversationMode() {
     }
   };
 
-  return (
-    <div className="grid gap-4 lg:grid-cols-3">
-      <div className="gb-card overflow-hidden lg:col-span-2">
-        <div className="border-b border-[var(--gb-border)] p-4">
-          <h1 className="text-lg font-semibold">Konuşma</h1>
-          <p className="text-sm text-[var(--gb-muted)]">
-            İki yönlü sohbet — mikrofonla dikte veya yazın
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2 border-b border-[var(--gb-border)] p-3">
-          <select className="gb-select max-w-[140px]" value={langA} onChange={(e) => setLangA(e.target.value)}>
-            {LANGUAGES.filter((l) => l.code !== "auto").map((l) => (
-              <option key={l.code} value={l.code}>
-                {l.name}
-              </option>
-            ))}
-          </select>
-          <select className="gb-select max-w-[140px]" value={langB} onChange={(e) => setLangB(e.target.value)}>
-            {LANGUAGES.filter((l) => l.code !== "auto").map((l) => (
-              <option key={l.code} value={l.code}>
-                {l.name}
-              </option>
-            ))}
-          </select>
-          <button
-            type="button"
-            className={cn(
-              "rounded-full border px-3 py-1 text-sm",
-              speaker === "a" && "border-[var(--gb-accent)] text-[var(--gb-accent)]"
-            )}
-            onClick={() => setSpeaker("a")}
-          >
-            {langName(langA)}
-          </button>
-          <button
-            type="button"
-            className={cn(
-              "rounded-full border px-3 py-1 text-sm",
-              speaker === "b" && "border-[var(--gb-accent)] text-[var(--gb-accent)]"
-            )}
-            onClick={() => setSpeaker("b")}
-          >
-            {langName(langB)}
-          </button>
-        </div>
-        <div className="max-h-80 overflow-y-auto p-4">
-          {messages.length === 0 && (
-            <p className="text-sm text-[var(--gb-muted)]">Mesajlar burada görünür.</p>
-          )}
-          {messages.map((m, i) => (
-            <div
-              key={i}
-              className={cn(
-                "mb-2 rounded-lg border p-3 text-sm",
-                m.speaker === "b" && "ml-6 border-[var(--gb-accent)]"
-              )}
-            >
-              <p>{m.source}</p>
-              <p className="mt-1 text-[var(--gb-accent)]">{m.target}</p>
-            </div>
-          ))}
-        </div>
-        <div className="border-t border-[var(--gb-border)] p-4">
-          <div className="mb-1 flex items-center justify-between text-xs text-[var(--gb-muted)]">
-            <span>
-              Konuşan: <strong className="text-[var(--gb-text)]">{langName(activeLang)}</strong>
-            </span>
-            {listening && (
-              <span className="flex items-center gap-1 text-[var(--gb-danger)]">
-                <Mic className="h-3 w-3 animate-pulse" /> dinleniyor
-              </span>
-            )}
-          </div>
-          <textarea
-            className="gb-textarea min-h-[72px]"
-            placeholder="Yazın veya mikrofonla dikte edin…"
-            value={input}
-            onChange={(e) => {
-              dictationBase.current = e.target.value;
-              setInput(e.target.value);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                send();
-              }
-            }}
-          />
-          <div className="mt-2 flex justify-end gap-2">
-            <button
-              type="button"
-              className={cn(
-                "gb-btn-ghost border border-[var(--gb-border)]",
-                listening && "border-[var(--gb-danger)] text-[var(--gb-danger)]"
-              )}
-              onClick={toggle}
-            >
-              <Mic className="h-4 w-4" />
-            </button>
-            <button type="button" className="gb-btn-ghost border border-[var(--gb-border)]" onClick={clear}>
-              <Trash2 className="h-4 w-4" />
-            </button>
-            <button type="button" className="gb-btn-primary" onClick={send} disabled={loading || !input.trim()}>
-              <Send className="mr-1 inline h-4 w-4" />
-              Gönder
-            </button>
-          </div>
-        </div>
-        <PackManagerBar from={langA} to={langB} />
-      </div>
+  const statusLabel = listening
+    ? fmt(m.conversation.listeningLang, { lang: langName(activeLang) })
+    : fmt(m.conversation.dictateLang, { lang: langName(activeLang) });
 
-      <MicSidebar
-        mode="dictation"
-        devices={devices}
-        deviceId={settings.deviceId}
-        onDeviceChange={(id) => update({ deviceId: id })}
-        listening={listening}
-        onMicToggle={toggle}
-        supported={supported}
-        statusLabel={
-          listening
-            ? `${langName(activeLang)} dinleniyor…`
-            : `Dikte dili: ${langName(activeLang)}`
-        }
-      />
+  return (
+    <div className="mx-auto max-w-6xl">
+      <header className="gb-hero mb-6">
+        <h1 className="gb-page-title text-2xl">{m.conversation.title}</h1>
+        <p className="gb-page-sub mt-1">{m.conversation.subtitle}</p>
+      </header>
+
+      <div className="grid gap-4 lg:grid-cols-[1fr_280px]">
+        <div className="gb-card gb-translate-card overflow-hidden">
+          <div className="gb-lang-bar flex flex-wrap items-center gap-2 border-b border-[var(--gb-border)] p-3">
+            <select className="gb-select max-w-[150px]" value={langA} onChange={(e) => setLangA(e.target.value)}>
+              {LANGUAGES.filter((l) => l.code !== "auto").map((l) => (
+                <option key={l.code} value={l.code}>
+                  {l.name}
+                </option>
+              ))}
+            </select>
+            <span className="text-[var(--gb-muted)]">↔</span>
+            <select className="gb-select max-w-[150px]" value={langB} onChange={(e) => setLangB(e.target.value)}>
+              {LANGUAGES.filter((l) => l.code !== "auto").map((l) => (
+                <option key={l.code} value={l.code}>
+                  {l.name}
+                </option>
+              ))}
+            </select>
+            <div className="ml-auto flex gap-2">
+              <button
+                type="button"
+                className={cn(
+                  "rounded-full border px-3 py-1 text-sm font-medium transition",
+                  speaker === "a"
+                    ? "border-[var(--gb-accent)] bg-[var(--gb-accent-muted)] text-[var(--gb-accent)]"
+                    : "border-[var(--gb-border)] text-[var(--gb-muted)]"
+                )}
+                onClick={() => setSpeaker("a")}
+              >
+                {langName(langA)}
+              </button>
+              <button
+                type="button"
+                className={cn(
+                  "rounded-full border px-3 py-1 text-sm font-medium transition",
+                  speaker === "b"
+                    ? "border-[var(--gb-accent)] bg-[var(--gb-accent-muted)] text-[var(--gb-accent)]"
+                    : "border-[var(--gb-border)] text-[var(--gb-muted)]"
+                )}
+                onClick={() => setSpeaker("b")}
+              >
+                {langName(langB)}
+              </button>
+            </div>
+          </div>
+
+          <div className="min-h-[280px] max-h-[360px] overflow-y-auto p-4">
+            {messages.length === 0 && (
+              <p className="text-center text-sm text-[var(--gb-muted)]">{m.conversation.empty}</p>
+            )}
+            {messages.map((msg, i) => (
+              <div
+                key={i}
+                className={cn(
+                  "mb-3 max-w-[85%] rounded-xl border p-3 text-sm",
+                  msg.speaker === "a"
+                    ? "mr-auto border-[var(--gb-border)] bg-[var(--gb-surface-2)]"
+                    : "ml-auto border-[var(--gb-accent)] bg-[var(--gb-accent-muted)]"
+                )}
+              >
+                <p className="text-[var(--gb-text)]">{msg.source}</p>
+                <p className="mt-1.5 text-[var(--gb-accent)]">{msg.target}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="border-t border-[var(--gb-border)] bg-[var(--gb-surface-2)] p-4">
+            <div className="mb-2 flex items-center justify-between text-xs text-[var(--gb-muted)]">
+              <span>
+                {m.conversation.speaking}:{" "}
+                <strong className="text-[var(--gb-text)]">{langName(activeLang)}</strong>
+              </span>
+              {listening && (
+                <span className="flex items-center gap-1 text-[var(--gb-danger)]">
+                  <Mic className="h-3 w-3 animate-pulse" /> {m.conversation.listening}
+                </span>
+              )}
+            </div>
+            <textarea
+              className="gb-textarea min-h-[80px] text-[0.95rem]"
+              placeholder={m.conversation.placeholder}
+              value={input}
+              onChange={(e) => {
+                dictationBase.current = e.target.value;
+                setInput(e.target.value);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  send();
+                }
+              }}
+            />
+            <div className="mt-3 flex justify-end gap-2">
+              <button
+                type="button"
+                className={cn(
+                  "gb-btn-ghost border border-[var(--gb-border)]",
+                  listening && "border-[var(--gb-danger)] text-[var(--gb-danger)]"
+                )}
+                onClick={toggle}
+                title={m.translate.dictate}
+              >
+                <Mic className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                className="gb-btn-ghost border border-[var(--gb-border)]"
+                onClick={clear}
+                title={m.translate.clear}
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                className="gb-btn-primary min-w-[6.5rem]"
+                onClick={send}
+                disabled={loading || !input.trim()}
+              >
+                <Send className="mr-1 inline h-4 w-4" />
+                {m.conversation.send}
+              </button>
+            </div>
+          </div>
+          <PackManagerBar from={langA} to={langB} />
+        </div>
+
+        <MicSidebar
+          mode="dictation"
+          devices={devices}
+          deviceId={settings.deviceId}
+          onDeviceChange={(id) => update({ deviceId: id })}
+          listening={listening}
+          onMicToggle={toggle}
+          supported={supported}
+          statusLabel={statusLabel}
+        />
+      </div>
     </div>
   );
 }

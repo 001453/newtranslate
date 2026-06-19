@@ -6,6 +6,7 @@ import { HistoryPanel } from "@/components/HistoryPanel";
 import { PackManagerBar } from "@/components/PackManagerBar";
 import { MicSidebar } from "@/components/shared/MicSidebar";
 import { useHistory, usePinnedPairs } from "@/hooks/useLocalStore";
+import { defaultTranslationPair, useLocale } from "@/hooks/useLocale";
 import { useLanguagePacks } from "@/hooks/useLanguagePacks";
 import { useMicDevices } from "@/hooks/useMicDevices";
 import { useMicSettings } from "@/hooks/useMicSettings";
@@ -18,8 +19,10 @@ import { ArrowLeftRight, ClipboardPaste, Copy, FileUp, History, Mic, Star, Trash
 const AUTO_MS = 450;
 
 export function TranslatorPanel({ compact = true }: { compact?: boolean }) {
-  const [from, setFrom] = useState("tr");
-  const [to, setTo] = useState("en");
+  const { messages: m, locale, hydrated } = useLocale();
+  const [from, setFrom] = useState("en");
+  const [to, setTo] = useState("tr");
+  const pairInit = useRef(false);
   const [source, setSource] = useState("");
   const [target, setTarget] = useState("");
   const [loading, setLoading] = useState(false);
@@ -35,6 +38,14 @@ export function TranslatorPanel({ compact = true }: { compact?: boolean }) {
   const { devices, requestPermission } = useMicDevices();
 
   const dictLang = from === "auto" ? to : from;
+
+  useEffect(() => {
+    if (!hydrated || pairInit.current) return;
+    const pair = defaultTranslationPair(locale);
+    setFrom(pair.from);
+    setTo(pair.to);
+    pairInit.current = true;
+  }, [locale, hydrated]);
 
   useEffect(() => {
     try {
@@ -108,13 +119,13 @@ export function TranslatorPanel({ compact = true }: { compact?: boolean }) {
         }
       } catch {
         if (id === reqId.current) {
-          setTarget("Hata — backend (8000) ve QVAC (8765) çalışıyor mu?");
+          setTarget(m.translate.errorBackend);
         }
       } finally {
         if (id === reqId.current) setLoading(false);
       }
     },
-    [from, to, add, isPairReady]
+    [from, to, add, isPairReady, m.translate.errorBackend]
   );
 
   const commitTranslate = useCallback(() => {
@@ -170,10 +181,10 @@ export function TranslatorPanel({ compact = true }: { compact?: boolean }) {
           </div>
         )}
 
-        <div className="gb-card overflow-hidden">
-          <div className="flex items-end gap-2 border-b border-[var(--gb-border)] bg-[var(--gb-surface-2)] p-3">
+        <div className="gb-card gb-translate-card overflow-hidden">
+          <div className="gb-lang-bar flex items-end gap-2 border-b border-[var(--gb-border)] bg-[var(--gb-surface-2)] p-3">
             <div className="flex-1">
-              <label className="text-[0.65rem] font-bold uppercase text-[var(--gb-muted)]">Kaynak</label>
+              <label className="text-[0.65rem] font-bold uppercase text-[var(--gb-muted)]">{m.translate.source}</label>
               <select className="gb-select mt-1" value={from} onChange={(e) => setFrom(e.target.value)}>
                 {LANGUAGES.map((l) => (
                   <option key={l.code} value={l.code}>
@@ -196,7 +207,7 @@ export function TranslatorPanel({ compact = true }: { compact?: boolean }) {
               <ArrowLeftRight className="h-4 w-4" />
             </button>
             <div className="flex-1">
-              <label className="text-[0.65rem] font-bold uppercase text-[var(--gb-muted)]">Hedef</label>
+              <label className="text-[0.65rem] font-bold uppercase text-[var(--gb-muted)]">{m.translate.target}</label>
               <select className="gb-select mt-1" value={to} onChange={(e) => setTo(e.target.value)}>
                 {LANGUAGES.filter((l) => l.code !== "auto").map((l) => (
                   <option key={l.code} value={l.code}>
@@ -217,16 +228,16 @@ export function TranslatorPanel({ compact = true }: { compact?: boolean }) {
           <div className="grid md:grid-cols-2">
             <div className="border-[var(--gb-border)] md:border-r">
               <div className="gb-panel-head flex items-center justify-between">
-                <span>Kaynak</span>
+                <span>{m.translate.source}</span>
                 {listening && (
                   <span className="flex items-center gap-1 font-normal normal-case text-[var(--gb-danger)]">
-                    <Mic className="h-3 w-3 animate-pulse" /> dinleniyor
+                    <Mic className="h-3 w-3 animate-pulse" /> {m.translate.listening}
                   </span>
                 )}
               </div>
               <textarea
-                className="min-h-[220px] w-full resize-none bg-transparent p-4 outline-none"
-                placeholder="Yazın veya mikrofonla dikte edin…"
+                className="min-h-[240px] w-full resize-none bg-transparent p-4 text-[0.95rem] leading-relaxed outline-none"
+                placeholder={m.translate.placeholder}
                 value={source}
                 onChange={(e) => {
                   dictationBase.current = e.target.value;
@@ -264,7 +275,7 @@ export function TranslatorPanel({ compact = true }: { compact?: boolean }) {
                   onClick={toggle}
                 >
                   <Mic className="mr-1 inline h-3 w-3" />
-                  {listening ? "Durdur" : "Dikte"}
+                  {listening ? m.translate.stop : m.translate.dictate}
                 </button>
                 <button type="button" className="gb-btn-ghost text-xs" onClick={() => fileRef.current?.click()}>
                   <FileUp className="mr-1 inline h-3 w-3" /> .txt
@@ -279,7 +290,7 @@ export function TranslatorPanel({ compact = true }: { compact?: boolean }) {
                     })
                   }
                 >
-                  <ClipboardPaste className="mr-1 inline h-3 w-3" /> Yapıştır
+                  <ClipboardPaste className="mr-1 inline h-3 w-3" /> {m.translate.paste}
                 </button>
                 <button
                   type="button"
@@ -292,17 +303,19 @@ export function TranslatorPanel({ compact = true }: { compact?: boolean }) {
                     lastHistorySource.current = "";
                   }}
                 >
-                  <Trash2 className="mr-1 inline h-3 w-3" /> Temizle
+                  <Trash2 className="mr-1 inline h-3 w-3" /> {m.translate.clear}
                 </button>
               </div>
             </div>
             <div>
               <div className="gb-panel-head flex items-center justify-between">
-                <span>Çeviri</span>
-                {loading && <span className="font-normal normal-case text-[var(--gb-accent)]">çevriliyor…</span>}
+                <span>{m.translate.translation}</span>
+                {loading && (
+                  <span className="font-normal normal-case text-[var(--gb-accent)]">{m.translate.translating}</span>
+                )}
               </div>
-              <div className={cn("min-h-[220px] whitespace-pre-wrap p-4", loading && "opacity-70")}>
-                {target || (source.trim() ? "…" : "Sonuç")}
+              <div className={cn("min-h-[240px] whitespace-pre-wrap p-4 text-[0.95rem] leading-relaxed", loading && "opacity-70")}>
+                {target || (source.trim() ? "…" : m.translate.result)}
               </div>
               <div className="flex justify-end gap-1 border-t border-[var(--gb-border)] p-2">
                 <button
@@ -311,7 +324,7 @@ export function TranslatorPanel({ compact = true }: { compact?: boolean }) {
                   disabled={!target}
                   onClick={() => navigator.clipboard.writeText(target)}
                 >
-                  <Copy className="mr-1 inline h-3 w-3" /> Kopyala
+                  <Copy className="mr-1 inline h-3 w-3" /> {m.translate.copy}
                 </button>
               </div>
             </div>
@@ -319,24 +332,24 @@ export function TranslatorPanel({ compact = true }: { compact?: boolean }) {
 
           <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--gb-border)] bg-[var(--gb-surface-2)] px-4 py-3">
             <span className="text-xs text-[var(--gb-muted)]">
-              Enter gönder · Ctrl+Shift+M dikte
+              {m.translate.shortcuts}
               {compact && (
                 <>
                   {" · "}
                   <Link href="/history" className="inline-flex items-center gap-1 text-[var(--gb-accent)] hover:underline">
                     <History className="h-3 w-3" />
-                    Geçmiş
+                    {m.translate.history}
                   </Link>
                 </>
               )}
             </span>
             <button
               type="button"
-              className="gb-btn-primary"
+              className="gb-btn-primary min-w-[7rem]"
               disabled={loading || !source.trim()}
               onClick={commitTranslate}
             >
-              Gönder
+              {m.translate.send}
             </button>
           </div>
           <PackManagerBar from={from} to={to} />
