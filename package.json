@@ -2,7 +2,7 @@
   "name": "newtranslate",
   "version": "1.0.0",
   "private": true,
-  "description": "GlobalBridge AI — QVAC + Backend + Frontend",
+  "description": "GlobalBridge AI — sovereign translation bridge powered by Tether QVAC and Keet P2P meetings",
   "scripts": {
     "setup": "node scripts/setup.mjs",
     "dev": "node scripts/run-dev.mjs",

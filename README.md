@@ -1,124 +1,137 @@
-# GlobalBridge AI — Kurumsal Çeviri Köprüsü
+# GlobalBridge AI
 
-100+ dil destekleyen çeviri, konuşma, canlı altyazı, Keet toplantı köprüsü ve belge çeviri sistemi.  
-Veriler cihazda kalır — QVAC lokal AI + FastAPI backend + Next.js UI v2.
+**Sovereign real-time translation bridge** — 100+ languages, live captions, Whisper dictation, and document translation.  
+Built on **[QVAC](https://qvac.tether.io/)** (Tether local AI) + **[Keet](https://keet.io/)** (P2P meetings). **Audio and transcripts never leave the device** in Sovereign Mode.
 
-## Depolar
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-| Repo | Açıklama |
-|------|----------|
-| [Globalbridgeai](https://github.com/001453/Globalbridgeai) | Ana geliştirme deposu |
-| [newtranslate](https://github.com/001453/newtranslate) | Temiz, tek parça kopya (aynı `main` dalı) |
+---
 
-```bash
-git clone https://github.com/001453/newtranslate.git
-cd newtranslate
+## Why GlobalBridge AI
+
+Cross-language communication today forces a trade-off: either send voice and text to cloud APIs, or give up live translation in meetings and video calls. GlobalBridge AI removes that trade-off by running **speech recognition and translation entirely on the user's machine**, with optional integration into **Keet** (end-to-end encrypted P2P calls) and **browser tab capture** for YouTube, Zoom, Google Meet, and Microsoft Teams.
+
+| Use case | Route | Stack |
+|----------|-------|-------|
+| Text + voice dictation | `/` | Local Whisper → QVAC NMT |
+| Two-way conversation | `/conversation` | Whisper dictation + QVAC |
+| **Keet P2P meetings** | `/meeting` | Tab audio → Whisper → QVAC → personal subtitles |
+| **Live captions** (YouTube / Zoom / Meet) | `/live` | Tab audio capture → same pipeline |
+| Documents & PDF | `/document`, `/pdf` | QVAC + local processing |
+| Glossary & history | `/glossary`, `/history` | Local SQLite |
+
+---
+
+## Tether QVAC Integration
+
+[QVAC](https://qvac.tether.io/) provides **decentralized, on-device AI** via `@qvac/sdk`. GlobalBridge runs a local QVAC bridge (`qvac-service`, port **8765**) for:
+
+| Component | Sovereign Mode (default) | Optional cloud |
+|-----------|--------------------------|----------------|
+| **STT** | Faster-Whisper (local, GPU/CPU) | Always local |
+| **Translation** | QVAC Bergamot NMT + local LLM | Together AI fallback |
+| **Meeting summary** | QVAC local LLM | Together AI |
+| **PDF translation** | QVAC + PyMuPDF | Together AI |
+
+Set in `.env`:
+
+```env
+LOCAL_PROCESSING_ONLY=true
+TRANSLATION_PROVIDER=qvac
+ALLOW_CLOUD_FALLBACK=false
+QVAC_BRIDGE_URL=http://127.0.0.1:8765
 ```
 
-## Özellikler (UI v2)
+**Privacy guarantee (Sovereign Mode):** No audio, transcript, or document content is sent to third-party APIs.
 
-| Modül | Route | Açıklama |
-|-------|-------|----------|
-| **Çeviri** | `/` | Yazı + mikrofon dikte, otomatik çeviri, geçmiş |
-| **Konuşma** | `/conversation` | İki yönlü konuşma modu |
-| **Keet Toplantı** | `/meeting` | P2P Keet odası, kişisel ana dil altyazısı |
-| **Canlı Altyazı** | `/live` | Zoom/Meet/Teams sekmesi veya mikrofon yakalama |
-| **Belge** | `/document` | Metin/dosya çevirisi |
-| **PDF** | `/pdf` | PDF/DOCX çeviri, layout koruma |
-| **Sözlük** | `/glossary` | Şirket/teknik terim sözlüğü |
-| **Geçmiş** | `/history` | Oturum geçmişi |
-
-**Arayüz:** Sol sidebar (masaüstü) + alt sekmeler (mobil), footer'da **UI v2** etiketi.
-
-### Keet + kişisel altyazı
-
-- Kullanıcı **Benim ana dilim** ve **Karşı taraf dili** seçer.
-- Her katılımcı altyazıyı kendi ana dilinde görür (ör. İngilizce konuşan EN, Türkçe konuşan TR).
-- Backend `viewer_lang` ile çeviri hedefini kişiselleştirir.
-
-## QVAC — Veriler Cihazda Kalır
-
-[QVAC](https://qvac.tether.io/) (Tether) tamamen **lokal, merkeziyetsiz AI** sağlar:
-
-| Bileşen | Sovereign Mode | Cloud Mode |
-|---------|----------------|------------|
-| STT (ses) | Faster-Whisper lokal | Lokal |
-| Çeviri | QVAC `@qvac/sdk` lokal | Together AI (bulut) |
-| PDF | QVAC + PyMuPDF lokal | Together AI |
-| Özet | QVAC lokal | Together AI |
-
-**Sovereign Mode** (`LOCAL_PROCESSING_ONLY=true`): Hiçbir konuşma, transkript veya dosya buluta gitmez.
+### Pipeline
 
 ```
-Mikrofon / Sekme Sesi
-    → WebSocket /api/v1/ws/live
+Microphone / Tab audio (Chrome)
+    → WebSocket /api/v1/ws/live  (localhost only)
     → Faster-Whisper STT
-    → QVAC çeviri (localhost:8765)
-    → Altyazı overlay + transkript
+    → QVAC translation bridge (localhost:8765)
+    → Live subtitles + auto-exported transcript (.txt, .json, .srt)
 ```
 
-## Klasör Yapısı
+HTTP dictation endpoint: `POST /api/v1/transcribe` (PCM int16 @ 16 kHz → Whisper).
+
+---
+
+## Keet Integration
+
+[Keet](https://keet.io/) (Holepunch) enables **serverless, E2E-encrypted P2P voice/video**. GlobalBridge adds a **local subtitle layer** on top:
+
+1. User pastes a Keet room invite (`keet://…`) and opens the call in Keet.
+2. In GlobalBridge `/meeting`, user selects **native language** and **counterparty language**.
+3. User starts the bridge and shares **Keet tab audio** in Chrome (with “Share tab audio” enabled).
+4. Each participant sees subtitles in **their own language** (`viewer_lang` on the backend).
+5. When the session ends, transcript files download automatically.
+
+> Keet handles the call; GlobalBridge handles **local STT + QVAC translation**. No Keet SDK is required — integration is via standard browser tab audio capture, keeping the stack simple and fully local.
+
+---
+
+## Architecture
 
 ```
-globalbridge-ai/
-├── backend/                    # FastAPI
-│   ├── main.py
+newtranslate/
+├── backend/                 # FastAPI — STT, translation routing, WebSocket live pipeline
 │   ├── api/
-│   │   ├── websocket.py        # Canlı STT + çeviri pipeline
-│   │   ├── translate.py
+│   │   ├── websocket.py     # Queued live caption pipeline
+│   │   ├── stt.py           # Whisper dictation HTTP API
+│   │   ├── translate.py     # QVAC / cloud translation, meetings API
 │   │   └── pdf.py
 │   └── services/
-│       ├── stt.py
-│       ├── translation.py
-│       ├── overlay.py          # viewer_lang, altyazı state
-│       ├── qvac_client.py
-│       └── pdf_translate.py
-├── frontend/                   # Next.js 15 — UI v2
-│   └── src/
-│       ├── app/                # /, /conversation, /meeting, /live, …
-│       ├── components/
-│       │   ├── layout/AppShell.tsx
-│       │   ├── TranslatorPanel.tsx
-│       │   ├── KeetMeetingBridge.tsx
-│       │   ├── ConversationMode.tsx
-│       │   └── DocumentTranslator.tsx
-│       ├── hooks/              # useWhisperDictation, useWebSocket, …
-│       └── lib/                # api.ts, keet.ts, meetingExport.ts
-├── qvac-service/               # @qvac/sdk local AI bridge
-├── electron/                   # Floating overlay (opsiyonel)
-├── docs/
-└── docker-compose.yml
+│       ├── stt.py           # faster-whisper
+│       ├── translation.py   # QVAC client routing
+│       ├── live_pipeline.py # Async audio queue (non-blocking WS)
+│       ├── meeting_export.py# TXT / JSON / SRT export
+│       ├── overlay.py       # viewer_lang, caption state
+│       └── qvac_client.py
+├── frontend/                # Next.js 15 — UI v2 (EN/TR UI locale)
+├── qvac-service/            # @qvac/sdk sidecar (port 8765)
+├── electron/                # Optional floating caption overlay
+└── docker-compose.yml       # Sovereign profile
 ```
 
-## Kurulum
+---
 
-### Gereksinimler
+## Quick Start
 
-- Python 3.12+
-- Node.js 20+
-- (Önerilen) NVIDIA GPU + CUDA
-- [QVAC SDK](https://qvac.tether.io/)
-- Together AI API key (sadece cloud mod)
+### Requirements
 
-### Hızlı kurulum (önerilen)
+- **Node.js 20+**
+- **Python 3.12+**
+- **Google Chrome** (recommended for tab audio / YouTube / meetings)
+- **[QVAC SDK](https://qvac.tether.io/)** (via `qvac-service`)
+- NVIDIA GPU + CUDA (optional, speeds up Whisper)
+
+### Install & run
 
 ```bash
 git clone https://github.com/001453/newtranslate.git
 cd newtranslate
-npm run setup    # .env + frontend/.env.local (kendi ayarlarınız)
-npm run dev      # QVAC 8765 + API 8000 + WEB 3000 (tek terminal)
+npm run setup    # Creates .env + frontend/.env.local from examples
+npm run dev      # QVAC :8765 + API :8000 + Web :3000
 ```
 
-> **İlk kurulum:** `npm run setup` kök `.env` ve `frontend/.env.local` dosyalarını örneklerden oluşturur. API adresini değiştirmek için `frontend/.env.local` içinde `NEXT_PUBLIC_API_URL=http://localhost:8000` kullanın.
+Open **http://localhost:3000**
 
-**Windows (ayrı pencereler):**
+| Service | Port | Role |
+|---------|------|------|
+| QVAC bridge | 8765 | Local NMT + LLM (`@qvac/sdk`) |
+| Backend | 8000 | FastAPI API + WebSocket |
+| Frontend | 3000 | Next.js UI |
+
+**Windows (separate terminal windows):**
 
 ```powershell
 npm run setup
 .\scripts\start-dev.ps1
 ```
 
-**Linux/macOS:**
+**Linux / macOS:**
 
 ```bash
 npm run setup
@@ -126,74 +139,74 @@ chmod +x scripts/start-dev.sh
 ./scripts/start-dev.sh
 ```
 
-Tarayıcı: http://localhost:3000
+### Configuration
 
-> **Önemli:** Çeviri için **üç servis birlikte** çalışmalıdır:
-> | Servis | Port | Görev |
-> |--------|------|-------|
-> | QVAC bridge | 8765 | Bergamot NMT (hızlı yerel çeviri) |
-> | Backend | 8000 | FastAPI API |
-> | Frontend | 3000 | Next.js UI |
+Copy is automatic on first `npm run setup`. Edit locally (never committed):
 
-QVAC kapalıysa çeviri çalışmaz (503 hatası).
+| File | Purpose |
+|------|---------|
+| `.env` | QVAC URL, Whisper model, privacy flags |
+| `frontend/.env.local` | `NEXT_PUBLIC_API_URL=http://localhost:8000` |
 
-### Manuel kurulum
+---
 
-### Docker
+## Usage
+
+### Translation & dictation
+
+1. Open `/` — type or use **Start dictation** (local Whisper, not cloud STT).
+2. Pick source/target language; translation runs through QVAC when Sovereign Mode is on.
+
+### Keet meeting
+
+1. Open `/meeting` — set **My language** and **Other party language**.
+2. Paste Keet invite → open in Keet app.
+3. **Start bridge** → select Keet tab in Chrome → enable **Share tab audio**.
+4. **Stop** → downloads `.txt`, `.json`, `.srt` transcript + local meeting summary.
+
+### Live captions (YouTube / Zoom / Meet / Teams)
+
+1. Open `/live` — same flow as Keet, but optimized for any browser tab with audio.
+2. Use Chrome; check the setup guide on the page.
+
+### Docker (Sovereign profile)
 
 ```bash
 docker compose --profile sovereign up --build
 ```
 
-## Kullanım
+---
 
-### Çeviri (ana ekran)
+## Performance targets
 
-1. http://localhost:3000
-2. Kaynak/hedef dil seçin, yazın veya mikrofonla dikte edin
-3. Geçmiş: sidebar → **Geçmiş** veya `/history`
+| Metric | Target |
+|--------|--------|
+| STT latency | 300–800 ms |
+| Translation latency | 500–1200 ms |
+| End-to-end (live) | ≤ 1.5–2 s |
 
-### Keet toplantı
+CPU-only: set `WHISPER_MODEL=medium` or `distil-large-v3` in `.env`.
 
-1. http://localhost:3000/meeting
-2. Ana dilinizi ve karşı taraf dilini ayarlayın
-3. Keet davet linkini açın, oturumu başlatın
-4. Altyazılar kendi ana dilinizde görünür
+---
 
-### Canlı altyazı (Zoom/Meet)
+## Grant & ecosystem alignment
 
-1. http://localhost:3000/live
-2. Dil seçin, **Oturumu Başlat**
-3. Mikrofon veya **Toplantı Sekmesi Sesi** (getDisplayMedia) ile yakalayın
+This project is designed for the **Tether / QVAC sovereign AI** ecosystem and **Holepunch Keet** P2P communication:
 
-### PDF çeviri
+- **QVAC**: All translation and summarization can run via `@qvac/sdk` with zero cloud egress.
+- **Keet**: Adds multilingual accessibility to private P2P calls without centralized servers.
+- **Open source**: MIT license, self-hostable, auditable pipeline.
 
-1. http://localhost:3000/pdf
-2. Dosya yükleyin, dilleri seçin, indirin
+See **[docs/GRANT.md](docs/GRANT.md)** for a structured project summary suitable for grant applications.
 
-## Sorun giderme
+---
 
-**Eski menü görünüyorsa** (üstte "Live Caption", landing kartları): yerel dosya geri dönüşü olabilir, GitHub'daki sürüm doğrudur.
+## Contributing
 
-```powershell
-git checkout HEAD -- frontend/src
-Remove-Item -Recurse -Force frontend/.next, frontend/node_modules/.cache -ErrorAction SilentlyContinue
-```
+Pull requests only — `main` is protected. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-Kalıcı çözüm: projeyi Temp klasörü dışına klonlayın (ör. `C:\Users\nihat\Projects\newtranslate`).
+---
 
-Detaylı not: [docs/AGENT-STATUS.md](docs/AGENT-STATUS.md)
+## License
 
-## Performans
-
-| Metrik | Hedef |
-|--------|-------|
-| STT gecikme | 300–800 ms |
-| Çeviri gecikme | 500–1200 ms |
-| Toplam | ≤ 1.5–2 sn |
-
-GPU yoksa: `WHISPER_MODEL=distil-large-v3`, `WHISPER_DEVICE=cpu`
-
-## Lisans
-
-MIT
+MIT — see [LICENSE](LICENSE) if present, otherwise MIT applies to this repository.

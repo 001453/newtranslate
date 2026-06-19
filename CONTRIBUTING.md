@@ -1,28 +1,34 @@
-# Katkı rehberi
+# Contributing to GlobalBridge AI
 
-## Dal koruması
+## Branch protection
 
-`main` dalına **doğrudan push yasaktır** (yöneticiler dahil). Değişiklikler pull request ile gelir.
+Direct pushes to `main` are **not allowed** (including admins). All changes go through pull requests.
 
-1. Fork alın veya yeni dal açın: `git checkout -b feature/kisa-aciklama`
-2. Commit atın
-3. GitHub'da Pull Request açın
-4. İnceleme sonrası merge
+1. Fork or create a branch: `git checkout -b feature/short-description`
+2. Commit your changes
+3. Open a Pull Request on GitHub
+4. Merge after review
 
-## Yerel kurulum
+## Local setup
 
 ```bash
 git clone https://github.com/001453/newtranslate.git
 cd newtranslate
-npm run setup    # .env + frontend/.env.local oluşturur
-npm run dev      # QVAC 8765 + API 8000 + WEB 3000
+npm run setup    # Creates .env + frontend/.env.local
+npm run dev      # QVAC :8765 + API :8000 + Web :3000
 ```
 
-Ayarları `.env` ve `frontend/.env.local` dosyalarından düzenleyin. Bu dosyalar repoya eklenmez.
+Edit `.env` and `frontend/.env.local` for your machine — these files are gitignored.
 
-## Gereksinimler
+## Requirements
 
 - Node.js 20+
 - Python 3.12+
-- Google Chrome (canlı altyazı / sekme sesi için)
-- QVAC bridge (qvac-service, port 8765)
+- Google Chrome (tab audio / live captions)
+- QVAC bridge running (`qvac-service`, port 8765)
+
+## Code guidelines
+
+- Keep Sovereign Mode as the default path — no required cloud APIs.
+- Document new env vars in `.env.example`.
+- UI strings: add both `en.ts` and `tr.ts` under `frontend/src/lib/i18n/` (product UI stays bilingual; repo docs stay English).
