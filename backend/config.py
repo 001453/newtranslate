@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     app_name: str = "GlobalBridge AI"
     debug: bool = False
     api_prefix: str = "/api/v1"
-    cors_origins: str = "http://localhost:3000,http://localhost:3001"
+    cors_origins: str = "http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:3003,http://127.0.0.1:3000,http://127.0.0.1:3001,http://127.0.0.1:3002"
 
     # Database
     database_url: str = f"sqlite+aiosqlite:///{DATA_DIR / 'globalbridge.db'}"

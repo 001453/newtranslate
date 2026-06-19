@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { LocaleToggle } from "@/components/layout/LocaleToggle";
+import { useServiceHealth } from "@/hooks/useServiceHealth";
 import { useLocale } from "@/hooks/useLocale";
 import { useTheme } from "@/hooks/useTheme";
 import { bottomTabKeys, moduleKeys } from "@/components/layout/ModuleQuickBar";
@@ -59,6 +60,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { theme, toggle: toggleTheme } = useTheme();
   const { messages: m } = useLocale();
+  const { qvacOnline, apiOnline, loading: healthLoading } = useServiceHealth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
 
@@ -114,7 +116,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <Shield className="mr-1 inline h-3 w-3" />
               {m.badges.local}
             </span>
-            <span className="gb-badge">QVAC</span>
+            <span
+              className={cn(
+                "gb-badge",
+                !healthLoading && qvacOnline && apiOnline && "gb-badge-accent",
+                !healthLoading && (!qvacOnline || !apiOnline) && "opacity-60"
+              )}
+            >
+              QVAC
+            </span>
             <span className="gb-badge gb-badge-gold">{m.badges.enterprise}</span>
           </div>
         </div>
