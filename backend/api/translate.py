@@ -14,7 +14,7 @@ from services.packs import pack_service
 from services.privacy import privacy_service
 from services.qvac_client import qvac_client
 from services.summary import summary_service
-from services.translation import translation_service
+from services.translation import TranslationUnavailableError, translation_service
 
 router = APIRouter(tags=["glossary", "meetings", "translate", "packs"])
 
@@ -108,7 +108,10 @@ async def translate_text(body: TranslateRequest):
     glossary = glossary_service.to_dict(body.source_lang, body.target_lang)
     if glossary:
         translation_service.set_glossary(glossary)
-    result = await translation_service.translate_text(body.text, body.source_lang, body.target_lang)
+    try:
+        result = await translation_service.translate_text(body.text, body.source_lang, body.target_lang)
+    except TranslationUnavailableError as e:
+        raise HTTPException(503, str(e)) from e
     privacy = await privacy_service.get_status()
     local = (
         (result.model or "").startswith(("qvac", "bergamot"))

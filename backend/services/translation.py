@@ -28,6 +28,14 @@ from services.text_normalize import clean_translation_output
 
 logger = logging.getLogger(__name__)
 
+_TRANSLATION_UNAVAILABLE = (
+    "Çeviri servisi çalışmıyor — önce QVAC (8765) başlatın: npm run dev:qvac veya scripts/start-dev.ps1"
+)
+
+
+class TranslationUnavailableError(RuntimeError):
+    """Raised when no translation backend (QVAC / cloud) is reachable."""
+
 
 @dataclass
 class TranslationResult:
@@ -122,13 +130,13 @@ class TranslationService:
                 except Exception as e:
                     logger.warning("QVAC failed: %s", e)
                     if not self.settings.allow_cloud_fallback or self.settings.local_processing_only:
-                        return self._apply_glossary_post(user_message), (time.perf_counter() - start) * 1000, "qvac-fallback"
+                        raise TranslationUnavailableError(_TRANSLATION_UNAVAILABLE) from e
             elif self.settings.local_processing_only:
-                return self._apply_glossary_post(user_message), (time.perf_counter() - start) * 1000, "local-passthrough"
+                raise TranslationUnavailableError(_TRANSLATION_UNAVAILABLE)
 
         # Cloud path — blocked if sovereign mode
         if self.settings.local_processing_only:
-            return self._apply_glossary_post(user_message), (time.perf_counter() - start) * 1000, "blocked-cloud"
+            raise TranslationUnavailableError(_TRANSLATION_UNAVAILABLE)
 
         text, latency = await self._call_together(system_prompt, user_message, model, max_tokens)
         return text, latency, "together-cloud"
@@ -173,8 +181,8 @@ class TranslationService:
             raise
 
     async def _offline_translate(self, text: str) -> str:
-        """Placeholder for local Qwen — returns passthrough with glossary."""
-        return self._apply_glossary_post(text)
+        """No cloud key / offline — translation unavailable."""
+        raise TranslationUnavailableError(_TRANSLATION_UNAVAILABLE)
 
     async def translate_text(
         self,

@@ -1,0 +1,16 @@
+{
+  "name": "newtranslate",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GlobalBridge AI — QVAC + Backend + Frontend",
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "dev": "node scripts/run-dev.mjs",
+    "dev:qvac": "npm --prefix qvac-service start",
+    "dev:api": "node scripts/run-backend.mjs",
+    "dev:web": "npm --prefix frontend run dev"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

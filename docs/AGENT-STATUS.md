@@ -50,6 +50,14 @@ Kalıcı çözüm: projeyi Temp dışına klonla, örn. `C:\Users\nihat\Projects
 ## Servisler
 
 ```powershell
+npm run setup          # ilk kurulum
+npm run dev            # hepsi tek terminalde
+.\scripts\start-dev.ps1   # Windows: 3 ayrı pencere
+```
+
+Manuel:
+
+```powershell
 cd qvac-service && node server.js          # 8765
 cd backend && .\.venv\Scripts\uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 cd frontend && npm run dev                 # 3000

@@ -101,51 +101,42 @@ globalbridge-ai/
 - [QVAC SDK](https://qvac.tether.io/)
 - Together AI API key (sadece cloud mod)
 
-### 1. Ortam değişkenleri
+### Hızlı kurulum (önerilen)
 
 ```bash
-cp .env.example .env
-# Sovereign mode: TOGETHER_API_KEY boş, LOCAL_PROCESSING_ONLY=true
+git clone https://github.com/001453/newtranslate.git
+cd newtranslate
+npm run setup    # .env + npm + Python venv
+npm run dev      # QVAC 8765 + API 8000 + WEB 3000 (tek terminal)
 ```
 
-### 2. QVAC bridge
+**Windows (ayrı pencereler):**
 
-```bash
-cd qvac-service
-npm install
-npm start
-# http://127.0.0.1:8765/health
+```powershell
+npm run setup
+.\scripts\start-dev.ps1
 ```
 
-### 3. Backend
+**Linux/macOS:**
 
 ```bash
-cd backend
-python -m venv .venv
-
-# Windows
-.venv\Scripts\activate
-pip install -r requirements.txt
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
-```
-
-### 4. Frontend
-
-```bash
-cd frontend
-npm install
-npm run dev
+npm run setup
+chmod +x scripts/start-dev.sh
+./scripts/start-dev.sh
 ```
 
 Tarayıcı: http://localhost:3000
 
-### Hızlı başlatma (Windows, 3 terminal)
+> **Önemli:** Çeviri için **üç servis birlikte** çalışmalıdır:
+> | Servis | Port | Görev |
+> |--------|------|-------|
+> | QVAC bridge | 8765 | Bergamot NMT (hızlı yerel çeviri) |
+> | Backend | 8000 | FastAPI API |
+> | Frontend | 3000 | Next.js UI |
 
-```powershell
-cd qvac-service; node server.js          # 8765
-cd backend; .\.venv\Scripts\uvicorn main:app --host 0.0.0.0 --port 8000 --reload
-cd frontend; npm run dev                 # 3000
-```
+QVAC kapalıysa çeviri çalışmaz (503 hatası).
+
+### Manuel kurulum
 
 ### Docker
 

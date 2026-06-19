@@ -1,0 +1,30 @@
+# Secrets
+.env
+backend/.env
+*.pem
+
+# Python
+backend/.venv/
+__pycache__/
+*.py[cod]
+backend/data/
+*.db
+
+# Node
+node_modules/
+frontend/.next/
+frontend/node_modules/
+qvac-service/node_modules/
+.npm
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log
+
+# Build / temp
+dist/
+build/
+*.egg-info/

@@ -6,6 +6,7 @@ from typing import Literal
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).resolve().parent
+ROOT_DIR = BASE_DIR.parent
 DATA_DIR = BASE_DIR / "data"
 UPLOAD_DIR = DATA_DIR / "uploads"
 OUTPUT_DIR = DATA_DIR / "outputs"
@@ -13,7 +14,7 @@ OUTPUT_DIR = DATA_DIR / "outputs"
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=(str(ROOT_DIR / ".env"), str(BASE_DIR / ".env")),
         env_file_encoding="utf-8",
         extra="ignore",
     )
