@@ -132,8 +132,37 @@ export function useWebSocket() {
   );
 
   const sendAudio = useCallback((pcm: ArrayBuffer) => {
-    wsRef.current?.send(pcm);
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      wsRef.current.send(pcm);
+    }
   }, []);
+
+  const waitForOpen = useCallback(
+    (timeoutMs = 10_000): Promise<boolean> =>
+      new Promise((resolve) => {
+        if (wsRef.current?.readyState === WebSocket.OPEN) {
+          resolve(true);
+          return;
+        }
+        const deadline = Date.now() + timeoutMs;
+        const poll = () => {
+          if (wsRef.current?.readyState === WebSocket.OPEN) {
+            resolve(true);
+            return;
+          }
+          if (Date.now() >= deadline) {
+            resolve(false);
+            return;
+          }
+          setTimeout(poll, 50);
+        };
+        if (!wsRef.current || wsRef.current.readyState === WebSocket.CLOSED) {
+          connect();
+        }
+        poll();
+      }),
+    [connect]
+  );
 
   useEffect(() => () => disconnect(), [disconnect]);
 
@@ -146,6 +175,7 @@ export function useWebSocket() {
     stopSession,
     sendAudio,
     send,
+    waitForOpen,
     caption,
     history,
     lastPipeline,

@@ -74,6 +74,7 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
     summary,
     error,
     send,
+    waitForOpen,
   } = useWebSocket();
 
   const [sessionActive, setSessionActive] = useState(false);
@@ -198,6 +199,12 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
   const handleStart = async () => {
     if (!connected) return;
     setAudioError(null);
+
+    const wsReady = await waitForOpen();
+    if (!wsReady) {
+      setAudioError(audioErrorText("unknown"));
+      return;
+    }
 
     sessionActiveRef.current = true;
     setSessionActive(true);
