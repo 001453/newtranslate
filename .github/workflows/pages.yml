@@ -1,17 +1,11 @@
 # Deploy static site from docs/site/ to GitHub Pages.
-#
-# ONE-TIME SETUP (required — workflow cannot enable Pages without admin PAT):
-#   GitHub → repo Settings → Pages → Build and deployment → Source: GitHub Actions
-# Then re-run this workflow from Actions → GitHub Pages → Run workflow
+# Do NOT use the "Package a Next.js site" button on Settings → Pages — that is a different workflow.
 
 name: GitHub Pages
 
 on:
   push:
     branches: [main]
-    paths:
-      - "docs/site/**"
-      - ".github/workflows/pages.yml"
   workflow_dispatch:
 
 permissions:
@@ -25,7 +19,7 @@ concurrency:
 
 jobs:
   deploy:
-    name: Deploy to GitHub Pages
+    name: Deploy static site
     runs-on: ubuntu-latest
     environment:
       name: github-pages

@@ -56,16 +56,27 @@ Suggested categories:
 The workflow **cannot** deploy until Pages is turned on in the repo settings.  
 Error you saw: `Get Pages site failed … Not Found` = Pages not enabled yet.
 
-### Steps (one time, ~30 seconds)
+### Steps (one time)
 
 1. Open **https://github.com/001453/newtranslate/settings/pages**
-2. Under **Build and deployment** → **Source**, choose **GitHub Actions** (not “Deploy from a branch”)
-3. Save — no other settings needed for a project site
+2. Under **Build and deployment** → **Source**, choose **GitHub Actions**
+3. **Do not click "Configure" on "Package a Next.js site"** — that installs a separate Next.js deploy workflow. This repo uses a **static HTML site** in `docs/site/` only.
 
-### Re-run deploy
+### Close / remove old or wrong setups
 
-1. **Actions** → **GitHub Pages** → **Run workflow** → Run on `main`  
-   — or push any change under `docs/site/`
+| If you see this | Action |
+|-----------------|--------|
+| **"Package a Next.js site"** workflow was configured | **Actions** → find workflow like `nextjs.yml` or `Deploy Next.js` → ⋮ → **Delete workflow** |
+| **`gh-pages` branch** exists (old branch deploy) | **Settings → Pages** → set Source to **GitHub Actions** (not branch). Optional: delete `gh-pages` branch |
+| **Custom domain** field filled incorrectly | Leave empty for default URL, or click **Remove** |
+| Failed **GitHub Pages** runs | **Actions → GitHub Pages → Run workflow** on `main` after cleanup |
+
+### Run deploy (correct workflow)
+
+1. **Actions** → workflow named **"GitHub Pages"** (not Next.js)
+2. **Run workflow** → branch `main` → **Run workflow**
+
+Or push to `main` — the workflow runs on every push.
 
 ### After success
 
@@ -73,7 +84,7 @@ Site URL: **https://001453.github.io/newtranslate/**
 
 Set this as the repo **Website** in Settings → General → About.
 
-The workflow `.github/workflows/pages.yml` uploads static files from `docs/site/`.
+Static files live in `docs/site/` (single `index.html` landing page).
 
 ## Create v0.1.0 release
 
