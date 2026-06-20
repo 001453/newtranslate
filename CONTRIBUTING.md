@@ -32,3 +32,19 @@ Edit `.env` and `frontend/.env.local` for your machine — these files are gitig
 - Keep Sovereign Mode as the default path — no required cloud APIs.
 - Document new env vars in `.env.example`.
 - UI strings: add both `en.ts` and `tr.ts` under `frontend/src/lib/i18n/` (product UI stays bilingual; repo docs stay English).
+
+## Tests & CI
+
+Pull requests run GitHub Actions automatically:
+
+| Job | Command (local) |
+|-----|-----------------|
+| Frontend | `cd frontend && npm run lint && npm run test && npm run build` |
+| Backend | `npm run test:backend` (requires `npm run setup` first) |
+| i18n | `node scripts/check-i18n.mjs` |
+
+Run everything locally:
+
+```bash
+npm run test
+```

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions & ideas (Discussions)
+    url: https://github.com/001453/newtranslate/discussions
+    about: Ask questions, share demos, or discuss roadmap items
+  - name: Security vulnerability
+    url: https://github.com/001453/newtranslate/blob/main/docs/SECURITY.md
+    about: Report security issues privately — do not open a public issue with exploit details

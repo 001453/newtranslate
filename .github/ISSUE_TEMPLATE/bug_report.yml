@@ -1,0 +1,82 @@
+name: Bug report
+description: Report something that is broken or behaves unexpectedly
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Sovereign Mode issues often relate to QVAC, Whisper, or Chrome tab audio — include logs when possible.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Clear description of the bug
+      placeholder: Live captions stop after 30 seconds…
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. npm run dev
+        2. Open /live
+        3. Share YouTube tab with audio
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Windows
+        - macOS
+        - Linux
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser (if relevant)
+      placeholder: Chrome 125
+
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Privacy mode
+      options:
+        - Sovereign (LOCAL_PROCESSING_ONLY=true)
+        - Hybrid / cloud fallback
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / terminal output
+      render: shell
+      description: API or QVAC terminal output (redact secrets)
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues for duplicates
+          required: true
+        - label: I am on the latest main branch (or release)
+          required: true

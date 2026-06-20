@@ -3,7 +3,23 @@
 **Sovereign real-time translation bridge** — 100+ languages, live captions, Whisper dictation, and document translation.  
 Built on **[QVAC](https://qvac.tether.io/)** (Tether local AI) + **[Keet](https://keet.io/)** (P2P meetings). **Audio and transcripts never leave the device** in Sovereign Mode.
 
+[![CI](https://github.com/001453/newtranslate/actions/workflows/ci.yml/badge.svg)](https://github.com/001453/newtranslate/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/001453/newtranslate?label=release)](https://github.com/001453/newtranslate/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![GitHub issues](https://img.shields.io/github/issues/001453/newtranslate)](https://github.com/001453/newtranslate/issues)
+[![Last commit](https://img.shields.io/github/last-commit/001453/newtranslate)](https://github.com/001453/newtranslate/commits/main)
+[![GitHub stars](https://img.shields.io/github/stars/001453/newtranslate?style=social)](https://github.com/001453/newtranslate/stargazers)
+
+---
+
+## Demo
+
+> **Coming soon:** screen recording of live captions + Keet meeting flow.  
+> Add `docs/assets/demo.gif` and uncomment the line below, or watch grant demo video (M1).
+
+<!-- ![Live captions demo](docs/assets/demo.gif) -->
+
+**Try it locally:** [Quick Start](#quick-start) · **Docs site:** [001453.github.io/newtranslate](https://001453.github.io/newtranslate/) *(after GitHub Pages is enabled)*
 
 ---
 
@@ -330,6 +346,8 @@ This project is designed for the **Tether / QVAC sovereign AI** ecosystem and **
 
 See **[docs/GRANT.md](docs/GRANT.md)** for the full **Tether grant application** (copy-paste form text, milestones, $7,500 USD₮ breakdown). Apply at [tether.dev](https://tether.dev).
 
+See **[docs/ROADMAP.md](docs/ROADMAP.md)** for planned features, benchmarks, and distribution timeline.
+
 ---
 
 ## Contributing
@@ -345,3 +363,16 @@ MIT — see [LICENSE](LICENSE).
 ## Security
 
 Local sovereign defaults: API binds to **127.0.0.1**, optional `API_KEY` for LAN deploy. See **[docs/SECURITY.md](docs/SECURITY.md)**.
+
+---
+
+## Support the project
+
+If GlobalBridge AI helps you communicate across languages **without sending voice to the cloud**, consider:
+
+- ⭐ **[Star the repo](https://github.com/001453/newtranslate/stargazers)** — helps grant reviewers and contributors find the project
+- 🐛 **[Report issues](https://github.com/001453/newtranslate/issues)** or **[request features](https://github.com/001453/newtranslate/issues/new?template=feature_request.yml)**
+- 💬 **[Discussions](https://github.com/001453/newtranslate/discussions)** — share your Keet / YouTube setup *(enable Discussions in repo settings)*
+- 🔀 **Pull requests** welcome — see [CONTRIBUTING.md](CONTRIBUTING.md)
+
+**Changelog:** [CHANGELOG.md](CHANGELOG.md) · **Releases:** [github.com/001453/newtranslate/releases](https://github.com/001453/newtranslate/releases)

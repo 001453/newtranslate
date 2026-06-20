@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GlobalBridge AI — Sovereign Live Translation</title>
+  <meta name="description" content="Local Whisper STT + QVAC translation + Keet P2P meeting captions. Audio stays on-device in Sovereign Mode." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --card: #121820;
+      --text: #e8eef5;
+      --muted: #8b9cb0;
+      --accent: #3b82f6;
+      --accent2: #22c55e;
+      --border: #1e293b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "DM Sans", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    .wrap { max-width: 880px; margin: 0 auto; padding: 3rem 1.5rem 4rem; }
+    h1 { font-size: 2.25rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.75rem; }
+    .tagline { color: var(--muted); font-size: 1.125rem; margin-bottom: 2rem; }
+    .badges { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 2rem; }
+    .badges img { height: 22px; }
+    .grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin: 2rem 0; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+    }
+    .card h2 { font-size: 1rem; margin-bottom: 0.5rem; color: var(--accent2); }
+    .card p { color: var(--muted); font-size: 0.95rem; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .cta { display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 2rem 0; }
+    .btn {
+      display: inline-block;
+      padding: 0.65rem 1.25rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-secondary { background: var(--card); border: 1px solid var(--border); color: var(--text); }
+    footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.875rem; }
+    code { background: var(--card); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>GlobalBridge AI</h1>
+    <p class="tagline">
+      Sovereign real-time translation — 100+ languages, live captions, Whisper dictation.
+      Built on <a href="https://qvac.tether.io/">Tether QVAC</a> + <a href="https://keet.io/">Keet</a> P2P.
+    </p>
+
+    <div class="badges">
+      <a href="https://github.com/001453/newtranslate/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/001453/newtranslate/ci.yml?branch=main&label=CI" alt="CI" /></a>
+      <a href="https://github.com/001453/newtranslate/releases"><img src="https://img.shields.io/github/v/release/001453/newtranslate?label=release" alt="Release" /></a>
+      <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT" />
+      <img src="https://img.shields.io/badge/privacy-sovereign-green.svg" alt="Sovereign" />
+    </div>
+
+    <div class="cta">
+      <a class="btn btn-primary" href="https://github.com/001453/newtranslate">View on GitHub</a>
+      <a class="btn btn-secondary" href="https://github.com/001453/newtranslate/releases/latest">Download v0.1.0</a>
+      <a class="btn btn-secondary" href="https://github.com/001453/newtranslate/blob/main/README.md#quick-start">Quick Start</a>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Live captions</h2>
+        <p>Chrome tab audio → local Whisper → QVAC translation. YouTube, Zoom, Meet, Teams.</p>
+      </div>
+      <div class="card">
+        <h2>Keet meetings</h2>
+        <p>P2P encrypted calls with personalized bilingual subtitles. Export TXT / JSON / SRT.</p>
+      </div>
+      <div class="card">
+        <h2>Sovereign Mode</h2>
+        <p>No audio or transcript egress to third-party APIs when local processing is enabled.</p>
+      </div>
+    </div>
+
+    <h2 style="margin-top:2rem;font-size:1.25rem;">Documentation</h2>
+    <ul style="margin:1rem 0 0 1.25rem;color:var(--muted);">
+      <li><a href="https://github.com/001453/newtranslate/blob/main/README.md">README — install &amp; run</a></li>
+      <li><a href="https://github.com/001453/newtranslate/blob/main/docs/GRANT.md">Grant application (QVAC + Keet)</a></li>
+      <li><a href="https://github.com/001453/newtranslate/blob/main/docs/ROADMAP.md">Roadmap</a></li>
+      <li><a href="https://github.com/001453/newtranslate/blob/main/docs/SECURITY.md">Security model</a></li>
+      <li><a href="https://github.com/001453/newtranslate/blob/main/CHANGELOG.md">Changelog</a></li>
+    </ul>
+
+    <h2 style="margin-top:2rem;font-size:1.25rem;">Quick install</h2>
+    <pre style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-top:0.75rem;overflow-x:auto;font-size:0.875rem;"><code>git clone https://github.com/001453/newtranslate.git
+cd newtranslate
+npm run setup
+npm run dev</code></pre>
+    <p style="margin-top:0.75rem;color:var(--muted);font-size:0.9rem;">Open <code>http://localhost:3000</code> — requires QVAC (:8765), API (:8000), Chrome for tab audio.</p>
+
+    <footer>
+      MIT License · <a href="https://github.com/001453/newtranslate">001453/newtranslate</a>
+      · If this project helps you, consider giving it a ⭐ on GitHub.
+    </footer>
+  </div>
+</body>
+</html>

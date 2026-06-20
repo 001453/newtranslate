@@ -1,0 +1,57 @@
+name: Feature request
+description: Suggest an idea or improvement
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        See [docs/ROADMAP.md](https://github.com/001453/newtranslate/blob/main/docs/ROADMAP.md) for planned work before opening duplicates.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case
+      description: What problem does this solve? Who benefits?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: How would you like it to work?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Live captions
+        - Keet / meetings
+        - Dictation / STT
+        - Translation / QVAC
+        - PDF / documents
+        - Glossary
+        - Security / privacy
+        - DevOps / packaging
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: sovereign
+    attributes:
+      label: Sovereign Mode compatibility
+      options:
+        - label: This should work without sending data to cloud APIs
+          required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other approaches you thought about
