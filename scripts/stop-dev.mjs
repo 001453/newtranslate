@@ -36,12 +36,23 @@ function killPid(pid) {
   if (!pid || pid === 4) return false;
   try {
     if (isWin) {
-      execSync(`taskkill /pid ${pid} /f`, { shell: true, stdio: "ignore", timeout: 8000 });
+      execSync(`taskkill /pid ${pid} /f /t`, { shell: true, stdio: "ignore", timeout: 8000 });
     } else {
       execSync(`kill -9 ${pid}`, { stdio: "ignore", timeout: 8000 });
     }
     return true;
   } catch {
+    if (isWin) {
+      try {
+        execSync(
+          `powershell -NoProfile -Command "Stop-Process -Id ${pid} -Force -ErrorAction Stop"`,
+          { shell: true, stdio: "ignore", timeout: 8000 },
+        );
+        return true;
+      } catch {
+        return false;
+      }
+    }
     return false;
   }
 }

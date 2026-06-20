@@ -1,11 +1,18 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useLocale } from "@/hooks/useLocale";
 import { isChromeBrowser } from "@/lib/meetingExport";
 
 export function ChromeRequiredBanner() {
   const { messages: m } = useLocale();
-  if (isChromeBrowser()) return null;
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    setShow(!isChromeBrowser());
+  }, []);
+
+  if (!show) return null;
 
   return (
     <div className="gb-alert-warning text-sm">

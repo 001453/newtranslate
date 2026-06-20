@@ -215,10 +215,11 @@ class OverlayService:
         is_final: bool = True,
         confidence: float = 1.0,
         display_seconds: float | None = None,
+        caption_id: str | None = None,
     ) -> CaptionLine:
         now = time.time()
         display_sec = display_seconds or self.settings.subtitle_display_seconds
-        cap_id = str(uuid.uuid4())
+        cap_id = caption_id or str(uuid.uuid4())
 
         caption = CaptionLine(
             id=cap_id,
@@ -236,7 +237,10 @@ class OverlayService:
         async with self._lock:
             self.state.current_caption = caption
             if is_final:
-                self.state.history.append(caption)
+                if caption_id and self.state.history and self.state.history[-1].id == cap_id:
+                    self.state.history[-1] = caption
+                else:
+                    self.state.history.append(caption)
                 if len(self.state.history) > 500:
                     self.state.history = self.state.history[-500:]
 
@@ -276,13 +280,18 @@ class OverlayService:
         ]
 
     def resolve_target_lang(self, detected_lang: str) -> str:
-        """Kişisel mod: her zaman izleyicinin ana diline çevir."""
+        """Kişisel mod: altyazılar izleyicinin ana dilinde."""
         det = detected_lang.split("-")[0]
 
         if self.state.viewer_lang:
-            mine = self.state.viewer_lang.split("-")[0]
-            if det == mine:
-                return detected_lang
+            viewer = self.state.viewer_lang.split("-")[0]
+            if self.state.source_lang and self.state.source_lang != "auto":
+                src = self.state.source_lang.split("-")[0]
+                if src != viewer:
+                    return self.state.viewer_lang
+                return self.state.viewer_lang
+            if det == viewer:
+                return self.state.viewer_lang
             return self.state.viewer_lang
 
         if not self.state.bidirectional:

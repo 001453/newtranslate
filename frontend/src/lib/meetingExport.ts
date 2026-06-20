@@ -37,5 +37,6 @@ export function downloadMeetingExport(payload: MeetingExportPayload, prefix = "t
 export function isChromeBrowser(): boolean {
   if (typeof navigator === "undefined") return true;
   const ua = navigator.userAgent;
+  if (!ua) return true;
   return /Chrome|CriOS/.test(ua) && !/Edg|OPR|Firefox|SamsungBrowser/.test(ua);
 }

@@ -59,9 +59,9 @@ class Settings(BaseSettings):
     elevenlabs_api_key: str = ""
     tts_enabled: bool = False
 
-    # Real-time pipeline
-    target_latency_ms: int = 2000
-    subtitle_display_seconds: float = 3.5
+    # Real-time pipeline (TikTok-style: short chunks + rolling buffer + interim captions)
+    target_latency_ms: int = 1500
+    subtitle_display_seconds: float = 5.0
     audio_chunk_ms: int = 1200
     dictation_chunk_ms: int = 2000
     dictation_overlap_ms: int = 400
@@ -71,11 +71,14 @@ class Settings(BaseSettings):
     dictation_min_language_probability: float = 0.35
     whisper_dictation_beam_size: int = 3
     min_stt_language_probability: float = 0.45
-    live_min_audio_duration_ms: int = 800
-    live_queue_max: int = 5
-    whisper_live_beam_size: int = 5
-    live_min_audio_rms: float = 0.004
-    live_min_stt_language_probability: float = 0.35
+    live_min_audio_duration_ms: int = 600
+    live_process_interval_ms: int = 800
+    live_window_ms: int = 2200
+    live_buffer_ms: int = 6000
+    live_queue_max: int = 12
+    whisper_live_beam_size: int = 3
+    live_min_audio_rms: float = 0.003
+    live_min_stt_language_probability: float = 0.30
 
     # Privacy
     local_processing_only: bool = False

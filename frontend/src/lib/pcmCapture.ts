@@ -65,7 +65,9 @@ function createChunkEmitter(
   const overlapSamples = Math.max(0, Math.floor((TARGET_RATE * overlapMs) / 1000));
   let samplesCollected = 0;
   let chunksSent = 0;
+  let lastLevelStatsAt = 0;
   const bufferRef: Float32Array[] = [];
+  const LEVEL_STATS_MS = 100;
 
   const pushSamples = (input: Float32Array) => {
     const level = rmsLevel(input);
@@ -88,12 +90,17 @@ function createChunkEmitter(
         chunksSent += 1;
       }
       handlers.onStats?.({ level: sliceLevel, chunksSent });
+      lastLevelStatsAt = performance.now();
       bufferRef.length = 0;
       const keep = overlapSamples > 0 ? merged.subarray(Math.max(0, chunkSamples - overlapSamples)) : remainder;
       if (keep.length) bufferRef.push(keep);
       samplesCollected = keep.length;
     } else {
-      handlers.onStats?.({ level, chunksSent });
+      const now = performance.now();
+      if (now - lastLevelStatsAt >= LEVEL_STATS_MS) {
+        lastLevelStatsAt = now;
+        handlers.onStats?.({ level, chunksSent });
+      }
     }
   };
 

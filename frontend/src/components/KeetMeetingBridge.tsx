@@ -93,35 +93,57 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
   const [fontSize, setFontSize] = useState(34);
   const [audioSource, setAudioSource] = useState<"tab" | "mic" | "both">("tab");
   const [audioError, setAudioError] = useState<string | null>(null);
-  const [audioStats, setAudioStats] = useState<AudioCaptureStats>({ level: 0, chunksSent: 0 });
   const [insecureContext, setInsecureContext] = useState(false);
   const [exportNotice, setExportNotice] = useState<string | null>(null);
   const sessionActiveRef = useRef(false);
+  const audioSourceRef = useRef(audioSource);
   const audioStatsRef = useRef<AudioCaptureStats>({ level: 0, chunksSent: 0 });
-  const statsPaintAtRef = useRef(0);
+  const captionRef = useRef(caption);
+  const levelFillRef = useRef<HTMLDivElement>(null);
+  const levelPctRef = useRef<HTMLSpanElement>(null);
+  const levelStatusRef = useRef<HTMLSpanElement>(null);
+  const silentWarnRef = useRef<HTMLParagraphElement>(null);
+  const musicHintRef = useRef<HTMLParagraphElement>(null);
+  const meterWarnAtRef = useRef(0);
   const { devices: micDevices, requestPermission: requestMicPermission } = useMicDevices();
 
-  /** Throttle level meter UI — worklet fires far more often than React can paint. */
-  const onAudioStats = useCallback((stats: AudioCaptureStats) => {
-    const prev = audioStatsRef.current;
-    const chunksChanged = stats.chunksSent !== prev.chunksSent;
-    audioStatsRef.current = stats;
+  audioSourceRef.current = audioSource;
+  captionRef.current = caption;
 
-    const now = performance.now();
-    if (!chunksChanged && now - statsPaintAtRef.current < 100) return;
-
-    setAudioStats((current) => {
-      if (
-        !chunksChanged &&
-        current.chunksSent === stats.chunksSent &&
-        Math.abs(current.level - stats.level) < 0.004
-      ) {
-        return current;
-      }
-      statsPaintAtRef.current = now;
-      return { level: stats.level, chunksSent: stats.chunksSent };
-    });
+  const captureSourceLang = useCallback((my: string, other: string) => {
+    return audioSourceRef.current === "mic" ? my : other;
   }, []);
+
+  /** Update level meter via DOM — avoid re-rendering the whole page on every audio buffer. */
+  const onAudioStats = useCallback(
+    (stats: AudioCaptureStats) => {
+      audioStatsRef.current = stats;
+
+      const pct = Math.min(100, Math.round(stats.level * 500));
+      if (levelFillRef.current) levelFillRef.current.style.width = `${pct}%`;
+      if (levelPctRef.current) levelPctRef.current.textContent = `${pct}%`;
+      if (levelStatusRef.current) {
+        levelStatusRef.current.textContent =
+          stats.level > 0.004 ? m.meeting.audioReceiving : m.meeting.audioWaiting;
+      }
+
+      const now = performance.now();
+      if (now - meterWarnAtRef.current < 400) return;
+      meterWarnAtRef.current = now;
+
+      if (silentWarnRef.current) {
+        silentWarnRef.current.hidden = !(stats.chunksSent > 8 && stats.level < 0.003);
+      }
+      if (musicHintRef.current) {
+        musicHintRef.current.hidden = !(
+          stats.chunksSent > 20 &&
+          stats.level > 0.004 &&
+          !captionRef.current
+        );
+      }
+    },
+    [m.meeting.audioReceiving, m.meeting.audioWaiting],
+  );
 
   const onChunk = useCallback(
     (pcm: ArrayBuffer) => {
@@ -196,8 +218,8 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
       send({
         action: "update_languages",
         config: {
-          source_lang: "auto",
-          target_lang: other,
+          source_lang: captureSourceLang(my, other),
+          target_lang: my,
           bidirectional: true,
           lang_a: my,
           lang_b: other,
@@ -205,7 +227,7 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
         },
       });
     },
-    [send]
+    [captureSourceLang, send],
   );
 
   const applyLangPair = (my: string, other: string) => {
@@ -232,8 +254,8 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
     setSessionActive(true);
 
     startSession({
-      source_lang: audioSource === "mic" ? myLang : otherLang,
-      target_lang: otherLang,
+      source_lang: captureSourceLang(myLang, otherLang),
+      target_lang: myLang,
       bidirectional: true,
       lang_a: myLang,
       lang_b: otherLang,
@@ -259,9 +281,12 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
     stopSession(myLang);
     setSessionActive(false);
     setAudioError(null);
+    meterWarnAtRef.current = 0;
     audioStatsRef.current = { level: 0, chunksSent: 0 };
-    statsPaintAtRef.current = 0;
-    setAudioStats({ level: 0, chunksSent: 0 });
+    if (levelFillRef.current) levelFillRef.current.style.width = "0%";
+    if (levelPctRef.current) levelPctRef.current.textContent = "0%";
+    if (silentWarnRef.current) silentWarnRef.current.hidden = true;
+    if (musicHintRef.current) musicHintRef.current.hidden = true;
     setExportNotice(null);
   };
 
@@ -462,7 +487,9 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
             <ArrowLeftRight className="h-4 w-4" />
           </button>
           <div>
-            <label className="text-xs text-[var(--gb-muted)]">{m.meeting.otherLang}</label>
+            <label className="text-xs text-[var(--gb-muted)]">
+              {keetMode ? m.meeting.otherLang : m.meeting.otherLangLive}
+            </label>
             <select
               className="gb-select mt-1"
               value={otherLang}
@@ -484,23 +511,27 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
         )}
       </div>
 
-      <div className="gb-live-box">
+      <div className="gb-live-box min-h-[7.5rem]">
         <div className="mb-1 text-xs font-bold uppercase text-[var(--gb-muted)]">{m.meeting.captionLabel}</div>
         {caption ? (
           <>
-            <p className="text-2xl font-semibold leading-snug">{caption.translated}</p>
+            <p
+              className={cn(
+                "text-2xl font-semibold leading-snug",
+                !caption.is_final && "opacity-80",
+              )}
+            >
+              {caption.translated}
+              {!caption.is_final && (
+                <span className="ml-1 inline-block animate-pulse opacity-60">…</span>
+              )}
+            </p>
             {caption.original !== caption.translated && (
               <p className="mt-2 text-sm opacity-70">{caption.original}</p>
             )}
           </>
         ) : sessionActive ? (
-          <p className="opacity-70">
-            {audioStats.chunksSent === 0
-              ? m.meeting.audioWaiting
-              : audioStats.level < 0.003
-                ? m.meeting.audioSilent
-                : m.meeting.waitingSpeech}
-          </p>
+          <p className="opacity-70">{m.meeting.waitingSpeech}</p>
         ) : (
           <p className="opacity-70">{keetMode ? m.meeting.waitingStart : m.meeting.liveWaitingStart}</p>
         )}
@@ -550,23 +581,22 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
         {sessionActive && (recording || capturing) && (
           <div className="mb-3">
             <div className="mb-1 flex justify-between text-xs text-[var(--gb-muted)]">
-              <span>
-                {audioStats.level > 0.004 ? m.meeting.audioReceiving : m.meeting.audioWaiting}
-              </span>
-              <span>{Math.min(100, Math.round(audioStats.level * 500))}%</span>
+              <span ref={levelStatusRef}>{m.meeting.audioWaiting}</span>
+              <span ref={levelPctRef}>0%</span>
             </div>
             <div className="h-1.5 overflow-hidden rounded-full bg-[var(--gb-border)]">
               <div
-                className="h-full bg-[var(--gb-accent)] transition-all duration-150"
-                style={{ width: `${Math.min(100, audioStats.level * 500)}%` }}
+                ref={levelFillRef}
+                className="h-full w-0 bg-[var(--gb-accent)]"
+                style={{ transition: "width 120ms linear" }}
               />
             </div>
-            {audioStats.chunksSent > 8 && audioStats.level < 0.003 && (
-              <p className="mt-2 text-xs text-[var(--gb-warning)]">{m.meeting.audioSilent}</p>
-            )}
-            {audioStats.chunksSent > 20 && audioStats.level > 0.004 && !caption && (
-              <p className="mt-2 text-xs text-[var(--gb-muted)]">{m.meeting.speechMusicHint}</p>
-            )}
+            <p ref={silentWarnRef} hidden className="mt-2 text-xs text-[var(--gb-warning)]">
+              {m.meeting.audioSilent}
+            </p>
+            <p ref={musicHintRef} hidden className="mt-2 text-xs text-[var(--gb-muted)]">
+              {m.meeting.speechMusicHint}
+            </p>
           </div>
         )}
 

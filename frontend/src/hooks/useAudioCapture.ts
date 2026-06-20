@@ -152,9 +152,9 @@ export function useAudioCapture(
   return { recording, start, stop, listDevices, setDeviceId, deviceId };
 }
 
-const LIVE_CHUNK_MS = 3000;
-const LIVE_OVERLAP_MS = 800;
-const LIVE_MIN_RMS = 0.004;
+const LIVE_CHUNK_MS = 1000;
+const LIVE_OVERLAP_MS = 350;
+const LIVE_MIN_RMS = 0.003;
 
 /** Capture system/tab audio via getDisplayMedia (YouTube / Zoom / Meet) */
 export function useTabAudioCapture(
@@ -196,13 +196,15 @@ export function useTabAudioCapture(
           suppressLocalAudioPlayback: false,
         },
         preferCurrentTab: false,
+        systemAudio: "include",
       } as DisplayMediaStreamOptions);
     } catch (err) {
       try {
         stream = await navigator.mediaDevices.getDisplayMedia({
           video: true,
           audio: true,
-        });
+          systemAudio: "include",
+        } as DisplayMediaStreamOptions);
       } catch (fallbackErr) {
         return mapMediaError(fallbackErr);
       }

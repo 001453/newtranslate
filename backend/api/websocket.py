@@ -99,6 +99,7 @@ async def live_caption_ws(websocket: WebSocket):
                     lang_b=cfg.get("lang_b"),
                     viewer_lang=cfg.get("viewer_lang"),
                 )
+                processor.reset_session()
                 await websocket.send_json({
                     "event": "languages_updated",
                     "payload": {

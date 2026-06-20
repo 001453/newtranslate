@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChromeRequiredBanner } from "@/components/shared/ChromeRequiredBanner";
 import { useLocale } from "@/hooks/useLocale";
 import { getLiveEndpoints, type LiveEndpoints } from "@/lib/endpoints";
 import { Copy, Link2, Radio, Server } from "lucide-react";
@@ -47,7 +46,6 @@ export function LiveSetupPanel({ onHide }: { onHide: () => void }) {
 
   return (
     <div className="space-y-4">
-      <ChromeRequiredBanner />
       <div className="gb-card p-5">
         <div className="mb-3 flex items-center justify-between gap-2">
           <h2 className="flex items-center gap-2 font-semibold">
