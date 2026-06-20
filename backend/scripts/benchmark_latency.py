@@ -168,7 +168,7 @@ async def main() -> int:
     print()
     print("Live STT chunk (ms):", stt_stats)
     if translate_stats:
-        print("Translate en→tr (ms):", translate_stats)
+        print("Translate en->tr (ms):", translate_stats)
         print("Estimated live caption p50 (ms):", report["estimated_live_caption_ms"]["p50_ms"])
     else:
         print("Translate: skipped —", translate_error)
