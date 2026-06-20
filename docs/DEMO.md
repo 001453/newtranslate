@@ -7,7 +7,7 @@ GlobalBridge AI runs **speech recognition and translation on your machine** — 
 ## Watch
 
 <!-- DEMO_VIDEO_START -->
-Video walkthrough (YouTube, ~5 min) — linked here after publication.
+▶ **[Watch demo on YouTube](https://youtu.be/1cxwP5S7-1A)** — sovereign live captions (Whisper + QVAC + tab audio, ~5 min)
 <!-- DEMO_VIDEO_END -->
 
 ---

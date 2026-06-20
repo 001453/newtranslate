@@ -5,6 +5,9 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- Public demo video on [YouTube](https://youtu.be/1cxwP5S7-1A)
+
 ### Planned
 - Demo GIF / screen recording in README
 - CPU-only latency benchmarks (`docs/BENCHMARKS.md`)

@@ -18,9 +18,82 @@ if (!url || !/^https?:\/\//i.test(url)) {
 }
 
 const isYoutube = /youtu\.be|youtube\.com/i.test(url);
+
+function youtubeEmbedId(link) {
+  try {
+    const u = new URL(link);
+    if (u.hostname.includes("youtu.be")) return u.pathname.slice(1).split("/")[0];
+    return u.searchParams.get("v") || "";
+  } catch {
+    return "";
+  }
+}
+
 const block = isYoutube
   ? `▶ **[Watch demo on YouTube](${url})** — sovereign live captions (Whisper + QVAC + tab audio, ~5 min)`
   : `▶ **[Watch demo video (MP4)](${url})** — sovereign live captions (Whisper + QVAC + tab audio)`;
+
+function demoHtmlForUrl(link) {
+  if (/youtu\.be|youtube\.com/i.test(link)) {
+    const id = youtubeEmbedId(link);
+    const embed = `https://www.youtube.com/embed/${id}`;
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GlobalBridge AI — Demo</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #0b0f14; color: #e8eef5; margin: 0; padding: 2rem; }
+    a { color: #3b82f6; }
+    .wrap { max-width: 960px; margin: 0 auto; }
+    .embed { position: relative; padding-bottom: 56.25%; height: 0; margin-top: 1rem; border-radius: 8px; overflow: hidden; }
+    .embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>GlobalBridge AI — Demo</h1>
+    <p>Sovereign live captions: local Whisper + QVAC. <a href="https://github.com/001453/newtranslate">Source on GitHub</a></p>
+    <div class="embed">
+      <iframe src="${embed}" title="GlobalBridge AI demo" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+    <p style="margin-top:1rem;color:#8b9cb0;font-size:0.9rem;">
+      <a href="${link}">Watch on YouTube</a> ·
+      <a href="https://github.com/001453/newtranslate/blob/main/docs/DEMO.md">Demo page</a>
+    </p>
+  </div>
+</body>
+</html>
+`;
+  }
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GlobalBridge AI — Demo</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #0b0f14; color: #e8eef5; margin: 0; padding: 2rem; }
+    a { color: #3b82f6; }
+    video { max-width: 100%; border-radius: 8px; margin-top: 1rem; background: #000; }
+    .wrap { max-width: 960px; margin: 0 auto; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>GlobalBridge AI — Demo</h1>
+    <p>Sovereign live captions: local Whisper + QVAC. <a href="https://github.com/001453/newtranslate">Source on GitHub</a></p>
+    <video controls preload="metadata" src="${link}"></video>
+    <p style="margin-top:1rem;color:#8b9cb0;font-size:0.9rem;">
+      <a href="${link}">Direct download</a> ·
+      <a href="https://github.com/001453/newtranslate/blob/main/docs/DEMO.md">Demo page</a>
+    </p>
+  </div>
+</body>
+</html>
+`;
+}
 
 function replaceMarkers(content, replacement) {
   const start = "<!-- DEMO_VIDEO_START -->";
@@ -38,33 +111,7 @@ for (const rel of ["docs/DEMO.md", "README.md"]) {
 }
 
 const demoHtmlPath = join(root, "docs/site/demo.html");
-const demoHtml = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>GlobalBridge AI — Demo</title>
-  <style>
-    body { font-family: system-ui, sans-serif; background: #0b0f14; color: #e8eef5; margin: 0; padding: 2rem; }
-    a { color: #3b82f6; }
-    video { max-width: 100%; border-radius: 8px; margin-top: 1rem; background: #000; }
-    .wrap { max-width: 960px; margin: 0 auto; }
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <h1>GlobalBridge AI — Demo</h1>
-    <p>Sovereign live captions: local Whisper + QVAC. <a href="https://github.com/001453/newtranslate">Source on GitHub</a></p>
-    <video controls preload="metadata" src="${url}"></video>
-    <p style="margin-top:1rem;color:#8b9cb0;font-size:0.9rem;">
-      <a href="${url}">Direct download</a> ·
-      <a href="https://github.com/001453/newtranslate/blob/main/docs/DEMO.md">Demo page</a>
-    </p>
-  </div>
-</body>
-</html>
-`;
-writeFileSync(demoHtmlPath, demoHtml);
+writeFileSync(demoHtmlPath, demoHtmlForUrl(url));
 console.log("Updated docs/site/demo.html");
 
 console.log("\nDone. Commit and push.");

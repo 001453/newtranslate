@@ -74,7 +74,7 @@ USD₮
 
 ### Demo video
 
-Public demo page: **[docs/DEMO.md](DEMO.md)** (YouTube link added after upload)
+Public demo: **[YouTube](https://youtu.be/1cxwP5S7-1A)** · [docs/DEMO.md](DEMO.md)
 
 ---
 
@@ -194,7 +194,7 @@ Tether’s program pays **$1,500–$10,000** per defined task. At **$7,500** ove
 ## Checklist before you click Apply
 
 - [x] Team contact filled in above  
-- [ ] Publish demo video → `npm run demo:url -- https://youtu.be/...`  
+- [x] Publish demo video → [YouTube](https://youtu.be/1cxwP5S7-1A)  
 - [x] [SOVEREIGN_EGRESS_CHECKLIST.md](SOVEREIGN_EGRESS_CHECKLIST.md) published  
 - [x] English setup guide ([README](../README.md#quick-start))  
 - [ ] Open https://tether.dev → **Apply for a grant**  

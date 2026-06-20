@@ -15,7 +15,7 @@ Built on **[QVAC](https://qvac.tether.io/)** (Tether local AI) + **[Keet](https:
 ## Demo
 
 <!-- DEMO_VIDEO_START -->
-**[Demo page →](docs/DEMO.md)** — walkthrough of sovereign live captions (Whisper + QVAC + YouTube tab audio). Video link is added on [docs/DEMO.md](docs/DEMO.md) after upload.
+▶ **[Watch demo on YouTube](https://youtu.be/1cxwP5S7-1A)** — sovereign live captions (Whisper + QVAC + tab audio, ~5 min)
 <!-- DEMO_VIDEO_END -->
 
 [Sovereign egress checklist](docs/SOVEREIGN_EGRESS_CHECKLIST.md) · [Quick Start](#quick-start) · [Project site](https://001453.github.io/newtranslate/)

@@ -27,7 +27,7 @@ Aligned with the [Tether grant milestones](GRANT.md) and community feedback.
 - [x] GitHub Actions CI (lint + test on PRs)
 - [x] CHANGELOG + v0.1.0 release
 - [x] Issue / PR templates
-- [ ] Demo video published on [docs/DEMO.md](DEMO.md) (`npm run demo:url`)
+- [x] Demo video on [YouTube](https://youtu.be/1cxwP5S7-1A) · [docs/DEMO.md](DEMO.md)
 - [ ] `docs/BENCHMARKS.md` — CPU-only `distil-large-v3` latency numbers (grant **M2**)
 
 ### Quality & testing
