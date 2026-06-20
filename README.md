@@ -85,6 +85,10 @@ HTTP dictation endpoint: `POST /api/v1/transcribe` (PCM int16 @ 16 kHz → Whisp
 
 > Keet handles the call; GlobalBridge handles **local STT + QVAC translation**. No Keet SDK is required — integration is via standard browser tab audio capture, keeping the stack simple and fully local.
 
+**Builder guide:** [docs/KEET_PEARS_INTEGRATION.md](docs/KEET_PEARS_INTEGRATION.md) — deep links, WebSocket config, Pear SDK roadmap.
+
+**Participant setup link:** `/meeting?invite=keet%3A%2F%2F…&from=tr&to=en` (or use “Copy setup link” in the UI).
+
 ---
 
 ## Architecture

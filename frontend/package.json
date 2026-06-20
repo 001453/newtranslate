@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --max-warnings 0",
-    "test": "node --import tsx --test src/lib/dictationMerge.test.ts"
+    "test": "node --import tsx --test src/lib/dictationMerge.test.ts src/lib/keet.test.ts"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",

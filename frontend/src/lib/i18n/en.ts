@@ -159,6 +159,9 @@ export const en = {
     openInKeet: "Open in Keet",
     copied: "Copied",
     copyLink: "Copy link",
+    copySetupLink: "Copy setup link for participants",
+    setupLinkCopied: "Setup link copied",
+    roomKeyLabel: "Room: {key}",
     languagesTitle: "Languages — personal subtitles",
     languagesHint:
       "Subtitles appear in {mine}. Set the video/tab language to {other} — whatever is spoken in YouTube or the meeting.",

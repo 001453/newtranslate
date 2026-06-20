@@ -162,6 +162,9 @@ export const tr: Messages = {
     openInKeet: "Keet'te aç",
     copied: "Kopyalandı",
     copyLink: "Linki kopyala",
+    copySetupLink: "Katılımcılar için kurulum linkini kopyala",
+    setupLinkCopied: "Kurulum linki kopyalandı",
+    roomKeyLabel: "Oda: {key}",
     languagesTitle: "Diller — kişisel altyazı",
     languagesHint:
       "Altyazılar {mine} dilinde görünür. Video/sekmede konuşulan dili {other} olarak seçin (YouTube, toplantı vb.).",

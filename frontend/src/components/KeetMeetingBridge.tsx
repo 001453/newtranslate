@@ -10,7 +10,7 @@ import { type AudioCaptureError, type AudioCaptureStats, useAudioCapture, useTab
 import { useMicDevices } from "@/hooks/useMicDevices";
 import { defaultTranslationPair, useLocale } from "@/hooks/useLocale";
 import { useWebSocket } from "@/hooks/useWebSocket";
-import { KEET_DOWNLOAD_URL, isKeetInvite, keetOpenHref, normalizeKeetInvite } from "@/lib/keet";
+import { KEET_DOWNLOAD_URL, buildMeetingDeepLink, extractKeetRoomLabel, isKeetInvite, keetOpenHref, normalizeKeetInvite } from "@/lib/keet";
 import { downloadMeetingExport } from "@/lib/meetingExport";
 import { fmt } from "@/lib/i18n/fmt";
 import { LANGUAGES, langName } from "@/lib/languages";
@@ -57,9 +57,19 @@ type Props = {
   keetMode?: boolean;
   title?: string;
   subtitle?: string;
+  initialInvite?: string;
+  initialMyLang?: string;
+  initialOtherLang?: string;
 };
 
-export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
+export function KeetMeetingBridge({
+  keetMode = true,
+  title,
+  subtitle,
+  initialInvite,
+  initialMyLang,
+  initialOtherLang,
+}: Props) {
   const { messages: m, locale, hydrated } = useLocale();
   const pageTitle = title ?? m.meeting.title;
   const pageSubtitle = subtitle ?? m.meeting.subtitle;
@@ -88,6 +98,7 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
   const langInit = useRef(false);
   const [keetInvite, setKeetInvite] = useState("");
   const [copied, setCopied] = useState(false);
+  const [setupCopied, setSetupCopied] = useState(false);
   const [showGuide, setShowGuide] = useState(keetMode);
   const [showLiveGuide, setShowLiveGuide] = useState(!keetMode);
   const [fontSize, setFontSize] = useState(34);
@@ -188,22 +199,40 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
     connect();
     setInsecureContext(typeof window !== "undefined" && !window.isSecureContext);
     void requestMicPermission();
-    try {
-      const saved = localStorage.getItem(KEET_INVITE_KEY);
-      if (saved) setKeetInvite(saved);
-    } catch {
-      /* ignore */
+    if (initialInvite) {
+      try {
+        const normalized = normalizeKeetInvite(decodeURIComponent(initialInvite));
+        if (normalized && isKeetInvite(normalized)) {
+          setKeetInvite(normalized);
+          localStorage.setItem(KEET_INVITE_KEY, normalized);
+        }
+      } catch {
+        /* ignore */
+      }
+    } else {
+      try {
+        const saved = localStorage.getItem(KEET_INVITE_KEY);
+        if (saved) setKeetInvite(saved);
+      } catch {
+        /* ignore */
+      }
     }
     return () => disconnect();
-  }, [connect, disconnect, requestMicPermission]);
+  }, [connect, disconnect, requestMicPermission, initialInvite]);
 
   useEffect(() => {
     if (!hydrated || langInit.current) return;
-    const { my, other } = loadLiveLangs(locale);
+    const loaded = loadLiveLangs(locale);
+    const langCodes = new Set(LANGUAGES.map((l) => l.code));
+    const my = initialMyLang && langCodes.has(initialMyLang) ? initialMyLang : loaded.my;
+    const other =
+      initialOtherLang && langCodes.has(initialOtherLang) && initialOtherLang !== my
+        ? initialOtherLang
+        : loaded.other;
     setMyLang(my);
     setOtherLang(other);
     langInit.current = true;
-  }, [locale, hydrated]);
+  }, [locale, hydrated, initialMyLang, initialOtherLang]);
 
   const persistLangs = (my: string, other: string) => {
     try {
@@ -323,7 +352,21 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const copySetupLink = async () => {
+    const link = normalizeKeetInvite(keetInvite);
+    if (!link) return;
+    const setup = buildMeetingDeepLink({
+      invite: link,
+      myLang,
+      otherLang,
+    });
+    await navigator.clipboard.writeText(setup);
+    setSetupCopied(true);
+    setTimeout(() => setSetupCopied(false), 2000);
+  };
+
   const keetHref = keetInvite ? keetOpenHref(keetInvite) : "";
+  const roomLabel = keetInvite && isKeetInvite(keetInvite) ? extractKeetRoomLabel(keetInvite) : "";
   const invalidKeetLink = keetMode && keetInvite.trim() && isWebUrl(keetInvite);
   const langOptions = LANGUAGES.filter((l) => l.code !== "auto");
 
@@ -433,6 +476,11 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
           {invalidKeetLink && (
             <p className="mt-2 text-xs text-[var(--gb-warning)]">{m.meeting.invalidKeetLink}</p>
           )}
+          {roomLabel && !invalidKeetLink && (
+            <p className="mt-2 text-xs text-[var(--gb-muted)]">
+              {fmt(m.meeting.roomKeyLabel, { key: roomLabel })}
+            </p>
+          )}
           <div className="mt-2 flex flex-wrap gap-2">
             {isKeetInvite(keetInvite) && !invalidKeetLink && (
               <a href={keetHref} className="gb-btn-primary text-sm">
@@ -448,6 +496,16 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
               <Copy className="mr-1 h-3.5 w-3.5" />
               {copied ? m.meeting.copied : m.meeting.copyLink}
             </button>
+            {isKeetInvite(keetInvite) && !invalidKeetLink && (
+              <button
+                type="button"
+                className="gb-btn-ghost text-sm"
+                onClick={() => void copySetupLink()}
+              >
+                <Copy className="mr-1 h-3.5 w-3.5" />
+                {setupCopied ? m.meeting.setupLinkCopied : m.meeting.copySetupLink}
+              </button>
+            )}
           </div>
         </div>
       )}

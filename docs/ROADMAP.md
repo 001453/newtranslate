@@ -13,6 +13,7 @@ Aligned with the [Tether grant milestones](GRANT.md) and community feedback.
 | QVAC translation (Sovereign Mode) | ✅ Working |
 | Live captions (Chrome tab audio) | ✅ Working |
 | Keet meeting subtitles + export | ✅ Working |
+| Keet deep links + builder docs | ✅ [KEET_PEARS_INTEGRATION.md](KEET_PEARS_INTEGRATION.md) |
 | PDF / DOCX translation | ✅ MVP |
 | Electron overlay | ⚠️ Experimental |
 | Chrome extension | ❌ Not yet |
@@ -52,7 +53,7 @@ Aligned with the [Tether grant milestones](GRANT.md) and community feedback.
 |----|-------------|--------|
 | **M1** | Demo video + setup guide + egress checklist | +30 days |
 | **M2** | QVAC hardening + latency benchmarks | +60 days |
-| **M3** | Pear / Keet integration v2 + builder docs | +75 days |
+| **M3** | Pear / Keet integration v2 + builder docs | +75 days | In progress |
 | **M4** | Chrome extension MVP (`extension/`) | +90 days |
 
 Details: [GRANT.md](GRANT.md)
