@@ -14,7 +14,9 @@
     "test:frontend": "npm --prefix frontend run test",
     "test:backend": "node scripts/run-backend-tests.mjs",
     "demo:url": "node scripts/set-demo-url.mjs",
-    "demo:publish": "node scripts/publish-demo-video.mjs"
+    "demo:publish": "node scripts/publish-demo-video.mjs",
+    "benchmark": "node scripts/run-benchmark.mjs",
+    "benchmark:json": "node scripts/run-benchmark.mjs --json"
   },
   "engines": {
     "node": ">=20"
