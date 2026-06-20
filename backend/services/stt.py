@@ -219,16 +219,16 @@ class WhisperSTTService:
                 word_timestamps=True,
                 condition_on_previous_text=condition_on_previous_text,
                 initial_prompt=prompt,
-                no_speech_threshold=0.6,
-                log_prob_threshold=-1.0,
-                compression_ratio_threshold=2.4,
+                no_speech_threshold=0.65,
+                log_prob_threshold=-0.85,
+                compression_ratio_threshold=2.2,
             )
             segments = []
             texts = []
             for seg in segments_iter:
-                if getattr(seg, "no_speech_prob", 0.0) > 0.55:
+                if getattr(seg, "no_speech_prob", 0.0) > 0.5:
                     continue
-                if getattr(seg, "avg_logprob", 0.0) < -1.0:
+                if getattr(seg, "avg_logprob", 0.0) < -0.9:
                     continue
                 line = seg.text.strip()
                 if not line:
@@ -340,7 +340,7 @@ class WhisperSTTService:
             audio,
             sample_rate,
             language,
-            condition_on_previous_text=True,
+            condition_on_previous_text=False,
             initial_prompt=prompt,
             beam_size=settings.whisper_live_beam_size,
             min_rms=settings.live_min_audio_rms,
@@ -537,7 +537,7 @@ class STTService:
             audio,
             sample_rate,
             language,
-            condition_on_previous_text=True,
+            condition_on_previous_text=False,
             initial_prompt=prompt,
             beam_size=settings.whisper_live_beam_size,
             min_rms=settings.live_min_audio_rms,

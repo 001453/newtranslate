@@ -9,6 +9,7 @@ import time
 from fastapi import WebSocket
 
 from config import get_settings
+from services.caption_quality import is_acceptable_caption
 from services.glossary import glossary_service
 from services.overlay import overlay_service
 from services.stt import stt_service
@@ -157,6 +158,14 @@ class LiveAudioProcessor:
             previous_text=self.last_transcript,
         )
         if not stt_result.text:
+            return
+        lang_hint = _session_language_hint()
+        if not is_acceptable_caption(
+            stt_result.text,
+            language_hint=lang_hint,
+            confidence=stt_result.language_probability,
+        ):
+            logger.debug("Dropped live caption (quality): %r", stt_result.text[:80])
             return
         if _is_duplicate_transcript(stt_result.text, self.last_transcript):
             return
