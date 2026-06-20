@@ -25,7 +25,7 @@ async def transcribe_pcm(
         lang_hint = lang.split("-")[0].lower()
 
     if mode == "live":
-        result = await stt_service.transcribe_stream_chunk(pcm, language=lang_hint)
+        result = await stt_service.transcribe_live_chunk(pcm, language=lang_hint)
     else:
         result = await stt_service.transcribe_dictation_chunk(
             pcm,

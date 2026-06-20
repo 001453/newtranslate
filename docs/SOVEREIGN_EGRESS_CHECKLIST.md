@@ -82,7 +82,7 @@ While recording or testing:
 |------|------|----------------|
 | Translation router | `backend/services/translation.py` | Blocked when sovereign |
 | Privacy service | `backend/services/privacy.py` | Enforces mode |
-| STT HTTP | `backend/api/stt.py` | Always local Whisper |
+| STT HTTP | `backend/api/stt.py` | Always local (faster-whisper or QVAC bridge) |
 | Live WS | `backend/api/websocket.py` | Local pipeline only |
 
 ---

@@ -90,6 +90,7 @@ Record p50 STT times in this table:
 
 ## Related docs
 
+- [STT.md](STT.md) — whisper / QVAC routing (`STT_PROVIDER`)
 - [GRANT.md](GRANT.md) — milestone **M2**
 - [ROADMAP.md](ROADMAP.md)
 - [SOVEREIGN_EGRESS_CHECKLIST.md](SOVEREIGN_EGRESS_CHECKLIST.md)

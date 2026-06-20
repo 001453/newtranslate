@@ -85,5 +85,36 @@ class QvacClient:
             data_egress=False,
         )
 
+    async def transcribe_pcm(
+        self,
+        pcm: bytes,
+        *,
+        language: str | None = None,
+        sample_rate: int = 16000,
+    ) -> QvacResponse:
+        """Mono int16 PCM @ 16 kHz → QVAC whisper.cpp (localhost only)."""
+        import base64
+
+        start = time.perf_counter()
+        async with httpx.AsyncClient(timeout=self.timeout) as client:
+            r = await client.post(
+                f"{self.base_url}/transcribe",
+                json={
+                    "audio_base64": base64.b64encode(pcm).decode("ascii"),
+                    "language": language,
+                    "sample_rate": sample_rate,
+                },
+            )
+            r.raise_for_status()
+            data = r.json()
+
+        return QvacResponse(
+            text=(data.get("text") or "").strip(),
+            latency_ms=(time.perf_counter() - start) * 1000,
+            provider=data.get("provider", "qvac-whisper"),
+            data_egress=False,
+            model=data.get("engine", "whispercpp"),
+        )
+
 
 qvac_client = QvacClient()

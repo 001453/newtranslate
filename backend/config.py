@@ -80,6 +80,10 @@ class Settings(BaseSettings):
     live_min_audio_rms: float = 0.003
     live_min_stt_language_probability: float = 0.30
 
+    # STT routing — whisper (faster-whisper, default) | qvac (whisper.cpp via bridge) | auto
+    stt_provider: Literal["whisper", "qvac", "auto"] = "whisper"
+    qvac_whisper_model: str = "WHISPER_BASE_Q8_0"
+
     # Privacy
     local_processing_only: bool = False
     auto_delete_sessions_hours: int = 24

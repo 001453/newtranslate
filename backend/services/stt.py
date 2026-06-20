@@ -14,6 +14,7 @@ from typing import Any
 import numpy as np
 
 from config import get_settings
+from services.qvac_client import qvac_client
 
 logger = logging.getLogger(__name__)
 
@@ -364,5 +365,189 @@ class WhisperSTTService:
         return None
 
 
+class STTService:
+    """
+    Unified STT entry — routes to faster-whisper (default) or QVAC whisper.cpp.
+    All live, dictation, and HTTP /transcribe paths use this facade.
+    """
+
+    def __init__(self) -> None:
+        self._whisper = WhisperSTTService()
+
+    async def active_provider(self) -> str:
+        settings = get_settings()
+        mode = settings.stt_provider
+        if mode == "whisper":
+            return "faster-whisper-local"
+        qvac_ok = await qvac_client.is_available()
+        if mode == "qvac":
+            return "qvac-whisper" if qvac_ok else "faster-whisper-local"
+        return "qvac-whisper" if qvac_ok else "faster-whisper-local"
+
+    async def _pick_backend(self) -> str:
+        settings = get_settings()
+        mode = settings.stt_provider
+        if mode == "whisper":
+            return "whisper"
+        qvac_ok = await qvac_client.is_available()
+        if mode == "qvac":
+            return "qvac" if qvac_ok else "whisper"
+        return "qvac" if qvac_ok else "whisper"
+
+    async def _transcribe_qvac(
+        self,
+        audio: np.ndarray,
+        sample_rate: int,
+        language: str | None,
+        *,
+        min_lang_prob: float | None = None,
+    ) -> TranscriptionResult:
+        pcm = (np.clip(audio, -1.0, 1.0) * 32767).astype(np.int16).tobytes()
+        lang = language.split("-")[0] if language else None
+        resp = await qvac_client.transcribe_pcm(pcm, language=lang, sample_rate=sample_rate)
+        lang_prob = 0.85 if lang else 0.55
+        text = resp.text
+        if _is_likely_hallucination(text, lang_prob, min_lang_prob):
+            text = ""
+        return TranscriptionResult(
+            text=text,
+            language=lang or "unknown",
+            language_probability=lang_prob,
+            duration_ms=resp.latency_ms,
+        )
+
+    async def transcribe(
+        self,
+        audio: np.ndarray | bytes,
+        sample_rate: int = 16000,
+        language: str | None = None,
+        *,
+        condition_on_previous_text: bool = True,
+        initial_prompt: str | None = None,
+        min_rms: float | None = None,
+        min_lang_prob: float | None = None,
+        beam_size: int | None = None,
+    ) -> TranscriptionResult:
+        if isinstance(audio, bytes):
+            arr = np.frombuffer(audio, dtype=np.int16).astype(np.float32) / 32768.0
+        else:
+            arr = audio
+
+        backend = await self._pick_backend()
+        if backend == "qvac":
+            try:
+                settings = get_settings()
+                rms_floor = min_rms if min_rms is not None else settings.min_audio_rms
+                if _audio_rms(arr) < rms_floor or len(arr) < sample_rate * 0.1:
+                    return TranscriptionResult(
+                        text="",
+                        language=language or "unknown",
+                        language_probability=0.0,
+                        is_final=False,
+                    )
+                return await self._transcribe_qvac(
+                    arr, sample_rate, language, min_lang_prob=min_lang_prob
+                )
+            except Exception:
+                logger.warning("QVAC STT failed — falling back to faster-whisper", exc_info=True)
+
+        return await self._whisper.transcribe(
+            arr,
+            sample_rate,
+            language,
+            condition_on_previous_text=condition_on_previous_text,
+            initial_prompt=initial_prompt,
+            min_rms=min_rms,
+            min_lang_prob=min_lang_prob,
+            beam_size=beam_size,
+        )
+
+    async def transcribe_stream_chunk(
+        self, pcm_chunk: bytes, sample_rate: int = 16000, language: str | None = None
+    ) -> TranscriptionResult:
+        settings = get_settings()
+        min_samples = int(sample_rate * settings.min_audio_duration_ms / 1000)
+        audio = np.frombuffer(pcm_chunk, dtype=np.int16).astype(np.float32) / 32768.0
+        if len(audio) < min_samples:
+            return TranscriptionResult(
+                text="",
+                language=language or "unknown",
+                language_probability=0.0,
+                is_final=False,
+            )
+        return await self.transcribe(
+            audio, sample_rate, language, condition_on_previous_text=False
+        )
+
+    async def transcribe_dictation_chunk(
+        self,
+        pcm_chunk: bytes,
+        sample_rate: int = 16000,
+        language: str | None = None,
+        previous_text: str | None = None,
+    ) -> TranscriptionResult:
+        settings = get_settings()
+        if await self._pick_backend() == "whisper":
+            return await self._whisper.transcribe_dictation_chunk(
+                pcm_chunk, sample_rate, language, previous_text=previous_text
+            )
+
+        min_samples = int(sample_rate * settings.min_audio_duration_ms / 1000)
+        audio = np.frombuffer(pcm_chunk, dtype=np.int16).astype(np.float32) / 32768.0
+        if len(audio) < min_samples:
+            return TranscriptionResult(
+                text="",
+                language=language or "unknown",
+                language_probability=0.0,
+                is_final=False,
+            )
+        prompt = (previous_text or "").strip()[-400:] or None
+        return await self.transcribe(
+            audio,
+            sample_rate,
+            language,
+            condition_on_previous_text=True,
+            initial_prompt=prompt,
+            min_rms=settings.dictation_min_audio_rms,
+            min_lang_prob=settings.dictation_min_language_probability,
+            beam_size=settings.whisper_dictation_beam_size,
+        )
+
+    async def transcribe_live_chunk(
+        self,
+        pcm_chunk: bytes,
+        sample_rate: int = 16000,
+        language: str | None = None,
+        *,
+        context: str | None = None,
+        previous_text: str | None = None,
+    ) -> TranscriptionResult:
+        settings = get_settings()
+        min_samples = int(sample_rate * settings.live_min_audio_duration_ms / 1000)
+        audio = np.frombuffer(pcm_chunk, dtype=np.int16).astype(np.float32) / 32768.0
+        if len(audio) < min_samples:
+            return TranscriptionResult(
+                text="",
+                language=language or "unknown",
+                language_probability=0.0,
+                is_final=False,
+            )
+        prompt = (context or previous_text or "").strip()[-400:] or None
+        return await self.transcribe(
+            audio,
+            sample_rate,
+            language,
+            condition_on_previous_text=True,
+            initial_prompt=prompt,
+            beam_size=settings.whisper_live_beam_size,
+            min_rms=settings.live_min_audio_rms,
+            min_lang_prob=settings.live_min_stt_language_probability,
+        )
+
+    @staticmethod
+    def detect_language_hint(text: str) -> str | None:
+        return WhisperSTTService.detect_language_hint(text)
+
+
 # Module-level singleton
-stt_service = WhisperSTTService()
+stt_service = STTService()

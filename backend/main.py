@@ -65,6 +65,7 @@ async def health():
         "status": "ok",
         "service": settings.app_name,
         "whisper_model": settings.whisper_model,
+        "stt_provider": privacy.stt_provider,
         "translation_provider": privacy.translation_provider,
         "privacy_mode": privacy.mode,
         "qvac_available": privacy.qvac_available,

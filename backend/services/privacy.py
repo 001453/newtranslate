@@ -42,6 +42,16 @@ class PrivacyService:
         settings = get_settings()
         qvac_ok = await qvac_client.is_available()
 
+        async def effective_stt() -> str:
+            mode = settings.stt_provider
+            if mode == "whisper":
+                return "faster-whisper-local"
+            if mode == "qvac":
+                return "qvac-whisper" if qvac_ok else "faster-whisper-local"
+            return "qvac-whisper" if qvac_ok else "faster-whisper-local"
+
+        stt = await effective_stt()
+
         egress: list[str] = []
         guarantees: list[str] = []
 
@@ -51,7 +61,6 @@ class PrivacyService:
             mode = "sovereign"
             cloud_allowed = False
             effective_provider = "qvac" if qvac_ok else "whisper-only (qvac offline)"
-            stt = "faster-whisper-local"
             guarantees = [
                 "no_audio_egress",
                 "no_transcript_cloud",
@@ -64,7 +73,6 @@ class PrivacyService:
             mode = "cloud"
             cloud_allowed = True
             effective_provider = "together-ai"
-            stt = "faster-whisper-local"
             egress = [
                 "text_to_together",
                 "summary_to_cloud",
@@ -76,7 +84,6 @@ class PrivacyService:
             effective_provider = "qvac" if qvac_ok else (
                 "together-ai" if settings.allow_cloud_fallback else "none"
             )
-            stt = "faster-whisper-local"
             guarantees = ["stt_local"]
             if qvac_ok:
                 guarantees.append("translation_qvac_first")

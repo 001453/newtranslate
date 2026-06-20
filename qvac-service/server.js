@@ -21,20 +21,30 @@ import {
   transcribe,
   QWEN3_600M_INST_Q4,
   LLAMA_3_2_1B_INST_Q4_0,
+  WHISPER_BASE_Q8_0,
+  WHISPER_TINY_Q8_0,
 } from "@qvac/sdk";
 import { bergamotPairSupported, listBergamotPairs, resolveBergamotModel } from "./bergamot-pairs.js";
 
 const PORT = Number(process.env.QVAC_BRIDGE_PORT || 8765);
 const HOST = process.env.QVAC_BRIDGE_HOST || "127.0.0.1";
 const LLM_MODEL = process.env.QVAC_LLM_MODEL || "QWEN3_600M_INST_Q4";
+const WHISPER_MODEL = process.env.QVAC_WHISPER_MODEL || "WHISPER_BASE_Q8_0";
 
 const MODEL_MAP = {
   QWEN3_600M_INST_Q4,
   LLAMA_3_2_1B_INST_Q4_0,
 };
 
+const WHISPER_MAP = {
+  WHISPER_BASE_Q8_0,
+  WHISPER_TINY_Q8_0,
+};
+
 let llmModelId = null;
 let llmLoading = false;
+let whisperModelId = null;
+let whisperLoading = false;
 
 /** @type {Map<string, string>} */
 const nmtModelIds = new Map();
@@ -123,6 +133,53 @@ async function ensureLlmLoaded() {
     return llmModelId;
   } finally {
     llmLoading = false;
+  }
+}
+
+/** Wrap mono int16 PCM @ 16 kHz for whisper.cpp */
+function pcm16ToWav(pcmBuffer, sampleRate = 16000) {
+  const dataSize = pcmBuffer.length;
+  const wav = Buffer.alloc(44 + dataSize);
+  wav.write("RIFF", 0);
+  wav.writeUInt32LE(36 + dataSize, 4);
+  wav.write("WAVE", 8);
+  wav.write("fmt ", 12);
+  wav.writeUInt32LE(16, 16);
+  wav.writeUInt16LE(1, 20);
+  wav.writeUInt16LE(1, 22);
+  wav.writeUInt32LE(sampleRate, 24);
+  wav.writeUInt32LE(sampleRate * 2, 28);
+  wav.writeUInt16LE(2, 32);
+  wav.writeUInt16LE(16, 34);
+  wav.write("data", 36);
+  wav.writeUInt32LE(dataSize, 40);
+  pcmBuffer.copy(wav, 44);
+  return wav;
+}
+
+async function ensureWhisperLoaded() {
+  if (whisperModelId) return whisperModelId;
+  if (whisperLoading) {
+    while (whisperLoading) await new Promise((r) => setTimeout(r, 200));
+    return whisperModelId;
+  }
+  whisperLoading = true;
+  try {
+    const modelSrc = WHISPER_MAP[WHISPER_MODEL] || WHISPER_BASE_Q8_0;
+    console.log(`[QVAC] Loading Whisper STT: ${WHISPER_MODEL}...`);
+    whisperModelId = await loadModel({
+      modelSrc,
+      modelType: "whisper",
+      onProgress: (p) => {
+        if (p.percentage != null) {
+          console.log(`[QVAC] Whisper load: ${p.percentage.toFixed(1)}%`);
+        }
+      },
+    });
+    console.log(`[QVAC] Whisper ready: ${whisperModelId}`);
+    return whisperModelId;
+  } finally {
+    whisperLoading = false;
   }
 }
 
@@ -216,6 +273,8 @@ app.get("/health", (_req, res) => {
     data_egress: false,
     llm_loaded: Boolean(llmModelId),
     llm_model: LLM_MODEL,
+    whisper_loaded: Boolean(whisperModelId),
+    whisper_model: WHISPER_MODEL,
     nmt_loaded: [...nmtModelIds.keys()],
     bergamot_pairs: listBergamotPairs().length,
     docs: "https://qvac.tether.io/",
@@ -298,24 +357,27 @@ app.post("/translate", async (req, res) => {
   }
 });
 
-/** Whisper STT — ses tamamen lokal */
+/** Whisper STT via @qvac/sdk whisper.cpp — mono PCM int16 @ 16 kHz or WAV base64 */
 app.post("/transcribe", async (req, res) => {
   try {
-    const { audio_base64, language } = req.body;
+    const { audio_base64, language, sample_rate: sampleRate = 16000 } = req.body;
     if (!audio_base64) return res.status(400).json({ error: "audio_base64 required" });
 
-    const modelId = await ensureLlmLoaded();
-    const buffer = Buffer.from(audio_base64, "base64");
+    const modelId = await ensureWhisperLoaded();
+    const raw = Buffer.from(audio_base64, "base64");
+    const audioChunk = raw.length >= 4 && raw.toString("ascii", 0, 4) === "RIFF" ? raw : pcm16ToWav(raw, sampleRate);
 
     const text = await transcribe({
       modelId,
-      audio: buffer,
-      language: language || undefined,
+      audioChunk,
+      ...(language ? { prompt: `Language: ${language}` } : {}),
     });
 
     res.json({
-      text: typeof text === "string" ? text : "",
-      provider: "qvac-local",
+      text: typeof text === "string" ? text.trim() : "",
+      language: language || "auto",
+      provider: "qvac-whisper",
+      engine: "whispercpp",
       data_egress: false,
     });
   } catch (err) {
@@ -335,6 +397,9 @@ process.on("SIGINT", async () => {
   }
   if (llmModelId) {
     await unloadModel({ modelId: llmModelId });
+  }
+  if (whisperModelId) {
+    await unloadModel({ modelId: whisperModelId });
   }
   process.exit(0);
 });

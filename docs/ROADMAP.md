@@ -17,7 +17,8 @@ Aligned with the [Tether grant milestones](GRANT.md) and community feedback.
 | Electron overlay | ⚠️ Experimental |
 | Chrome extension | ❌ Not yet |
 | Desktop installer (Win/Mac) | ❌ Not yet |
-| Published latency benchmarks | ❌ Not yet |
+| Published latency benchmarks | ✅ [BENCHMARKS.md](BENCHMARKS.md) |
+| Unified STT router (whisper / QVAC) | ✅ [STT.md](STT.md) |
 
 ---
 
@@ -28,7 +29,8 @@ Aligned with the [Tether grant milestones](GRANT.md) and community feedback.
 - [x] CHANGELOG + v0.1.0 release
 - [x] Issue / PR templates
 - [x] Demo video on [YouTube](https://youtu.be/1cxwP5S7-1A) · [docs/DEMO.md](DEMO.md)
-- [ ] `docs/BENCHMARKS.md` — CPU-only latency numbers (`npm run benchmark`, grant **M2**)
+- [x] `docs/BENCHMARKS.md` — CPU-only latency numbers (`npm run benchmark`, grant **M2**)
+- [x] Unified QVAC STT path + `docs/STT.md` (grant **M2**)
 
 ### Quality & testing
 - [x] Backend pytest (health, security, export, text normalize)
@@ -100,9 +102,9 @@ Details: [GRANT.md](GRANT.md)
 
 | Metric | Target | Measured |
 |--------|--------|----------|
-| STT latency | 300–800 ms | TBD |
-| Translation latency | 500–1200 ms | TBD |
-| End-to-end (live) | ≤ 2 s | TBD |
+| STT latency | 300–800 ms | ~964 ms (base+int8, CPU) |
+| Translation latency | 500–1200 ms | ~111 ms (Bergamot en→tr) |
+| End-to-end (live) | ≤ 2 s | ~1.9 s p50 ✓ |
 | CPU-only (distil-large-v3) | Usable on 8 GB RAM | TBD |
 
 Results will be published in `docs/BENCHMARKS.md` as part of grant **M2**.
