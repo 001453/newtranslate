@@ -745,9 +745,12 @@ export function KeetMeetingBridge({
 
       <div className="gb-card p-4">
         <div className="mb-2 flex items-center justify-between gap-2">
-          <h2 className="text-sm font-semibold">
-            {fmt(m.meeting.transcript, { n: history.length })}
-          </h2>
+          <div>
+            <h2 className="text-sm font-semibold">
+              {fmt(m.meeting.transcript, { n: history.length })}
+            </h2>
+            <p className="text-[0.65rem] text-[var(--gb-muted)]">{m.meeting.transcriptHint}</p>
+          </div>
           {transcriptExport && (
             <button
               type="button"

@@ -200,13 +200,23 @@ class TranslationService:
                 latency_ms=0,
             )
 
-        src = source_lang
+        src = source_lang.split("-")[0].lower()
+        tgt = target_lang.split("-")[0].lower()
         raw = text.strip()
+        if src == tgt:
+            return TranslationResult(
+                text=raw,
+                source_lang=source_lang,
+                target_lang=target_lang,
+                model="none",
+                latency_ms=0,
+            )
+
         max_out = max(len(raw) * 10, 120)
 
         if await qvac_client.is_available():
             try:
-                resp = await qvac_client.translate(raw, src, target_lang)
+                resp = await qvac_client.translate(raw, src, tgt)
                 cleaned = clean_translation_output(resp.text, max_chars=max_out)
                 if cleaned and cleaned.lower() != raw.lower():
                     cleaned = self._apply_glossary_post(cleaned)

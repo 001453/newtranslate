@@ -46,8 +46,18 @@ def _session_detected_lang(stt_language: str) -> str:
     return (stt_language or "unknown").split("-")[0]
 
 
+def _session_target_lang(detected: str) -> str:
+    """Subtitles always in the viewer's native language when configured."""
+    state = overlay_service.state
+    if state.viewer_lang and state.viewer_lang != "auto":
+        return state.viewer_lang.split("-")[0]
+    return overlay_service.resolve_target_lang(detected).split("-")[0]
+
+
 def _normalize_for_dedupe(text: str) -> str:
-    return " ".join(text.lower().split())
+    import re
+    t = " ".join(text.lower().split())
+    return re.sub(r"[-–—]+\s*$", "", t).strip()
 
 
 def _is_duplicate_transcript(text: str, last: str) -> bool:
@@ -172,13 +182,13 @@ class LiveAudioProcessor:
             return
 
         detected = _session_detected_lang(stt_result.language)
-        target = overlay_service.resolve_target_lang(detected)
-        needs_translation = target.split("-")[0] != detected.split("-")[0]
+        target = _session_target_lang(detected)
+        needs_translation = target != detected
 
         if needs_translation:
             cap = await overlay_service.show_caption(
                 original=clean_text,
-                translated=clean_text,
+                translated="…",
                 source_lang=detected,
                 target_lang=target,
                 speaker=self.speaker,
@@ -196,24 +206,29 @@ class LiveAudioProcessor:
             translation_service.set_glossary(glossary)
 
         if needs_translation:
-            trans = await translation_service.translate_live(
+            trans = await translation_service.translate_text(
                 clean_text,
                 detected,
                 target,
-                speaker=self.speaker,
-                context=self.session_context,
             )
-            translated_text = trans.text
+            translated_text = (trans.text or "").strip()
             trans_ms = trans.latency_ms
+            if not translated_text or translated_text.lower() == clean_text.lower():
+                logger.warning("Live translation empty or unchanged %s→%s: %r", detected, target, clean_text[:60])
+                return
         else:
             translated_text = clean_text
             trans_ms = 0.0
 
+        tr_hint = target
         translated_text = sanitize_caption_text(
             translated_text,
-            language_hint=target.split("-")[0],
+            language_hint=tr_hint,
             confidence=max(stt_result.language_probability, 0.7),
-        ) or clean_text
+        )
+        if needs_translation and not translated_text:
+            logger.warning("Translated caption failed quality gate (%s→%s)", detected, target)
+            return
 
         self.last_transcript = clean_text
         self.session_context = (self.session_context + " " + clean_text)[-500:]

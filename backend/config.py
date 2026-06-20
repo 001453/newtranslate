@@ -72,8 +72,8 @@ class Settings(BaseSettings):
     whisper_dictation_beam_size: int = 3
     min_stt_language_probability: float = 0.45
     live_min_audio_duration_ms: int = 600
-    live_process_interval_ms: int = 800
-    live_window_ms: int = 2200
+    live_process_interval_ms: int = 600
+    live_window_ms: int = 1800
     live_buffer_ms: int = 6000
     live_queue_max: int = 12
     whisper_live_beam_size: int = 3
