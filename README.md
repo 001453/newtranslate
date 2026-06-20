@@ -14,12 +14,18 @@ Built on **[QVAC](https://qvac.tether.io/)** (Tether local AI) + **[Keet](https:
 
 ## Demo
 
-> **Coming soon:** screen recording of live captions + Keet meeting flow.  
-> Add `docs/assets/demo.gif` and uncomment the line below, or watch grant demo video (M1).
+**Record the grant demo:** step-by-step script → **[docs/DEMO_VIDEO.md](docs/DEMO_VIDEO.md)** (5–8 min, English)
 
+| Resource | Link |
+|----------|------|
+| Recording script & shot list | [docs/DEMO_VIDEO.md](docs/DEMO_VIDEO.md) |
+| Sovereign egress checklist (M1) | [docs/SOVEREIGN_EGRESS_CHECKLIST.md](docs/SOVEREIGN_EGRESS_CHECKLIST.md) |
+| Demo video *(after upload)* | `[YouTube URL — paste after recording]` |
+
+<!-- After recording: uncomment GIF and/or YouTube link -->
 <!-- ![Live captions demo](docs/assets/demo.gif) -->
 
-**Try it locally:** [Quick Start](#quick-start) · **Docs site:** [001453.github.io/newtranslate](https://001453.github.io/newtranslate/) *(after GitHub Pages is enabled)*
+**Try it locally:** [Quick Start](#quick-start) · **Site:** [001453.github.io/newtranslate](https://001453.github.io/newtranslate/)
 
 ---
 
