@@ -97,10 +97,30 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
   const [insecureContext, setInsecureContext] = useState(false);
   const [exportNotice, setExportNotice] = useState<string | null>(null);
   const sessionActiveRef = useRef(false);
+  const audioStatsRef = useRef<AudioCaptureStats>({ level: 0, chunksSent: 0 });
+  const statsPaintAtRef = useRef(0);
   const { devices: micDevices, requestPermission: requestMicPermission } = useMicDevices();
 
+  /** Throttle level meter UI — worklet fires far more often than React can paint. */
   const onAudioStats = useCallback((stats: AudioCaptureStats) => {
-    setAudioStats(stats);
+    const prev = audioStatsRef.current;
+    const chunksChanged = stats.chunksSent !== prev.chunksSent;
+    audioStatsRef.current = stats;
+
+    const now = performance.now();
+    if (!chunksChanged && now - statsPaintAtRef.current < 100) return;
+
+    setAudioStats((current) => {
+      if (
+        !chunksChanged &&
+        current.chunksSent === stats.chunksSent &&
+        Math.abs(current.level - stats.level) < 0.004
+      ) {
+        return current;
+      }
+      statsPaintAtRef.current = now;
+      return { level: stats.level, chunksSent: stats.chunksSent };
+    });
   }, []);
 
   const onChunk = useCallback(
@@ -198,26 +218,6 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
 
   const swapLangs = () => applyLangPair(otherLang, myLang);
 
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.shiftKey && e.key === "L") {
-        e.preventDefault();
-        sessionActive ? handleStop() : void handleStart();
-      }
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  });
-
-  const saveInvite = (v: string) => {
-    setKeetInvite(v);
-    try {
-      localStorage.setItem(KEET_INVITE_KEY, v);
-    } catch {
-      /* ignore */
-    }
-  };
-
   const handleStart = async () => {
     if (!connected) return;
     setAudioError(null);
@@ -259,8 +259,35 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
     stopSession(myLang);
     setSessionActive(false);
     setAudioError(null);
+    audioStatsRef.current = { level: 0, chunksSent: 0 };
+    statsPaintAtRef.current = 0;
     setAudioStats({ level: 0, chunksSent: 0 });
     setExportNotice(null);
+  };
+
+  const handleStartRef = useRef(handleStart);
+  const handleStopRef = useRef(handleStop);
+  handleStartRef.current = handleStart;
+  handleStopRef.current = handleStop;
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key === "L") {
+        e.preventDefault();
+        sessionActiveRef.current ? handleStopRef.current() : void handleStartRef.current();
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
+
+  const saveInvite = (v: string) => {
+    setKeetInvite(v);
+    try {
+      localStorage.setItem(KEET_INVITE_KEY, v);
+    } catch {
+      /* ignore */
+    }
   };
 
   const copyInvite = async () => {

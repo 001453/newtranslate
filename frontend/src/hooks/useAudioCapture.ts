@@ -53,6 +53,10 @@ export function useAudioCapture(
   const streamRef = useRef<MediaStream | null>(null);
   const ctxRef = useRef<AudioContext | null>(null);
   const stopProcessorRef = useRef<(() => void) | null>(null);
+  const onChunkRef = useRef(onChunk);
+  const onStatsRef = useRef(onStats);
+  onChunkRef.current = onChunk;
+  onStatsRef.current = onStats;
 
   const stop = useCallback(() => {
     stopProcessorRef.current?.();
@@ -124,7 +128,10 @@ export function useAudioCapture(
     try {
       stopProcessorRef.current = await startPcmCapture(
         { ctx, stream, chunkMs, minRmsToSend: minRms, overlapMs },
-        { onChunk, onStats }
+        {
+          onChunk: (pcm) => onChunkRef.current(pcm),
+          onStats: (s) => onStatsRef.current?.(s),
+        }
       );
       streamRef.current = stream;
       ctxRef.current = ctx;
@@ -135,7 +142,7 @@ export function useAudioCapture(
       ctx.close();
       return "unknown";
     }
-  }, [chunkMs, deviceId, micProfile, minRms, onChunk, onStats, overlapMs, stop, strictDevice]);
+  }, [chunkMs, deviceId, micProfile, minRms, overlapMs, stop, strictDevice]);
 
   const listDevices = useCallback(async () => {
     const devices = await navigator.mediaDevices.enumerateDevices();
@@ -160,6 +167,10 @@ export function useTabAudioCapture(
   const minRms = opts?.minRmsToSend ?? LIVE_MIN_RMS;
   const [capturing, setCapturing] = useState(false);
   const stopRef = useRef<(() => void) | null>(null);
+  const onChunkRef = useRef(onChunk);
+  const onStatsRef = useRef(onStats);
+  onChunkRef.current = onChunk;
+  onStatsRef.current = onStats;
 
   const stopTabCapture = useCallback(() => {
     stopRef.current?.();
@@ -208,7 +219,10 @@ export function useTabAudioCapture(
       await resumeAudioContext(ctx);
       const stopProcessor = await startPcmCapture(
         { ctx, stream, chunkMs, minRmsToSend: minRms, overlapMs },
-        { onChunk, onStats }
+        {
+          onChunk: (pcm) => onChunkRef.current(pcm),
+          onStats: (s) => onStatsRef.current?.(s),
+        }
       );
       setCapturing(true);
 
@@ -223,7 +237,7 @@ export function useTabAudioCapture(
       stream.getTracks().forEach((t) => t.stop());
       return "unknown";
     }
-  }, [chunkMs, minRms, onChunk, onStats, overlapMs, stopTabCapture]);
+  }, [chunkMs, minRms, overlapMs, stopTabCapture]);
 
   return { capturing, startTabCapture, stopTabCapture };
 }
