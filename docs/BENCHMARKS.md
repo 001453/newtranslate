@@ -48,20 +48,20 @@ Report **p50** and **p95** in milliseconds.
 
 ## Reference results
 
-> **Environment:** fill in after running `npm run benchmark` on your hardware.  
-> Default developer `.env` uses `WHISPER_MODEL=base`, `WHISPER_DEVICE=cpu`, `WHISPER_COMPUTE_TYPE=int8`.
+> **Sample run — AMD64 Windows 11, `WHISPER_MODEL=base`, CPU, int8, QVAC Bergamot en→tr**  
+> Run: `npm run benchmark` (Terminal 2) while `npm run dev:qvac` stays open (Terminal 1).
 
 | Metric | p50 (ms) | p95 (ms) | Notes |
 |--------|----------|----------|-------|
-| Live STT chunk | _run benchmark_ | _run benchmark_ | Faster-Whisper, live beam |
-| QVAC translate en→tr | _run benchmark_ | _run benchmark_ | Bergamot or LLM fallback |
-| **Estimated live caption** | _run benchmark_ | — | Interval + STT + NMT |
+| Live STT chunk | **~964** | ~964 | Synthetic 2.2 s PCM; empty text is OK for timing |
+| QVAC translate en→tr | **~111** | ~216 | Bergamot NMT after warm load (~169 ms first load) |
+| **Estimated live caption** | **~1,875** | — | 800 ms interval + 964 STT + 111 NMT |
 
 ### Grant target
 
-| Metric | Target |
-|--------|--------|
-| Live caption end-to-end | ≤ 2 s (documented) |
+| Metric | Target | Sample run |
+|--------|--------|------------|
+| Live caption end-to-end | ≤ 2 s (documented) | **~1.9 s p50** ✓ |
 
 With `WHISPER_MODEL=base` on CPU, expect **~1.5–4 s** depending on hardware.  
 Use `small` or GPU for better accuracy; use `tiny` / `WHISPER_LIVE_BEAM_SIZE=1` for minimum latency.
@@ -82,7 +82,7 @@ Record p50 STT times in this table:
 
 | Model | STT p50 (ms) | STT p95 (ms) | Live caption p50 (ms) |
 |-------|--------------|--------------|------------------------|
-| base + int8 | | | |
+| base + int8 | ~964 | ~964 | ~1,875 |
 | small + int8 | | | |
 | distil-large-v3 + int8 | | | |
 
