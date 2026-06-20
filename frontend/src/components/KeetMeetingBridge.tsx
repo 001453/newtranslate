@@ -232,7 +232,7 @@ export function KeetMeetingBridge({ keetMode = true, title, subtitle }: Props) {
     setSessionActive(true);
 
     startSession({
-      source_lang: "auto",
+      source_lang: audioSource === "mic" ? myLang : otherLang,
       target_lang: otherLang,
       bidirectional: true,
       lang_a: myLang,

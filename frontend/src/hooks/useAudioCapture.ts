@@ -152,9 +152,9 @@ export function useAudioCapture(
   return { recording, start, stop, listDevices, setDeviceId, deviceId };
 }
 
-const LIVE_CHUNK_MS = 2500;
-const LIVE_OVERLAP_MS = 600;
-const LIVE_MIN_RMS = 0.005;
+const LIVE_CHUNK_MS = 3000;
+const LIVE_OVERLAP_MS = 800;
+const LIVE_MIN_RMS = 0.004;
 
 /** Capture system/tab audio via getDisplayMedia (YouTube / Zoom / Meet) */
 export function useTabAudioCapture(

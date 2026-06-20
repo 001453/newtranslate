@@ -334,7 +334,7 @@ class WhisperSTTService:
                 is_final=False,
             )
 
-        prompt = (context or previous_text or "").strip()[-300:] or None
+        prompt = (context or previous_text or "").strip()[-400:] or None
         return await self.transcribe(
             audio,
             sample_rate,
@@ -342,6 +342,8 @@ class WhisperSTTService:
             condition_on_previous_text=True,
             initial_prompt=prompt,
             beam_size=settings.whisper_live_beam_size,
+            min_rms=settings.live_min_audio_rms,
+            min_lang_prob=settings.live_min_stt_language_probability,
         )
 
     @staticmethod

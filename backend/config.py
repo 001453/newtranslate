@@ -71,9 +71,11 @@ class Settings(BaseSettings):
     dictation_min_language_probability: float = 0.35
     whisper_dictation_beam_size: int = 3
     min_stt_language_probability: float = 0.45
-    live_min_audio_duration_ms: int = 1000
+    live_min_audio_duration_ms: int = 800
     live_queue_max: int = 5
-    whisper_live_beam_size: int = 3
+    whisper_live_beam_size: int = 5
+    live_min_audio_rms: float = 0.004
+    live_min_stt_language_probability: float = 0.35
 
     # Privacy
     local_processing_only: bool = False

@@ -17,12 +17,20 @@ logger = logging.getLogger(__name__)
 
 
 def _session_language_hint() -> str | None:
+    """Whisper language hint — tab/meeting audio is usually the *other* language, not viewer."""
     state = overlay_service.state
     if not state.active:
         return None
-    for code in (state.lang_a, state.lang_b, state.source_lang):
-        if code and code != "auto":
-            return code.split("-")[0]
+    if state.source_lang and state.source_lang != "auto":
+        return state.source_lang.split("-")[0]
+    # Prefer counterparty (lang_b) over viewer (lang_a) for tab capture / YouTube
+    if state.bidirectional:
+        for code in (state.lang_b, state.lang_a):
+            if code and code != "auto":
+                return code.split("-")[0]
+        return None
+    if state.target_lang and state.target_lang != "auto":
+        return state.target_lang.split("-")[0]
     return None
 
 
