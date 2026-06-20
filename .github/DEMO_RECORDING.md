@@ -4,7 +4,8 @@
 
 **Target length:** 5–8 minutes · **Language:** English · **Grant M1**
 
-After upload: `npm run demo:url -- https://youtu.be/VIDEO_ID`
+After upload: `npm run demo:publish -- "C:\Users\YOU\Downloads\your-video.mp4"`  
+Or YouTube: `npm run demo:url -- https://youtu.be/VIDEO_ID`
 
 ---
 

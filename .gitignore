@@ -32,3 +32,5 @@ Thumbs.db
 dist/
 build/
 *.egg-info/
+.release-assets/
+docs/assets/*.mp4

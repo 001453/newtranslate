@@ -13,7 +13,8 @@
     "test": "npm run test:frontend && npm run test:backend",
     "test:frontend": "npm --prefix frontend run test",
     "test:backend": "node scripts/run-backend-tests.mjs",
-    "demo:url": "node scripts/set-demo-url.mjs"
+    "demo:url": "node scripts/set-demo-url.mjs",
+    "demo:publish": "node scripts/publish-demo-video.mjs"
   },
   "engines": {
     "node": ">=20"
