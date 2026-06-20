@@ -51,11 +51,29 @@ Suggested categories:
 - **Show and tell** — demos, GIFs, Keet/YouTube setups
 - **Q&A** — install / troubleshooting
 
-## Enable GitHub Pages
+## Enable GitHub Pages (required — fixes deploy error)
 
-Settings → Pages → Build and deployment → **GitHub Actions**
+The workflow **cannot** deploy until Pages is turned on in the repo settings.  
+Error you saw: `Get Pages site failed … Not Found` = Pages not enabled yet.
 
-The workflow `.github/workflows/pages.yml` deploys `docs/site/` on push to `main`.
+### Steps (one time, ~30 seconds)
+
+1. Open **https://github.com/001453/newtranslate/settings/pages**
+2. Under **Build and deployment** → **Source**, choose **GitHub Actions** (not “Deploy from a branch”)
+3. Save — no other settings needed for a project site
+
+### Re-run deploy
+
+1. **Actions** → **GitHub Pages** → **Run workflow** → Run on `main`  
+   — or push any change under `docs/site/`
+
+### After success
+
+Site URL: **https://001453.github.io/newtranslate/**
+
+Set this as the repo **Website** in Settings → General → About.
+
+The workflow `.github/workflows/pages.yml` uploads static files from `docs/site/`.
 
 ## Create v0.1.0 release
 
