@@ -1,6 +1,6 @@
-# GitHub repository settings (copy-paste)
+# GitHub repository settings (maintainers)
 
-Use these values in **GitHub → Repository → Settings**.
+> Internal copy-paste notes — **not linked from public docs**. Grant reviewers should use [docs/DEMO.md](../docs/DEMO.md) and [README.md](../README.md).
 
 ## About (General → About)
 

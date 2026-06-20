@@ -107,20 +107,16 @@ These occur only if the operator **opts in**:
 
 ---
 
-## Sign-off (for grant / audit)
+## Verification summary
 
-| Check | Pass |
-|-------|------|
-| `.env` matches Sovereign defaults | ☐ |
-| `/health` shows local privacy mode | ☐ |
-| Live session: no third-party API traffic | ☐ |
-| Export files contain only session data | ☐ |
-| Demo video shows privacy banner / config | ☐ |
+When Sovereign Mode is configured as above, a live caption session should exhibit:
 
-**Reviewer:** _______________  
-**Date:** _______________  
-**GlobalBridge version:** v0.1.0  
+- STT and translation served only from localhost services  
+- No outbound HTTPS to cloud translation/STT providers during the session  
+- Transcript exports written locally in the browser  
+
+One-time model downloads (Hugging Face, QVAC packs) may occur during initial setup only.
 
 ---
 
-See also: [SECURITY.md](SECURITY.md) · [GRANT.md](GRANT.md) · [Demo video guide](DEMO_VIDEO.md)
+See also: [SECURITY.md](SECURITY.md) · [GRANT.md](GRANT.md) · [Demo](DEMO.md)

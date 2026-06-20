@@ -63,14 +63,18 @@ USD₮
 | QVAC | https://qvac.tether.io/ |
 | Keet | https://keet.io/ |
 
-### Team & contact *(fill before submit)*
+### Team & contact
 
 | Field | Value |
 |-------|-------|
-| Applicant name | `[YOUR NAME]` |
-| Email | `[YOUR EMAIL]` |
-| GitHub | `[YOUR GITHUB]` |
-| Location | `[COUNTRY]` |
+| Applicant name | Nihat Cetinkaya |
+| Email | nihatcetinkaya077@gmail.com |
+| GitHub | https://github.com/001453 |
+| Location | Turkey |
+
+### Demo video
+
+Public demo page: **[docs/DEMO.md](DEMO.md)** (YouTube link added after upload)
 
 ---
 
@@ -140,7 +144,7 @@ Tab audio / Microphone (Chrome)
 
 | ID | Deliverable | Deadline | Payout |
 |----|-------------|----------|--------|
-| **M1** | **Public demo & docs** — 5–8 min video ([script](DEMO_VIDEO.md)); [egress checklist](SOVEREIGN_EGRESS_CHECKLIST.md); English setup guide (README) | +30 days | **1,500 USD₮** |
+| **M1** | **Public demo & docs** — 5–8 min video on [DEMO.md](DEMO.md); [egress checklist](SOVEREIGN_EGRESS_CHECKLIST.md); English setup guide (README) | +30 days | **1,500 USD₮** |
 | **M2** | **QVAC hardening** — Fix/unify QVAC STT path; benchmark latency (STT + NMT); publish results in `docs/BENCHMARKS.md` | +60 days | **2,000 USD₮** |
 | **M3** | **Pear / Keet integration v2** — Pear SDK spike; improved meeting bridge; integration doc for Pears builders | +75 days | **2,000 USD₮** |
 | **M4** | **Chrome extension MVP** — Live captions overlay for tab audio (QVAC translation); publish on repo `extension/` | +90 days | **2,000 USD₮** |
@@ -189,11 +193,14 @@ Tether’s program pays **$1,500–$10,000** per defined task. At **$7,500** ove
 
 ## Checklist before you click Apply
 
-- [ ] Replace `[YOUR NAME]`, `[YOUR EMAIL]`, `[YOUR GITHUB]`, `[COUNTRY]` above  
-- [ ] Record demo video — follow **[docs/DEMO_VIDEO.md](DEMO_VIDEO.md)** (5–8 min, English)  
-- [ ] Complete **[docs/SOVEREIGN_EGRESS_CHECKLIST.md](SOVEREIGN_EGRESS_CHECKLIST.md)**  
-- [ ] Add YouTube (unlisted) link to README Demo section  
+- [x] Team contact filled in above  
+- [ ] Publish demo video → `npm run demo:url -- https://youtu.be/...`  
+- [x] [SOVEREIGN_EGRESS_CHECKLIST.md](SOVEREIGN_EGRESS_CHECKLIST.md) published  
+- [x] English setup guide ([README](../README.md#quick-start))  
 - [ ] Open https://tether.dev → **Apply for a grant**  
+- [ ] Paste **Project title**, **Short description**, **Long description** from top of this file  
+- [ ] Attach link: `https://github.com/001453/newtranslate/blob/main/docs/GRANT.md`  
+- [ ] Select payment: **USD₮**  
 - [ ] Paste **Project title**, **Short description**, **Long description** from top of this file  
 - [ ] Attach link: `https://github.com/001453/newtranslate/blob/main/docs/GRANT.md`  
 - [ ] Select payment: **USD₮**  
