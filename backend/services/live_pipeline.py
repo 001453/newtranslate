@@ -9,7 +9,7 @@ import time
 from fastapi import WebSocket
 
 from config import get_settings
-from services.caption_quality import is_acceptable_caption
+from services.caption_quality import is_acceptable_caption, sanitize_caption_text
 from services.glossary import glossary_service
 from services.overlay import overlay_service
 from services.stt import stt_service
@@ -160,14 +160,15 @@ class LiveAudioProcessor:
         if not stt_result.text:
             return
         lang_hint = _session_language_hint()
-        if not is_acceptable_caption(
+        clean_text = sanitize_caption_text(
             stt_result.text,
             language_hint=lang_hint,
             confidence=stt_result.language_probability,
-        ):
+        )
+        if not clean_text:
             logger.debug("Dropped live caption (quality): %r", stt_result.text[:80])
             return
-        if _is_duplicate_transcript(stt_result.text, self.last_transcript):
+        if _is_duplicate_transcript(clean_text, self.last_transcript):
             return
 
         detected = _session_detected_lang(stt_result.language)
@@ -176,8 +177,8 @@ class LiveAudioProcessor:
 
         if needs_translation:
             cap = await overlay_service.show_caption(
-                original=stt_result.text,
-                translated=stt_result.text,
+                original=clean_text,
+                translated=clean_text,
                 source_lang=detected,
                 target_lang=target,
                 speaker=self.speaker,
@@ -196,7 +197,7 @@ class LiveAudioProcessor:
 
         if needs_translation:
             trans = await translation_service.translate_live(
-                stt_result.text,
+                clean_text,
                 detected,
                 target,
                 speaker=self.speaker,
@@ -205,15 +206,21 @@ class LiveAudioProcessor:
             translated_text = trans.text
             trans_ms = trans.latency_ms
         else:
-            translated_text = stt_result.text
+            translated_text = clean_text
             trans_ms = 0.0
 
-        self.last_transcript = stt_result.text
-        self.session_context = (self.session_context + " " + stt_result.text)[-500:]
+        translated_text = sanitize_caption_text(
+            translated_text,
+            language_hint=target.split("-")[0],
+            confidence=max(stt_result.language_probability, 0.7),
+        ) or clean_text
+
+        self.last_transcript = clean_text
+        self.session_context = (self.session_context + " " + clean_text)[-500:]
         total_ms = (time.perf_counter() - t0) * 1000
 
         await overlay_service.show_caption(
-            original=stt_result.text,
+            original=clean_text,
             translated=translated_text,
             source_lang=detected,
             target_lang=target,
@@ -227,7 +234,7 @@ class LiveAudioProcessor:
         await self.websocket.send_json({
             "event": "pipeline_result",
             "payload": {
-                "original": stt_result.text,
+                "original": clean_text,
                 "translated": translated_text,
                 "source_lang": detected,
                 "target_lang": target,

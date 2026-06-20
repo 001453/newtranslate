@@ -77,8 +77,8 @@ class Settings(BaseSettings):
     live_buffer_ms: int = 6000
     live_queue_max: int = 12
     whisper_live_beam_size: int = 3
-    live_min_audio_rms: float = 0.003
-    live_min_stt_language_probability: float = 0.40
+    live_min_audio_rms: float = 0.004
+    live_min_stt_language_probability: float = 0.45
 
     # STT routing — whisper (faster-whisper, default) | qvac (whisper.cpp via bridge) | auto
     stt_provider: Literal["whisper", "qvac", "auto"] = "whisper"

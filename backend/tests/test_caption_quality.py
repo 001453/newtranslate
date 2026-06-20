@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
-from services.caption_quality import is_acceptable_caption, is_acceptable_summary
+from services.caption_quality import (
+    is_acceptable_caption,
+    is_acceptable_summary,
+    sanitize_caption_text,
+)
 
 
 def test_rejects_repeated_word_spam():
@@ -12,6 +16,23 @@ def test_rejects_repeated_word_spam():
 def test_rejects_mixed_script_garbage():
     text = "patial公务员 eclipsepatibilityợ筼"
     assert not is_acceptable_caption(text, language_hint="en", confidence=0.9)
+
+
+def test_rejects_user_reported_script_salad():
+    text = (
+        "dre pneumقدideooleysov毕p$json scrapeátis赫BFR BlackBerry逅клон治安"
+        "świadcutory是非 EHzielorde adeuginimargnoreornakah honoredularessgencyatteringonnerod主动zzo"
+        "   арат拉gilM她们 scor $ ixcreens版"
+    )
+    assert not is_acceptable_caption(text, language_hint="tr", confidence=0.9)
+
+
+def test_salvages_trailing_turkish_from_noisy_chunk():
+    noisy = (
+        "dre pneumقدideooleysov毕p$json scrape BlackBerry"
+        " Arkadaşlar size bugün gelen bu"
+    )
+    assert sanitize_caption_text(noisy, language_hint="tr", confidence=0.85) == "Arkadaşlar size bugün gelen bu"
 
 
 def test_accepts_normal_turkish():
