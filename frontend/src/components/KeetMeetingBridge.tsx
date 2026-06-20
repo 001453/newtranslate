@@ -526,7 +526,11 @@ export function KeetMeetingBridge({
               value={myLang}
               onChange={(e) => {
                 const next = e.target.value;
-                if (next !== otherLang) applyLangPair(next, otherLang);
+                if (next === otherLang) {
+                  applyLangPair(next, myLang);
+                } else {
+                  applyLangPair(next, otherLang);
+                }
               }}
             >
               {langOptions.map((l) => (
@@ -553,7 +557,11 @@ export function KeetMeetingBridge({
               value={otherLang}
               onChange={(e) => {
                 const next = e.target.value;
-                if (next !== myLang) applyLangPair(myLang, next);
+                if (next === myLang) {
+                  applyLangPair(otherLang, next);
+                } else {
+                  applyLangPair(myLang, next);
+                }
               }}
             >
               {langOptions.map((l) => (
