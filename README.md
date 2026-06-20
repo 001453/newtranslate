@@ -83,6 +83,8 @@ HTTP dictation endpoint: `POST /api/v1/transcribe` (PCM int16 @ 16 kHz → Whisp
 4. Each participant sees subtitles in **their own language** (`viewer_lang` on the backend).
 5. When the session ends, transcript files download automatically.
 
+**Chrome extension:** Load unpacked from [`extension/`](extension/) — live caption overlay on any tab without opening the web UI. See [extension/README.md](extension/README.md).
+
 > Keet handles the call; GlobalBridge handles **local STT + QVAC translation**. No Keet SDK is required — integration is via standard browser tab audio capture, keeping the stack simple and fully local.
 
 **Builder guide:** [docs/KEET_PEARS_INTEGRATION.md](docs/KEET_PEARS_INTEGRATION.md) — deep links, WebSocket config, Pear SDK roadmap.

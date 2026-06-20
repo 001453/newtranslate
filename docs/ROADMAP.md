@@ -16,7 +16,7 @@ Aligned with the [Tether grant milestones](GRANT.md) and community feedback.
 | Keet deep links + builder docs | ✅ [KEET_PEARS_INTEGRATION.md](KEET_PEARS_INTEGRATION.md) |
 | PDF / DOCX translation | ✅ MVP |
 | Electron overlay | ⚠️ Experimental |
-| Chrome extension | ❌ Not yet |
+| Chrome extension | ✅ MVP — [extension/](../extension/) |
 | Desktop installer (Win/Mac) | ❌ Not yet |
 | Published latency benchmarks | ✅ [BENCHMARKS.md](BENCHMARKS.md) |
 | Unified STT router (whisper / QVAC) | ✅ [STT.md](STT.md) |
@@ -43,7 +43,8 @@ Aligned with the [Tether grant milestones](GRANT.md) and community feedback.
 - [ ] GitHub Releases with signed Windows `.exe` installer
 - [ ] Model download on first run (small installer, ~150 MB)
 - [ ] WinGet / Homebrew cask manifests
-- [ ] Chrome Web Store extension connecting to local API (grant **M4**)
+- [x] Chrome extension MVP — live overlay via local API ([extension/](../extension/), grant **M4**)
+- [ ] Chrome Web Store publish
 
 ---
 
@@ -54,7 +55,7 @@ Aligned with the [Tether grant milestones](GRANT.md) and community feedback.
 | **M1** | Demo video + setup guide + egress checklist | +30 days |
 | **M2** | QVAC hardening + latency benchmarks | +60 days |
 | **M3** | Pear / Keet integration v2 + builder docs | +75 days | In progress |
-| **M4** | Chrome extension MVP (`extension/`) | +90 days |
+| **M4** | Chrome extension MVP (`extension/`) | +90 days | ✅ MVP |
 
 Details: [GRANT.md](GRANT.md)
 

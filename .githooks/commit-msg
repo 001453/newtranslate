@@ -1,0 +1,3 @@
+#!/bin/sh
+# GlobalBridge — remove Cursor Co-authored-by trailers
+exec node "$(dirname "$0")/commit-msg.js" "$@"

@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "GlobalBridge Live Captions",
+  "version": "0.1.0",
+  "description": "Sovereign live subtitles from tab audio — local Whisper STT + QVAC translation (localhost only).",
+  "permissions": ["tabCapture", "storage", "activeTab", "offscreen", "scripting"],
+  "host_permissions": [
+    "http://127.0.0.1:8000/*",
+    "http://localhost:8000/*",
+    "ws://127.0.0.1:8000/*",
+    "ws://localhost:8000/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "GlobalBridge Live Captions"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["overlay.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

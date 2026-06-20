@@ -60,6 +60,8 @@ run("npm", ["install"], join(root, "qvac-service"));
 run("npm", ["install"], join(root, "frontend"));
 ensureBackendVenv();
 
+run("node", ["scripts/configure-git-hooks.mjs"], root);
+
 console.log("\n✓ Setup complete. Start all services:\n");
 console.log("  npm run dev");
 console.log("  — or —");
