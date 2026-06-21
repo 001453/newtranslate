@@ -123,7 +123,9 @@ newtranslate/
 
 ## Quick Start
 
-**End users (Windows):** See **[docs/USER_INSTALL.md](docs/USER_INSTALL.md)** — download desktop app + Chrome extension (2 steps).  
+**End users (Windows):** See **[docs/USER_INSTALL.md](docs/USER_INSTALL.md)** — download desktop app + Chrome extension (2 steps).
+
+**Mobile (Android/iOS):** Developer preview — **[mobile/README.md](mobile/README.md)** (Expo + QVAC, physical device required).  
 **Developers:** continue below.
 
 ### Requirements

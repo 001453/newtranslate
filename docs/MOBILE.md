@@ -1,46 +1,70 @@
 # GlobalBridge on mobile (Android / iOS)
 
-## Short answer
+## Status
 
-**Not available today.** GlobalBridge AI is built for **Windows desktop** first. Android/iOS would be a separate product with different constraints.
+| | |
+|---|---|
+| **QVAC SDK** | ✅ Android 12+ / iOS 17+ via Expo |
+| **GlobalBridge mobile app** | ✅ **MVP in [`mobile/`](../mobile/)** — text translation on-device |
+| **Play Store / App Store** | ❌ Not published yet — dev install via USB |
+| **Live tab captions** | ❌ Use Windows desktop + Chrome extension |
 
-## Why desktop-first?
+---
 
-| Requirement | Desktop (now) | Mobile (future) |
-|-------------|---------------|-----------------|
-| Local Whisper STT | ✅ CPU/GPU, 8 GB+ RAM | ⚠️ Heavy; needs ONNX/mobile models |
-| QVAC `@qvac/sdk` | ✅ Node sidecar | ❌ No official mobile SDK yet |
-| Chrome tab audio capture | ✅ Extension + desktop API | ⚠️ Limited on Android Chrome; iOS Safari differs |
-| Sovereign / offline | ✅ Full stack on device | Harder on battery/thermal limits |
+## Install on your phone (today)
 
-The current architecture is:
+**Not a store download yet.** Developers build from source:
 
+```bash
+npm run mobile:install
+npm run mobile:prebuild
+npm run mobile:android   # physical Android, USB debugging
 ```
-Tab audio → Chrome extension → localhost:8000 → Whisper + QVAC (on PC)
-```
 
-Without a PC running the backend, the extension cannot translate.
+Full guide: **[mobile/README.md](../mobile/README.md)**
 
-## What could work later
+First launch downloads QVAC models (~ hundreds of MB). Requires a **real device** (not emulator).
 
-### Android (most realistic path)
+---
 
-- **Companion app** — Kotlin/React Native shell; optional on-device STT (Whisper.cpp / sherpa-onnx); cloud-free translation via smaller NMT models or synced QVAC when SDK supports mobile.
-- **Termux / power users** — clone repo + manual setup (developer-only, not Store-ready).
-- **Keet mobile** — meeting subtitles would integrate with Keet Android when Pear/deep-link flow is ready (grant **M3**).
+## QVAC on mobile (official)
 
-### iOS
+Per [QVAC installation docs](https://docs.qvac.tether.io/installation/):
 
-- Stricter background + no arbitrary localhost from other apps; likely **Share Extension** or in-app browser capture only.
-- App Store review for local AI + microphone policies.
+| Platform | Min version | How |
+|----------|-------------|-----|
+| **Android** | 12+ (arm64) | Expo + `@qvac/sdk/expo-plugin` |
+| **iOS** | 17.0+ (arm64) | Expo + `@qvac/sdk/expo-plugin` |
 
-## Chrome extension on phone
+Tutorial: [Build an Expo app](https://docs.qvac.tether.io/sdk/tutorials/expo/)
 
-- **Android Chrome:** MV3 extensions exist but tab capture and overlay UX differ from desktop; still needs a reachable backend (not `127.0.0.1` on the phone unless the engine runs on the same device).
-- **iOS Chrome:** No full extension parity with desktop.
+---
 
-## Roadmap
+## Desktop vs mobile
 
-See [ROADMAP.md](ROADMAP.md) — mobile is **long term**, after Windows installer polish (bundled Python, WinGet, Store) and Chrome Web Store approval.
+| Feature | Windows desktop | Mobile app (MVP) |
+|---------|-----------------|------------------|
+| Text translation | ✅ | ✅ |
+| Live captions (YouTube/Meet) | ✅ Chrome extension | ⏳ Future |
+| Whisper STT | ✅ | ⏳ Future (QVAC Whisper) |
+| Keet meetings | ✅ | ⏳ Future |
+| One-click store install | GitHub `.exe` | ⏳ Play / App Store |
 
-If you want to experiment on Android today: run the **web UI** against a backend on your home PC (same Wi‑Fi) — not shipped as product yet.
+Desktop stack (Python + Node sidecar) does not run on phones. The mobile app uses **QVAC inside Expo** — same SDK family as `qvac-service/`.
+
+---
+
+## Play Store roadmap
+
+1. Finish MVP (mic / live STT, polish)
+2. `eas build` → signed AAB
+3. Google Play listing + privacy URL
+4. Public “Install” button
+
+---
+
+## Related
+
+- [mobile/README.md](../mobile/README.md) — build & run
+- [ROADMAP.md](ROADMAP.md)
+- [USER_INSTALL.md](USER_INSTALL.md) — Windows end users

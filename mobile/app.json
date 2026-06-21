@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "GlobalBridge AI",
+    "slug": "globalbridge-mobile",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "scheme": "globalbridge",
+    "newArchEnabled": true,
+    "icon": "./assets/icon.png",
+    "splash": {
+      "backgroundColor": "#0b0f14"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "io.globalbridge.mobile",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "GlobalBridge uses the microphone for live speech translation (optional, future)."
+      }
+    },
+    "android": {
+      "package": "io.globalbridge.mobile",
+      "adaptiveIcon": {
+        "backgroundColor": "#0b0f14"
+      },
+      "permissions": []
+    },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "minSdkVersion": 29
+          }
+        }
+      ],
+      "@qvac/sdk/expo-plugin"
+    ]
+  }
+}

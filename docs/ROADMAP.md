@@ -18,6 +18,7 @@ Aligned with the [Tether grant milestones](GRANT.md) and community feedback.
 | Electron overlay | ⚠️ Experimental |
 | **Desktop launcher (tray)** | ✅ Phase 1 — [`desktop/`](../desktop/) |
 | Chrome extension | ✅ MVP — [extension/](../extension/) |
+| **Mobile app (Expo + QVAC)** | ✅ MVP text translate — [`mobile/`](../mobile/) |
 | Desktop installer (Win/Mac) | ✅ Windows NSIS + portable — [releases](https://github.com/001453/newtranslate/releases) |
 | Published latency benchmarks | ✅ [BENCHMARKS.md](BENCHMARKS.md) |
 | Unified STT router (whisper / QVAC) | ✅ [STT.md](STT.md) |
@@ -45,9 +46,11 @@ Aligned with the [Tether grant milestones](GRANT.md) and community feedback.
 - [x] GitHub Releases with Windows `.exe` installer — [USER_INSTALL.md](USER_INSTALL.md) · [v0.1.5+](https://github.com/001453/newtranslate/releases)
 - [ ] Chrome Web Store publish — submitted, pending review
 - [x] Bundled Python in Windows installer — no separate python.org step
+- [x] Mobile MVP (Expo + QVAC text translate) — [`mobile/`](../mobile/)
+- [ ] Play Store / App Store release
+- [ ] Mobile live STT (QVAC Whisper) + mic UI
 - [ ] Model download on first run (smaller installer, ~150 MB)
 - [ ] WinGet / Homebrew cask manifests
-- [ ] Mobile (Android/iOS) — see [MOBILE.md](MOBILE.md)
 - [x] Chrome extension MVP — live overlay via local API ([extension/](../extension/), grant **M4**)
 
 ---

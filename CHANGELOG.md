@@ -5,6 +5,9 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- **Mobile app (MVP)** — [`mobile/`](mobile/) Expo + QVAC on-device text translation (Android/iOS)
+
 ---
 
 ## [0.1.7] - 2026-06-21

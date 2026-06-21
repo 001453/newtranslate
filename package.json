@@ -21,7 +21,11 @@
     "desktop": "npm --prefix desktop run start",
     "desktop:dev": "npm --prefix desktop run dev",
     "desktop:build": "node scripts/build-desktop.mjs",
-    "fetch:python": "node scripts/fetch-embedded-python.mjs",
+    "mobile:install": "npm install --prefix mobile && npm exec --prefix mobile expo install expo-file-system expo-build-properties expo-device",
+    "mobile:start": "npm --prefix mobile run start",
+    "mobile:android": "npm --prefix mobile run android",
+    "mobile:ios": "npm --prefix mobile run ios",
+    "mobile:prebuild": "npm --prefix mobile run prebuild",
     "extension:zip": "node scripts/package-extension.mjs",
     "store:screenshots": "node scripts/capture-store-screenshots.mjs",
     "store:promo": "py -3.12 scripts/generate-store-promo.py"
