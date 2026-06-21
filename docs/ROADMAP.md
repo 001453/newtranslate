@@ -5,7 +5,7 @@ Aligned with the [Tether grant milestones](GRANT.md) and community feedback.
 
 ---
 
-## Current status (v0.1.0)
+## Current status (v0.1.5)
 
 | Area | Status |
 |------|--------|
@@ -18,7 +18,7 @@ Aligned with the [Tether grant milestones](GRANT.md) and community feedback.
 | Electron overlay | ⚠️ Experimental |
 | **Desktop launcher (tray)** | ✅ Phase 1 — [`desktop/`](../desktop/) |
 | Chrome extension | ✅ MVP — [extension/](../extension/) |
-| Desktop installer (Win/Mac) | 🔄 Phase 1 — `npm run desktop:build` → NSIS |
+| Desktop installer (Win/Mac) | ✅ Windows NSIS + portable — [releases](https://github.com/001453/newtranslate/releases) |
 | Published latency benchmarks | ✅ [BENCHMARKS.md](BENCHMARKS.md) |
 | Unified STT router (whisper / QVAC) | ✅ [STT.md](STT.md) |
 
@@ -42,7 +42,7 @@ Aligned with the [Tether grant milestones](GRANT.md) and community feedback.
 
 ### Distribution *(Phase 1 — in progress)*
 - [x] Desktop tray launcher — `npm run desktop` ([desktop/](../desktop/))
-- [ ] GitHub Releases with Windows `.exe` installer — [USER_INSTALL.md](USER_INSTALL.md) + [releases](https://github.com/001453/newtranslate/releases)
+- [x] GitHub Releases with Windows `.exe` installer — [USER_INSTALL.md](USER_INSTALL.md) · [v0.1.5+](https://github.com/001453/newtranslate/releases)
 - [ ] Chrome Web Store publish — submitted, pending review
 - [ ] Model download on first run (small installer, ~150 MB)
 - [ ] WinGet / Homebrew cask manifests

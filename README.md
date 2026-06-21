@@ -142,7 +142,7 @@ On Windows, install Python from [python.org](https://www.python.org/) and check 
 
 ### Option A — Windows desktop app (easiest)
 
-1. Download **GlobalBridge-AI-*-setup.exe** from [GitHub Releases](https://github.com/001453/newtranslate/releases)
+1. Download **GlobalBridge-AI-*-setup.exe** from [GitHub Releases](https://github.com/001453/newtranslate/releases/latest)
 2. Install → tray icon appears → **Run setup** (needs Python 3.11+)
 3. **Start services** → browser opens at http://localhost:3000
 4. Optional: [Chrome extension](extension/README.md) — [Store listing pending](docs/CHROME_WEB_STORE.md); use Load unpacked until approved

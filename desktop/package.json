@@ -1,6 +1,6 @@
 {
   "name": "globalbridge-desktop",
-  "version": "0.1.0",
+  "version": "0.1.5",
   "description": "GlobalBridge AI desktop launcher — sovereign live translation (QVAC + Whisper)",
   "main": "main.js",
   "author": "Nihat Cetinkaya",
@@ -105,11 +105,11 @@
       "createStartMenuShortcut": true,
       "shortcutName": "GlobalBridge AI",
       "installerIcon": "icons/icon.ico",
-      "uninstallerIcon": "icons/icon.ico"
+      "uninstallerIcon": "icons/icon.ico",
+      "artifactName": "GlobalBridge-AI-${version}-setup.${ext}"
     },
     "portable": {
       "artifactName": "GlobalBridge-AI-${version}-portable.exe"
-    },
-    "artifactName": "GlobalBridge-AI-${version}-${os}-${arch}.${ext}"
+    }
   }
 }

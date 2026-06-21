@@ -7,6 +7,14 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [0.1.6] - 2026-06-21
+
+### Changed
+- Desktop package version aligned to **0.1.5** — installer artifacts named `GlobalBridge-AI-0.1.5-setup.exe` / `-portable.exe`
+- Site and docs updated with direct download links to latest release
+
+---
+
 ## [0.1.5] - 2026-06-21
 
 ### Fixed
@@ -52,6 +60,8 @@ First public MVP release — sovereign local translation bridge with QVAC + Keet
 
 ---
 
-[Unreleased]: https://github.com/001453/newtranslate/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/001453/newtranslate/compare/v0.1.6...HEAD
+[0.1.6]: https://github.com/001453/newtranslate/compare/v0.1.5...v0.1.6
+[0.1.5]: https://github.com/001453/newtranslate/compare/v0.1.1...v0.1.5
 [0.1.1]: https://github.com/001453/newtranslate/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/001453/newtranslate/releases/tag/v0.1.0

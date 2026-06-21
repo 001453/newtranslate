@@ -97,7 +97,7 @@ jobs:
           fi
           echo "" >> release-notes.md
           echo "### Downloads" >> release-notes.md
-          echo "- **Windows:** \`GlobalBridge-AI-*-setup.exe\` (installer) or portable \`.exe\`" >> release-notes.md
+          echo "- **Windows:** \`GlobalBridge-AI-*-setup.exe\` (installer) or \`GlobalBridge-AI-*-portable.exe\`" >> release-notes.md
           echo "- **Chrome extension:** \`GlobalBridge-Extension-*.zip\` → [Web Store guide](https://github.com/${{ github.repository }}/blob/main/docs/DISTRIBUTION.md)" >> release-notes.md
           echo "- Requires **Python 3.11+** — run First-time setup from the tray app after install." >> release-notes.md
 

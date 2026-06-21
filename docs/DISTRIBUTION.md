@@ -8,7 +8,7 @@ How to ship **GlobalBridge AI** so non-developers can install and use it.
 
 | Channel | Artifact | Audience |
 |---------|----------|----------|
-| **GitHub Releases** | `GlobalBridge-AI-0.1.0-setup.exe` (NSIS) + portable `.exe` | Windows users |
+| **GitHub Releases** | `GlobalBridge-AI-0.1.5-setup.exe` (NSIS) + `-portable.exe` | Windows users |
 | **Chrome Web Store** | `dist/GlobalBridge-Extension-v0.1.1.zip` | Chrome users (still need local backend) |
 | **Repo** | `extension/` load unpacked | Developers |
 
@@ -25,21 +25,21 @@ npm run desktop:build
 
 Output: `desktop/dist/`
 
-- `GlobalBridge-AI-0.1.0-setup.exe` — NSIS installer (Start Menu + desktop shortcut)
-- `GlobalBridge-AI-0.1.0-win-x64.exe` — portable
+- `GlobalBridge-AI-0.1.5-setup.exe` — NSIS installer (Start Menu + desktop shortcut)
+- `GlobalBridge-AI-0.1.5-portable.exe` — portable
 
 ### Publish to GitHub Releases
 
 ```bash
-git tag v0.1.1
-git push origin v0.1.1
+git tag v0.1.6
+git push origin v0.1.6
 ```
 
 CI (`.github/workflows/release.yml`) attaches:
 
 - `GlobalBridge-AI-*-setup.exe` — NSIS installer
 - `GlobalBridge-AI-*-portable.exe` — portable
-- `GlobalBridge-Extension-v0.1.0.zip` — Chrome Web Store upload
+- `GlobalBridge-Extension-v0.1.1.zip` — Chrome Web Store upload
 
 Or build locally on Windows:
 

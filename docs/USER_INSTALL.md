@@ -7,7 +7,7 @@ Two parts work together: **desktop app** (translation engine) + **Chrome extensi
 ## Step 1 — Desktop app (required)
 
 1. Install **Python 3.11+** from [python.org](https://www.python.org/) — check **“Add Python to PATH”**.
-2. Download **GlobalBridge AI** for Windows from [GitHub Releases](https://github.com/001453/newtranslate/releases):
+2. Download **GlobalBridge AI** for Windows from [GitHub Releases](https://github.com/001453/newtranslate/releases/latest):
    - `GlobalBridge-AI-*-setup.exe` (installer), or
    - `GlobalBridge-AI-*-portable.exe` (no install)
 3. Run the app → system tray icon appears.
@@ -69,7 +69,7 @@ Audio and transcripts stay on your machine in Sovereign Mode. See [privacy polic
 ## Türkçe — kısa kurulum
 
 1. [python.org](https://www.python.org/) → Python 3.11+ kur (**PATH** işaretli).
-2. [GitHub Releases](https://github.com/001453/newtranslate/releases) → **GlobalBridge-AI-*-setup.exe** indir ve kur.
+2. [GitHub Releases](https://github.com/001453/newtranslate/releases/latest) → **GlobalBridge-AI-*-setup.exe** indir ve kur.
 3. Tepsi ikonu → **Run setup** → **Start services**.
 4. Chrome extension: Store onayı gelince mağazadan; şimdilik `chrome://extensions` → **Load unpacked** → `extension/` klasörü.
 5. YouTube aç → extension → **Start captions**.
