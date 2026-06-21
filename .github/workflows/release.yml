@@ -38,14 +38,17 @@ jobs:
         run: |
           npm ci --prefix desktop
           npm run dist --prefix desktop
+          if (-not (Get-ChildItem desktop/dist/*.exe -ErrorAction SilentlyContinue)) {
+            Write-Error "No .exe files in desktop/dist"
+            Get-ChildItem desktop/dist -Recurse | Select-Object FullName
+            exit 1
+          }
 
       - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
         with:
           name: desktop-windows
-          path: |
-            desktop/dist/*.exe
-            desktop/dist/latest.yml
+          path: desktop/dist/*.exe
 
   package-extension:
     name: Chrome extension zip

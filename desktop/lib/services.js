@@ -1,6 +1,7 @@
 const { spawn, execSync } = require("child_process");
 const path = require("path");
 const { existsSync } = require("fs");
+const { app } = require("electron");
 const { getAppRoot, getNodeSpawnOptions, getBackendVenvPython } = require("./paths");
 
 const isWin = process.platform === "win32";
@@ -126,17 +127,20 @@ async function startAll(logFn) {
     const frontendDir = path.join(root, "frontend");
     const useProd = existsSync(path.join(frontendDir, ".next"));
     if (useProd) {
+      const nextBin = path.join(frontendDir, "node_modules", "next", "dist", "bin", "next");
       spawnService(
         "WEB",
         {
-          cmd: isWin ? "npm.cmd" : "npm",
-          args: ["run", "start"],
+          cmd: node,
+          args: [nextBin, "start", "-p", "3000"],
           cwd: frontendDir,
           env: { ...process.env, PORT: "3000" },
-          shell: isWin,
+          shell: false,
         },
         logFn,
       );
+    } else if (app.isPackaged) {
+      return { ok: false, error: "Frontend build missing — re-run setup or reinstall." };
     } else {
       spawnService(
         "WEB",

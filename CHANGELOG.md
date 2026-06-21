@@ -5,16 +5,14 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-### Added
-- **End-user install guide** — [docs/USER_INSTALL.md](docs/USER_INSTALL.md) (desktop + Chrome extension, 2 steps)
-- Project site updated with **Get started (2 steps)** on [GitHub Pages](https://001453.github.io/newtranslate/)
-- Chrome Web Store assets — `extension/store/screenshots/`, `extension/store/promo/`
-- Scripts: `capture-store-screenshots.mjs`, `generate-store-promo.py`, `resize-store-screenshots.py`
-
-### Changed
-- README and ROADMAP updated for desktop distribution path
-
 ---
+
+## [0.1.5] - 2026-06-21
+
+### Fixed
+- Windows release CI — NSIS installer uses `.ico` (not `.png`); skip code signing; exclude nested `.exe` from bundle
+- Packaged desktop starts Next.js without requiring system `npm` on PATH
+
 
 ## [0.1.1] - 2026-06-21
 

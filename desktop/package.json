@@ -43,6 +43,7 @@
         "to": "app/qvac-service",
         "filter": [
           "**/*",
+          "!node_modules/**/*.exe",
           "!**/.cache/**"
         ]
       },
@@ -51,6 +52,7 @@
         "to": "app/frontend",
         "filter": [
           "**/*",
+          "!node_modules/**/*.exe",
           "!**/.cache/**"
         ]
       },
@@ -77,6 +79,7 @@
         "to": "app/package.json"
       }
     ],
+    "forceCodeSigning": false,
     "win": {
       "signAndEditExecutable": false,
       "target": [
@@ -101,8 +104,8 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "GlobalBridge AI",
-      "installerIcon": "icons/icon256.png",
-      "uninstallerIcon": "icons/icon256.png"
+      "installerIcon": "icons/icon.ico",
+      "uninstallerIcon": "icons/icon.ico"
     },
     "portable": {
       "artifactName": "GlobalBridge-AI-${version}-portable.exe"
