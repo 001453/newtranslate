@@ -18,7 +18,7 @@ Built on **[QVAC](https://qvac.tether.io/)** (Tether local AI) + **[Keet](https:
 ▶ **[Watch demo on YouTube](https://youtu.be/1cxwP5S7-1A)** — sovereign live captions (Whisper + QVAC + tab audio, ~5 min)
 <!-- DEMO_VIDEO_END -->
 
-[Sovereign egress checklist](docs/SOVEREIGN_EGRESS_CHECKLIST.md) · [Quick Start](#quick-start) · [Project site](https://001453.github.io/newtranslate/)
+[Sovereign egress checklist](docs/SOVEREIGN_EGRESS_CHECKLIST.md) · **[Install guide (users)](docs/USER_INSTALL.md)** · [Quick Start](#quick-start) · [Project site](https://001453.github.io/newtranslate/)
 
 ---
 
@@ -123,6 +123,9 @@ newtranslate/
 
 ## Quick Start
 
+**End users (Windows):** See **[docs/USER_INSTALL.md](docs/USER_INSTALL.md)** — download desktop app + Chrome extension (2 steps).  
+**Developers:** continue below.
+
 ### Requirements
 
 | Tool | Version | Notes |
@@ -142,9 +145,9 @@ On Windows, install Python from [python.org](https://www.python.org/) and check 
 1. Download **GlobalBridge-AI-*-setup.exe** from [GitHub Releases](https://github.com/001453/newtranslate/releases)
 2. Install → tray icon appears → **Run setup** (needs Python 3.11+)
 3. **Start services** → browser opens at http://localhost:3000
-4. Optional: install [Chrome extension](extension/README.md) for tab overlay
+4. Optional: [Chrome extension](extension/README.md) — [Store listing pending](docs/CHROME_WEB_STORE.md); use Load unpacked until approved
 
-Build locally: `npm run desktop:build` · Details: [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md)
+Full guide: **[docs/USER_INSTALL.md](docs/USER_INSTALL.md)**
 
 ---
 

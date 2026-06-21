@@ -52,6 +52,26 @@
     }
     .btn-primary { background: var(--accent); color: #fff; }
     .btn-secondary { background: var(--card); border: 1px solid var(--border); color: var(--text); }
+    .steps { display: grid; gap: 1rem; margin: 2rem 0; }
+    .step {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 1rem;
+      align-items: start;
+    }
+    .step-num {
+      width: 2rem; height: 2rem; border-radius: 50%;
+      background: var(--accent); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.95rem;
+    }
+    .step h3 { font-size: 1rem; margin-bottom: 0.35rem; }
+    .step p { color: var(--muted); font-size: 0.92rem; margin: 0; }
+    .note { color: var(--muted); font-size: 0.88rem; margin-top: 0.5rem; }
     footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.875rem; }
     code { background: var(--card); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; }
   </style>
@@ -72,9 +92,36 @@
     </div>
 
     <div class="cta">
-      <a class="btn btn-primary" href="https://github.com/001453/newtranslate">View on GitHub</a>
+      <a class="btn btn-primary" href="https://github.com/001453/newtranslate/releases">Download for Windows</a>
+      <a class="btn btn-secondary" href="https://github.com/001453/newtranslate/blob/main/docs/USER_INSTALL.md">Install guide</a>
       <a class="btn btn-secondary" href="https://youtu.be/1cxwP5S7-1A">Watch demo</a>
-      <a class="btn btn-secondary" href="https://github.com/001453/newtranslate/blob/main/README.md#quick-start">Quick Start</a>
+      <a class="btn btn-secondary" href="https://github.com/001453/newtranslate">GitHub</a>
+    </div>
+
+    <h2 style="margin-top:0.5rem;font-size:1.25rem;">Get started (2 steps)</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div>
+          <h3>Install GlobalBridge on your PC</h3>
+          <p>
+            Download the Windows installer from
+            <a href="https://github.com/001453/newtranslate/releases">GitHub Releases</a>,
+            run <strong>Setup</strong> from the tray (Python 3.11+ required once), then <strong>Start services</strong>.
+          </p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div>
+          <h3>Add the Chrome extension</h3>
+          <p>
+            Install <strong>GlobalBridge Live Captions</strong> from the Chrome Web Store
+            <span class="note">(listing pending Google review — use Load unpacked from the repo <code>extension/</code> folder until then)</span>.
+          </p>
+          <p class="note">Open YouTube or Meet → extension icon → <strong>Start captions</strong>.</p>
+        </div>
+      </div>
     </div>
 
     <div class="grid">
@@ -94,7 +141,8 @@
 
     <h2 style="margin-top:2rem;font-size:1.25rem;">Documentation</h2>
     <ul style="margin:1rem 0 0 1.25rem;color:var(--muted);">
-      <li><a href="https://github.com/001453/newtranslate/blob/main/README.md">README — install &amp; run</a></li>
+      <li><a href="https://github.com/001453/newtranslate/blob/main/docs/USER_INSTALL.md">Install guide (end users)</a></li>
+      <li><a href="https://github.com/001453/newtranslate/blob/main/README.md">README — developer install</a></li>
       <li><a href="https://github.com/001453/newtranslate/blob/main/docs/GRANT.md">Grant application (QVAC + Keet)</a></li>
       <li><a href="https://github.com/001453/newtranslate/blob/main/docs/ROADMAP.md">Roadmap</a></li>
       <li><a href="privacy.html">Extension privacy policy</a> (Chrome Web Store)</li>
@@ -104,7 +152,7 @@
       <li><a href="https://github.com/001453/newtranslate/blob/main/CHANGELOG.md">Changelog</a></li>
     </ul>
 
-    <h2 style="margin-top:2rem;font-size:1.25rem;">Quick install</h2>
+    <h2 style="margin-top:2rem;font-size:1.25rem;">Developer install</h2>
     <pre style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-top:0.75rem;overflow-x:auto;font-size:0.875rem;"><code>git clone https://github.com/001453/newtranslate.git
 cd newtranslate
 npm run setup

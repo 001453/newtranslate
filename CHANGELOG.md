@@ -6,10 +6,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Added
-- **Desktop launcher (Phase 1)** — Windows tray app: setup wizard, start/stop services, extension guide ([`desktop/`](../desktop/))
-- **Distribution docs** — [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md) (GitHub Releases + Chrome Web Store)
-- Grant submit walkthrough — [docs/GRANT_APPLY.md](docs/GRANT_APPLY.md)
-- `npm run desktop`, `npm run desktop:build`, `npm run extension:zip`
+- **End-user install guide** — [docs/USER_INSTALL.md](docs/USER_INSTALL.md) (desktop + Chrome extension, 2 steps)
+- Project site updated with **Get started (2 steps)** on [GitHub Pages](https://001453.github.io/newtranslate/)
+- Chrome Web Store assets — `extension/store/screenshots/`, `extension/store/promo/`
+- Scripts: `capture-store-screenshots.mjs`, `generate-store-promo.py`, `resize-store-screenshots.py`
 
 ### Changed
 - README and ROADMAP updated for desktop distribution path

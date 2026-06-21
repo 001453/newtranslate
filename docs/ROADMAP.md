@@ -42,8 +42,8 @@ Aligned with the [Tether grant milestones](GRANT.md) and community feedback.
 
 ### Distribution *(Phase 1 — in progress)*
 - [x] Desktop tray launcher — `npm run desktop` ([desktop/](../desktop/))
-- [ ] GitHub Releases with Windows `.exe` installer — tag `v0.1.1-desktop` → CI builds (see [DISTRIBUTION.md](DISTRIBUTION.md))
-- [ ] Chrome Web Store publish ([docs/DISTRIBUTION.md](DISTRIBUTION.md))
+- [ ] GitHub Releases with Windows `.exe` installer — [USER_INSTALL.md](USER_INSTALL.md) + [releases](https://github.com/001453/newtranslate/releases)
+- [ ] Chrome Web Store publish — submitted, pending review
 - [ ] Model download on first run (small installer, ~150 MB)
 - [ ] WinGet / Homebrew cask manifests
 - [x] Chrome extension MVP — live overlay via local API ([extension/](../extension/), grant **M4**)
