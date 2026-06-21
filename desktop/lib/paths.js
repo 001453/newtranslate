@@ -13,6 +13,13 @@ function getUserDataPath() {
   return app.getPath("userData");
 }
 
+function getBundledPythonPath() {
+  const root = getAppRoot();
+  const p = path.join(root, "python-runtime", "python.exe");
+  if (process.platform === "win32" && existsSync(p)) return p;
+  return null;
+}
+
 function getBackendVenvPython() {
   const root = getAppRoot();
   const isWin = process.platform === "win32";
@@ -55,6 +62,7 @@ function getExtensionZipPath() {
 module.exports = {
   getAppRoot,
   getUserDataPath,
+  getBundledPythonPath,
   getBackendVenvPython,
   isSetupComplete,
   getNodeSpawnOptions,

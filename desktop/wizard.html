@@ -81,7 +81,7 @@
   <div class="steps">
     <div class="step" id="step-python">
       <div class="dot" id="dot-python"></div>
-      <div><strong>Python 3.11+</strong><span>Required for speech recognition backend</span></div>
+      <div><strong>Python runtime</strong><span id="python-hint">Included with installer — no separate install</span></div>
     </div>
     <div class="step" id="step-setup">
       <div class="dot" id="dot-setup"></div>
@@ -128,6 +128,15 @@
     }
 
     function applyState(s) {
+      const hint = document.getElementById("python-hint");
+      if (s.pythonBundled) {
+        hint.textContent = "Bundled with installer — ready";
+      } else if (s.python) {
+        hint.textContent = "System Python detected";
+      } else {
+        hint.textContent = "Not found — reinstall or install Python 3.11+";
+      }
+
       setDot("python", s.python ? "ok" : "");
       setDot("setup", s.setupComplete ? "ok" : s.setupRunning ? "run" : "");
       setDot("services", s.health?.ready ? "ok" : s.servicesRunning ? "run" : "");

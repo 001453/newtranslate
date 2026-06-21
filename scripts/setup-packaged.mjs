@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * First-time setup for packaged GlobalBridge Desktop.
- * Skips npm install (bundled in installer) — only .env + Python venv.
+ * Uses bundled Windows Python when present; otherwise system Python (dev/mac).
  */
 import { spawnSync } from "node:child_process";
 import { copyFileSync, existsSync, mkdirSync } from "node:fs";
@@ -13,8 +13,22 @@ const isWin = process.platform === "win32";
 
 function run(cmd, args, cwd = root) {
   console.log(`\n> ${cmd} ${args.join(" ")}  (${cwd})`);
-  const r = spawnSync(cmd, args, { cwd, stdio: "inherit", shell: isWin });
+  const r = spawnSync(cmd, args, { cwd, stdio: "inherit", shell: isWin && !args[0]?.includes("\\") });
   if (r.status !== 0) process.exit(r.status ?? 1);
+}
+
+function bundledPython() {
+  const exe = join(root, "python-runtime", "python.exe");
+  return existsSync(exe) ? exe : null;
+}
+
+function resolvePython() {
+  const bundled = bundledPython();
+  if (bundled) {
+    console.log("Using bundled Python (included with installer).");
+    return bundled;
+  }
+  return isWin ? "python" : "python3";
 }
 
 function ensureEnv() {
@@ -38,17 +52,29 @@ function ensureEnv() {
   }
 }
 
+function createBackendVenv(pythonExe, backendDir) {
+  const venvPy = join(backendDir, ".venv", isWin ? "Scripts/python.exe" : "bin/python");
+  if (existsSync(venvPy)) return venvPy;
+
+  console.log("\nCreating Python venv…");
+  let r = spawnSync(pythonExe, ["-m", "venv", ".venv"], {
+    cwd: backendDir,
+    stdio: "inherit",
+    shell: false,
+  });
+  if (r.status === 0 && existsSync(venvPy)) return venvPy;
+
+  console.log("venv unavailable — using virtualenv…");
+  run(pythonExe, ["-m", "pip", "install", "virtualenv", "--no-warn-script-location"], backendDir);
+  run(pythonExe, ["-m", "virtualenv", ".venv"], backendDir);
+  return venvPy;
+}
+
 function ensureBackendVenv() {
-  const venvDir = join(root, "backend", ".venv");
-  const py = isWin ? "python" : "python3";
-  const venvPy = join(venvDir, isWin ? "Scripts/python.exe" : "bin/python");
-
-  if (!existsSync(venvPy)) {
-    console.log("\nCreating Python venv...");
-    run(py, ["-m", "venv", ".venv"], join(root, "backend"));
-  }
-
-  run(venvPy, ["-m", "pip", "install", "-r", "requirements.txt"], join(root, "backend"));
+  const backendDir = join(root, "backend");
+  const pythonExe = resolvePython();
+  const venvPy = createBackendVenv(pythonExe, backendDir);
+  run(venvPy, ["-m", "pip", "install", "-r", "requirements.txt"], backendDir);
 }
 
 console.log("GlobalBridge AI — packaged setup\n================================");

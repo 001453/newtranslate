@@ -19,6 +19,7 @@ frontend/node_modules/
 qvac-service/node_modules/
 desktop/node_modules/
 desktop/dist/
+desktop/python-runtime/
 .npm
 *.tsbuildinfo
 

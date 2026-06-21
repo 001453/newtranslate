@@ -6,7 +6,6 @@
  * 3. electron-builder
  */
 import { spawnSync } from "node:child_process";
-import { existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -31,9 +30,10 @@ run("npm", ["install"], join(root, "frontend"));
 run("npm", ["run", "build"], join(root, "frontend"));
 run("npm", ["install"], join(root, "desktop"));
 
-const venvPy = join(root, "backend", ".venv", isWin ? "Scripts/python.exe" : "bin/python");
-if (!existsSync(venvPy)) {
-  console.log("\nNote: backend/.venv not found — installer users run First-time setup (Python required).\n");
+if (isWin) {
+  run("node", ["scripts/fetch-embedded-python.mjs"], root);
+} else {
+  console.log("\nNote: embedded Python is Windows-only; macOS/Linux builds need system Python.\n");
 }
 
 const builderCmd = dirOnly ? "pack" : "dist";

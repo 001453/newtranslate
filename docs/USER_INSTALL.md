@@ -6,13 +6,12 @@ Two parts work together: **desktop app** (translation engine) + **Chrome extensi
 
 ## Step 1 — Desktop app (required)
 
-1. Install **Python 3.11+** from [python.org](https://www.python.org/) — check **“Add Python to PATH”**.
-2. Download **GlobalBridge AI** for Windows from [GitHub Releases](https://github.com/001453/newtranslate/releases/latest):
-   - `GlobalBridge-AI-*-setup.exe` (installer), or
+1. Download **GlobalBridge AI** for Windows from [GitHub Releases](https://github.com/001453/newtranslate/releases/latest):
+   - `GlobalBridge-AI-*-setup.exe` (installer, recommended), or
    - `GlobalBridge-AI-*-portable.exe` (no install)
-3. Run the app → system tray icon appears.
-4. Open **Setup wizard** from the tray → **Run setup** (first time only, ~5–15 min).
-5. Click **Start services** → browser opens at http://localhost:3000
+2. Run the installer → setup wizard opens automatically.
+3. **First run** installs AI components (~5–15 min) — Python is **included**, no python.org needed.
+4. When ready, the browser opens at http://localhost:3000 (or click **Start services** from the tray).
 
 **Alternative (developers):** `git clone` → `npm run setup` → `npm run dev` or `npm run desktop`.
 
@@ -68,9 +67,9 @@ Audio and transcripts stay on your machine in Sovereign Mode. See [privacy polic
 
 ## Türkçe — kısa kurulum
 
-1. [python.org](https://www.python.org/) → Python 3.11+ kur (**PATH** işaretli).
-2. [GitHub Releases](https://github.com/001453/newtranslate/releases/latest) → **GlobalBridge-AI-*-setup.exe** indir ve kur.
-3. Tepsi ikonu → **Run setup** → **Start services**.
+1. [GitHub Releases](https://github.com/001453/newtranslate/releases/latest) → **GlobalBridge-AI-*-setup.exe** indir ve kur.
+2. İlk açılışta kurulum otomatik başlar (~5–15 dk) — **ayrı Python kurmanıza gerek yok**.
+3. Bittiğinde tarayıcı açılır veya tepsi → **Start services**.
 4. Chrome extension: Store onayı gelince mağazadan; şimdilik `chrome://extensions` → **Load unpacked** → `extension/` klasörü.
 5. YouTube aç → extension → **Start captions**.
 

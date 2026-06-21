@@ -31,7 +31,7 @@ See [docs/DISTRIBUTION.md](../docs/DISTRIBUTION.md) for GitHub Releases + Chrome
 ## Requirements (end users)
 
 - **Windows 10/11** (Phase 1)
-- **Python 3.11+** — first-time setup creates backend venv
+- **Python 3.11+** — first-time setup creates backend venv (Windows installer bundles Python)
 - **Chrome** — for live caption extension (optional)
 
 Audio and transcripts stay on-device (Sovereign Mode).

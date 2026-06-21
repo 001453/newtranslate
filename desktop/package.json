@@ -29,6 +29,13 @@
     ],
     "extraResources": [
       {
+        "from": "python-runtime",
+        "to": "app/python-runtime",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
         "from": "../backend",
         "to": "app/backend",
         "filter": [

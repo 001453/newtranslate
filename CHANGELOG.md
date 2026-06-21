@@ -7,6 +7,18 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [0.1.7] - 2026-06-21
+
+### Added
+- **Bundled Python** in Windows installer — no python.org step for end users
+- First-run **auto setup + start services** from desktop wizard
+- [docs/MOBILE.md](MOBILE.md) — Android/iOS feasibility notes
+
+### Changed
+- USER_INSTALL, site, and release notes updated for one-click Windows flow
+
+---
+
 ## [0.1.6] - 2026-06-21
 
 ### Changed
@@ -60,7 +72,8 @@ First public MVP release — sovereign local translation bridge with QVAC + Keet
 
 ---
 
-[Unreleased]: https://github.com/001453/newtranslate/compare/v0.1.6...HEAD
+[Unreleased]: https://github.com/001453/newtranslate/compare/v0.1.7...HEAD
+[0.1.7]: https://github.com/001453/newtranslate/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/001453/newtranslate/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/001453/newtranslate/compare/v0.1.1...v0.1.5
 [0.1.1]: https://github.com/001453/newtranslate/compare/v0.1.0...v0.1.1

@@ -32,6 +32,9 @@ jobs:
       - name: Build frontend (production)
         run: npm run build --prefix frontend
 
+      - name: Fetch embedded Python (Windows)
+        run: node scripts/fetch-embedded-python.mjs
+
       - name: Build desktop installer
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: "false"
@@ -99,7 +102,7 @@ jobs:
           echo "### Downloads" >> release-notes.md
           echo "- **Windows:** \`GlobalBridge-AI-*-setup.exe\` (installer) or \`GlobalBridge-AI-*-portable.exe\`" >> release-notes.md
           echo "- **Chrome extension:** \`GlobalBridge-Extension-*.zip\` → [Web Store guide](https://github.com/${{ github.repository }}/blob/main/docs/DISTRIBUTION.md)" >> release-notes.md
-          echo "- Requires **Python 3.11+** — run First-time setup from the tray app after install." >> release-notes.md
+          echo "- Requires **no separate Python install** on Windows — first run setup runs automatically (~5–15 min)." >> release-notes.md
 
       - uses: softprops/action-gh-release@v2
         with:

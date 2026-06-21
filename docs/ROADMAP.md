@@ -44,8 +44,10 @@ Aligned with the [Tether grant milestones](GRANT.md) and community feedback.
 - [x] Desktop tray launcher — `npm run desktop` ([desktop/](../desktop/))
 - [x] GitHub Releases with Windows `.exe` installer — [USER_INSTALL.md](USER_INSTALL.md) · [v0.1.5+](https://github.com/001453/newtranslate/releases)
 - [ ] Chrome Web Store publish — submitted, pending review
-- [ ] Model download on first run (small installer, ~150 MB)
+- [x] Bundled Python in Windows installer — no separate python.org step
+- [ ] Model download on first run (smaller installer, ~150 MB)
 - [ ] WinGet / Homebrew cask manifests
+- [ ] Mobile (Android/iOS) — see [MOBILE.md](MOBILE.md)
 - [x] Chrome extension MVP — live overlay via local API ([extension/](../extension/), grant **M4**)
 
 ---

@@ -1,7 +1,8 @@
 const { spawn } = require("child_process");
 const path = require("path");
+const { existsSync } = require("fs");
 const { app } = require("electron");
-const { getAppRoot, getNodeSpawnOptions } = require("./paths");
+const { getAppRoot, getNodeSpawnOptions, getBundledPythonPath } = require("./paths");
 
 function runSetup(logFn) {
   return new Promise((resolve) => {
@@ -38,12 +39,17 @@ function runSetup(logFn) {
 
 function checkPython() {
   return new Promise((resolve) => {
-    const isWin = process.platform === "win32";
-    const cmd = isWin ? "python" : "python3";
-    const child = spawn(cmd, ["--version"], { shell: isWin, windowsHide: true });
+    const bundled = getBundledPythonPath();
+    const cmd = bundled || (process.platform === "win32" ? "python" : "python3");
+    const shell = !bundled && process.platform === "win32";
+    const child = spawn(cmd, ["--version"], { shell, windowsHide: true });
     child.on("exit", (code) => resolve(code === 0));
     child.on("error", () => resolve(false));
   });
 }
 
-module.exports = { runSetup, checkPython };
+function hasBundledPython() {
+  return !!getBundledPythonPath();
+}
+
+module.exports = { runSetup, checkPython, hasBundledPython };

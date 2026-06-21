@@ -17,7 +17,7 @@ const path = require("path");
 const fs = require("fs");
 const { getHealth, waitForReady } = require("./lib/health");
 const { startAll, stopAll, isRunning } = require("./lib/services");
-const { runSetup, checkPython } = require("./lib/setup");
+const { runSetup, checkPython, hasBundledPython } = require("./lib/setup");
 const {
   getAppRoot,
   isSetupComplete,
@@ -62,6 +62,7 @@ async function collectState() {
   const health = await getHealth();
   return {
     python: await checkPython(),
+    pythonBundled: hasBundledPython(),
     setupComplete: isSetupComplete(),
     setupRunning,
     servicesRunning: isRunning() || health.qvac || health.api || health.web,
@@ -134,12 +135,45 @@ function openApp() {
   shell.openExternal(APP_URL);
 }
 
+async function runFirstTimeSetup() {
+  if (setupRunning || isSetupComplete()) return null;
+
+  const hasPython = await checkPython();
+  if (!hasPython) {
+    sendWizardLog("ERROR: Python runtime missing. Reinstall GlobalBridge AI.\n");
+    return { ok: false, error: "Python not found" };
+  }
+
+  setupRunning = true;
+  await broadcastState();
+  sendWizardLog("First run — installing AI components (~5–15 min). Keep this window open.\n\n");
+
+  const result = await runSetup((line) => sendWizardLog(line));
+  setupRunning = false;
+  await broadcastState();
+  return result;
+}
+
 async function ensureAutoStart() {
   if (autoStartDone) return;
   autoStartDone = true;
 
   if (!isSetupComplete()) {
     showWizard();
+    if (app.isPackaged && !isDev) {
+      setTimeout(async () => {
+        const setupResult = await runFirstTimeSetup();
+        if (!setupResult?.ok) return;
+
+        sendWizardLog("\n--- Starting services ---\n");
+        const startResult = await startAll((line) => sendWizardLog(line + "\n"));
+        if (!startResult.ok) return;
+
+        await waitForReady(120000);
+        await broadcastState();
+        if ((await getHealth()).ready) openApp();
+      }, 600);
+    }
     return;
   }
 
@@ -234,22 +268,8 @@ function registerIpc() {
   ipcMain.handle("wizard:getState", () => collectState());
 
   ipcMain.handle("wizard:runSetup", async () => {
-    setupRunning = true;
-    await broadcastState();
-    sendWizardLog("Running npm run setup…\n");
-
-    const hasPython = await checkPython();
-    if (!hasPython) {
-      sendWizardLog("ERROR: Python 3.11+ not found. Install from https://python.org\n");
-      setupRunning = false;
-      await broadcastState();
-      return { ok: false, error: "Python not found" };
-    }
-
-    const result = await runSetup((line) => sendWizardLog(line));
-    setupRunning = false;
-    await broadcastState();
-    return result;
+    const result = await runFirstTimeSetup();
+    return result ?? { ok: true };
   });
 
   ipcMain.handle("wizard:startServices", async () => {

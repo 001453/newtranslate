@@ -16,7 +16,7 @@ How to ship **GlobalBridge AI** so non-developers can install and use it.
 
 ## Build Windows installer
 
-**Requirements:** Node 20+, Python 3.11+ (for building optional; end users need Python for first-time setup).
+**Requirements:** Node 20+ (build only). End users on Windows need **no separate Python install** — runtime is bundled.
 
 ```bash
 # From repo root

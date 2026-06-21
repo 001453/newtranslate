@@ -21,6 +21,7 @@
     "desktop": "npm --prefix desktop run start",
     "desktop:dev": "npm --prefix desktop run dev",
     "desktop:build": "node scripts/build-desktop.mjs",
+    "fetch:python": "node scripts/fetch-embedded-python.mjs",
     "extension:zip": "node scripts/package-extension.mjs",
     "store:screenshots": "node scripts/capture-store-screenshots.mjs",
     "store:promo": "py -3.12 scripts/generate-store-promo.py"
