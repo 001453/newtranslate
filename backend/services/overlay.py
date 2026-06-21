@@ -99,6 +99,25 @@ class OverlayService:
             except Exception as e:
                 logger.error("Overlay subscriber error: %s", e)
 
+    @staticmethod
+    def _norm_line(text: str) -> str:
+        import re
+        t = " ".join((text or "").lower().split())
+        return re.sub(r"[.!?,;:'\"]+$", "", t).strip()
+
+    def _is_same_line(self, prev: CaptionLine, original: str, translated: str) -> bool:
+        po = self._norm_line(prev.original)
+        pt = self._norm_line(prev.translated)
+        o = self._norm_line(original)
+        t = self._norm_line(translated)
+        if not o and not t:
+            return True
+        if o and po == o:
+            return True
+        if t and pt == t:
+            return True
+        return False
+
     def _caption_to_dict(self, cap: CaptionLine) -> dict[str, Any]:
         return {
             "id": cap.id,
@@ -234,15 +253,21 @@ class OverlayService:
             confidence=confidence,
         )
 
+        skip_broadcast = False
         async with self._lock:
             self.state.current_caption = caption
             if is_final:
                 if caption_id and self.state.history and self.state.history[-1].id == cap_id:
                     self.state.history[-1] = caption
+                elif self.state.history and self._is_same_line(self.state.history[-1], original, translated):
+                    skip_broadcast = True
                 else:
                     self.state.history.append(caption)
                 if len(self.state.history) > 500:
                     self.state.history = self.state.history[-500:]
+
+        if skip_broadcast:
+            return caption
 
         event = "caption_update" if not is_final else "caption_show"
         await self._broadcast(event, self._caption_to_dict(caption))

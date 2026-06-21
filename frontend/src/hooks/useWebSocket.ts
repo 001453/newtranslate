@@ -13,6 +13,17 @@ type WsMessage = {
 
 const MAX_RECONNECT_DELAY_MS = 30_000;
 
+function normCaptionLine(text: string): string {
+  return text.toLowerCase().replace(/[.!?,;:'"]+$/g, "").trim();
+}
+
+function isSameCaption(a: CaptionLine, b: CaptionLine): boolean {
+  return (
+    normCaptionLine(a.translated) === normCaptionLine(b.translated) ||
+    normCaptionLine(a.original) === normCaptionLine(b.original)
+  );
+}
+
 export function useWebSocket() {
   const wsRef = useRef<WebSocket | null>(null);
   const intentionalClose = useRef(false);
@@ -95,6 +106,8 @@ export function useWebSocket() {
           if (msg.event === "caption_show") {
             setHistory((h) => {
               if (h.some((x) => x.id === line.id)) return h;
+              const last = h[h.length - 1];
+              if (last && isSameCaption(last, line)) return h;
               return [...h.slice(-99), line];
             });
           }

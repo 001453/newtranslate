@@ -57,19 +57,44 @@ def _session_target_lang(detected: str) -> str:
 def _normalize_for_dedupe(text: str) -> str:
     import re
     t = " ".join(text.lower().split())
-    return re.sub(r"[-–—]+\s*$", "", t).strip()
+    t = re.sub(r"[-–—]+\s*$", "", t)
+    t = re.sub(r"[.!?,;:'\"]+$", "", t).strip()
+    return t
 
 
 def _is_duplicate_transcript(text: str, last: str) -> bool:
     a = _normalize_for_dedupe(text)
     b = _normalize_for_dedupe(last)
-    if not a or not b:
+    if not a:
+        return True
+    if not b:
         return False
     if a == b:
         return True
-    if len(b) > 8 and a in b and len(a) <= len(b):
+    if len(a) >= 4 and len(b) >= 4:
+        if a in b and len(a) >= len(b) * 0.88:
+            return True
+        if b in a and len(b) >= len(a) * 0.88:
+            return True
+    a_words = a.split()
+    b_words = b.split()
+    if len(a_words) == 1 and len(b_words) == 1 and a_words[0] == b_words[0]:
         return True
+    if len(a_words) == len(b_words) <= 2 and a_words == b_words:
+        return True
+    max_k = min(4, len(a_words), len(b_words))
+    for k in range(max_k, 0, -1):
+        if a_words[:k] == b_words[:k] or a_words[-k:] == b_words[-k:]:
+            if len(a_words) <= k and len(b_words) <= k:
+                return True
     return False
+
+
+def _collapse_word_repeat(text: str) -> str:
+    words = text.split()
+    if len(words) >= 2 and len({w.lower() for w in words}) == 1:
+        return words[0]
+    return text
 
 
 class LiveAudioProcessor:
@@ -82,6 +107,7 @@ class LiveAudioProcessor:
         self.worker_task: asyncio.Task | None = None
         self.session_context = ""
         self.last_transcript = ""
+        self.last_display = ""
         self.speaker = "Speaker 1"
         self._running = False
         self.pcm_buffer = bytearray()
@@ -114,6 +140,7 @@ class LiveAudioProcessor:
     def reset_session(self) -> None:
         self.session_context = ""
         self.last_transcript = ""
+        self.last_display = ""
         self.pcm_buffer.clear()
         self.interim_caption_id = None
 
@@ -178,6 +205,7 @@ class LiveAudioProcessor:
         if not clean_text:
             logger.debug("Dropped live caption (quality): %r", stt_result.text[:80])
             return
+        clean_text = _collapse_word_repeat(clean_text)
         if _is_duplicate_transcript(clean_text, self.last_transcript):
             return
 
@@ -230,7 +258,11 @@ class LiveAudioProcessor:
             logger.warning("Translated caption failed quality gate (%s→%s)", detected, target)
             return
 
+        if _is_duplicate_transcript(translated_text, self.last_display):
+            return
+
         self.last_transcript = clean_text
+        self.last_display = translated_text
         self.session_context = (self.session_context + " " + clean_text)[-500:]
         total_ms = (time.perf_counter() - t0) * 1000
 
