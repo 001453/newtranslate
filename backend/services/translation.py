@@ -218,13 +218,14 @@ class TranslationService:
             try:
                 resp = await qvac_client.translate(raw, src, tgt)
                 cleaned = clean_translation_output(resp.text, max_chars=max_out)
-                if cleaned and cleaned.lower() != raw.lower():
+                if cleaned:
                     cleaned = self._apply_glossary_post(cleaned)
+                    engine = "bergamot-nmt" if cleaned.lower() != raw.lower() else "bergamot-nmt-pass"
                     return TranslationResult(
                         text=cleaned,
                         source_lang=source_lang,
                         target_lang=target_lang,
-                        model="bergamot-nmt",
+                        model=engine,
                         latency_ms=resp.latency_ms,
                         glossary_applied=bool(self._glossary),
                         metadata={"data_egress": False, "engine": "bergamot"},

@@ -112,6 +112,7 @@ class LiveAudioProcessor:
         self._running = False
         self.pcm_buffer = bytearray()
         self.interim_caption_id: str | None = None
+        self._translate_lock = asyncio.Lock()
         self.min_window = BYTES_PER_MS * settings.live_min_audio_duration_ms
         self.max_window = BYTES_PER_MS * settings.live_window_ms
         self.max_buffer = BYTES_PER_MS * settings.live_buffer_ms
@@ -234,11 +235,12 @@ class LiveAudioProcessor:
             translation_service.set_glossary(glossary)
 
         if needs_translation:
-            trans = await translation_service.translate_text(
-                clean_text,
-                detected,
-                target,
-            )
+            async with self._translate_lock:
+                trans = await translation_service.translate_text(
+                    clean_text,
+                    detected,
+                    target,
+                )
             translated_text = (trans.text or "").strip()
             trans_ms = trans.latency_ms
             if not translated_text or translated_text.lower() == clean_text.lower():

@@ -6,6 +6,7 @@ https://qvac.tether.io/
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import time
 from dataclasses import dataclass
@@ -15,6 +16,9 @@ import httpx
 from config import get_settings
 
 logger = logging.getLogger(__name__)
+
+# QVAC LLM allows one concurrent completion — serialize + retry policy rejections.
+_llm_lock = asyncio.Lock()
 
 
 @dataclass
@@ -54,20 +58,27 @@ class QvacClient:
 
     async def completion(self, system: str, user: str) -> QvacResponse:
         start = time.perf_counter()
-        async with httpx.AsyncClient(timeout=self.timeout) as client:
-            r = await client.post(
-                f"{self.base_url}/completion",
-                json={"system": system, "user": user, "stream": False},
-            )
-            r.raise_for_status()
-            data = r.json()
-
-        return QvacResponse(
-            text=data.get("text", ""),
-            latency_ms=(time.perf_counter() - start) * 1000,
-            model=data.get("model", "qvac"),
-            data_egress=False,
-        )
+        async with _llm_lock:
+            for attempt in range(4):
+                try:
+                    async with httpx.AsyncClient(timeout=self.timeout) as client:
+                        r = await client.post(
+                            f"{self.base_url}/completion",
+                            json={"system": system, "user": user, "stream": False},
+                        )
+                        r.raise_for_status()
+                        data = r.json()
+                    return QvacResponse(
+                        text=data.get("text", ""),
+                        latency_ms=(time.perf_counter() - start) * 1000,
+                        model=data.get("model", "qvac"),
+                        data_egress=False,
+                    )
+                except Exception:
+                    if attempt >= 3:
+                        raise
+                    await asyncio.sleep(0.25 * (attempt + 1))
+        raise RuntimeError("QVAC completion failed")
 
     async def translate(self, text: str, from_lang: str, to_lang: str) -> QvacResponse:
         start = time.perf_counter()

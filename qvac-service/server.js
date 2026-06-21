@@ -51,6 +51,15 @@ const nmtModelIds = new Map();
 /** @type {Set<string>} */
 const nmtLoading = new Set();
 
+/** QVAC allows only one LLM completion at a time — serialize all completion calls. */
+let llmChain = Promise.resolve();
+
+function withLlmLock(fn) {
+  const run = llmChain.then(() => fn());
+  llmChain = run.catch(() => {});
+  return run;
+}
+
 const app = express();
 app.use(cors({ origin: false }));
 app.use(express.json({ limit: "10mb" }));
@@ -241,28 +250,30 @@ async function translateWithBergamot(text, from, to) {
 }
 
 async function translateWithLlm(text, from, to) {
-  const modelId = await ensureLlmLoaded();
-  const tgt = to || "en";
-  const src = from && from !== "auto" ? from : "auto";
-  const history = [
-    {
-      role: "system",
-      content: `Translate to ${tgt}. Output only the translation, nothing else. Never use ${THINK_OPEN} tags.`,
-    },
-    {
-      role: "user",
-      content: `Translate from ${src} to ${tgt}:\n${text}`,
-    },
-  ];
+  return withLlmLock(async () => {
+    const modelId = await ensureLlmLoaded();
+    const tgt = to || "en";
+    const src = from && from !== "auto" ? from : "auto";
+    const history = [
+      {
+        role: "system",
+        content: `Translate to ${tgt}. Output only the translation, nothing else. Never use ${THINK_OPEN} tags.`,
+      },
+      {
+        role: "user",
+        content: `Translate from ${src} to ${tgt}:\n${text}`,
+      },
+    ];
 
-  const run = completion({
-    modelId,
-    history,
-    stream: false,
-    generationParams: { temp: 0.1, predict: 80 },
+    const run = completion({
+      modelId,
+      history,
+      stream: false,
+      generationParams: { temp: 0.1, predict: 80 },
+    });
+    const final = await run.final;
+    return stripThink((final?.contentText || "").trim());
   });
-  const final = await run.final;
-  return stripThink((final?.contentText || "").trim());
 }
 
 app.get("/health", (_req, res) => {
@@ -284,35 +295,38 @@ app.get("/health", (_req, res) => {
 /** LLM completion — yedek (Bergamot desteklemeyen çiftler) */
 app.post("/completion", async (req, res) => {
   try {
-    const { system, user, stream = false } = req.body;
+    const { system, user } = req.body;
     if (!user) return res.status(400).json({ error: "user message required" });
 
-    const modelId = await ensureLlmLoaded();
-    const history = [];
-    const sys =
-      (system || "") +
-      " Never use " +
-      THINK_OPEN +
-      " tags. Output only the final translation, one short phrase.";
-    history.push({ role: "system", content: sys });
-    history.push({ role: "user", content: String(user) });
+    const payload = await withLlmLock(async () => {
+      const modelId = await ensureLlmLoaded();
+      const history = [];
+      const sys =
+        (system || "") +
+        " Never use " +
+        THINK_OPEN +
+        " tags. Output only the final translation, one short phrase.";
+      history.push({ role: "system", content: sys });
+      history.push({ role: "user", content: String(user) });
 
-    const run = completion({
-      modelId,
-      history,
-      stream: false,
-      generationParams: { temp: 0.1, predict: 80 },
+      const run = completion({
+        modelId,
+        history,
+        stream: false,
+        generationParams: { temp: 0.1, predict: 80 },
+      });
+      const final = await run.final;
+      const text = stripThink((final?.contentText || "").trim());
+      return {
+        text,
+        model: LLM_MODEL,
+        provider: "qvac-local",
+        data_egress: false,
+        stats: final?.stats || null,
+      };
     });
-    const final = await run.final;
-    const text = stripThink((final?.contentText || "").trim());
 
-    res.json({
-      text,
-      model: LLM_MODEL,
-      provider: "qvac-local",
-      data_egress: false,
-      stats: final?.stats || null,
-    });
+    res.json(payload);
   } catch (err) {
     console.error("[QVAC] completion error:", err);
     res.status(500).json({ error: String(err.message || err) });
