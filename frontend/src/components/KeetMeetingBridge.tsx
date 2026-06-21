@@ -223,7 +223,7 @@ export function KeetMeetingBridge({
   useEffect(() => {
     if (!hydrated || langInit.current) return;
     const loaded = loadLiveLangs(locale);
-    const langCodes = new Set(LANGUAGES.map((l) => l.code));
+    const langCodes = new Set<string>(LANGUAGES.map((l) => l.code));
     const my = initialMyLang && langCodes.has(initialMyLang) ? initialMyLang : loaded.my;
     const other =
       initialOtherLang && langCodes.has(initialOtherLang) && initialOtherLang !== my
