@@ -1,0 +1,112 @@
+{
+  "name": "globalbridge-desktop",
+  "version": "0.1.0",
+  "description": "GlobalBridge AI desktop launcher — sovereign live translation (QVAC + Whisper)",
+  "main": "main.js",
+  "author": "Nihat Cetinkaya",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "io.globalbridge.desktop",
+    "productName": "GlobalBridge AI",
+    "copyright": "Copyright © 2026 GlobalBridge AI",
+    "directories": {
+      "output": "dist",
+      "buildResources": "icons"
+    },
+    "files": [
+      "**/*",
+      "!dist/**"
+    ],
+    "extraResources": [
+      {
+        "from": "../backend",
+        "to": "app/backend",
+        "filter": [
+          "**/*",
+          "!**/.venv/**",
+          "!**/__pycache__/**",
+          "!**/data/**"
+        ]
+      },
+      {
+        "from": "../qvac-service",
+        "to": "app/qvac-service",
+        "filter": [
+          "**/*",
+          "!**/.cache/**"
+        ]
+      },
+      {
+        "from": "../frontend",
+        "to": "app/frontend",
+        "filter": [
+          "**/*",
+          "!**/.cache/**"
+        ]
+      },
+      {
+        "from": "../scripts",
+        "to": "app/scripts",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "../extension",
+        "to": "app/extension",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "../.env.example",
+        "to": "app/.env.example"
+      },
+      {
+        "from": "../package.json",
+        "to": "app/package.json"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "icons/icon128.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "GlobalBridge AI"
+    },
+    "portable": {
+      "artifactName": "GlobalBridge-AI-${version}-portable.exe"
+    },
+    "artifactName": "GlobalBridge-AI-${version}-${os}-${arch}.${ext}"
+  },
+  "dependencies": {
+    "newtranslate": "file:.."
+  }
+}

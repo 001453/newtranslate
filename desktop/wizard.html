@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GlobalBridge AI — Setup</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0f1419;
+      --card: #1a2332;
+      --text: #e7ecf3;
+      --muted: #8b9cb3;
+      --accent: #3b82f6;
+      --ok: #22c55e;
+      --warn: #f59e0b;
+      --err: #ef4444;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 28px;
+    }
+    h1 { font-size: 1.35rem; margin-bottom: 6px; }
+    .sub { color: var(--muted); font-size: 0.92rem; margin-bottom: 22px; line-height: 1.45; }
+    .steps { display: grid; gap: 12px; margin-bottom: 20px; }
+    .step {
+      background: var(--card);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--muted); flex-shrink: 0;
+    }
+    .dot.ok { background: var(--ok); }
+    .dot.run { background: var(--warn); animation: pulse 1s infinite; }
+    @keyframes pulse { 50% { opacity: 0.5; } }
+    .step strong { display: block; font-size: 0.95rem; }
+    .step span { color: var(--muted); font-size: 0.85rem; }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+    button {
+      border: none; border-radius: 8px; padding: 10px 16px;
+      font-size: 0.92rem; cursor: pointer; font-weight: 600;
+    }
+    button.primary { background: var(--accent); color: #fff; }
+    button.secondary { background: #243044; color: var(--text); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    #log {
+      background: #0a0e14;
+      border-radius: 8px;
+      padding: 12px;
+      font-family: Consolas, monospace;
+      font-size: 0.78rem;
+      color: #a8b8cc;
+      height: 160px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+    .note {
+      margin-top: 14px;
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <h1>GlobalBridge AI</h1>
+  <p class="sub">
+    Sovereign live translation — local Whisper + QVAC. Audio stays on your machine.
+  </p>
+
+  <div class="steps">
+    <div class="step" id="step-python">
+      <div class="dot" id="dot-python"></div>
+      <div><strong>Python 3.11+</strong><span>Required for speech recognition backend</span></div>
+    </div>
+    <div class="step" id="step-setup">
+      <div class="dot" id="dot-setup"></div>
+      <div><strong>First-time setup</strong><span>Install dependencies &amp; models (~5–15 min)</span></div>
+    </div>
+    <div class="step" id="step-services">
+      <div class="dot" id="dot-services"></div>
+      <div><strong>Start services</strong><span>QVAC · API · Web UI on localhost</span></div>
+    </div>
+    <div class="step" id="step-ready">
+      <div class="dot" id="dot-ready"></div>
+      <div><strong>Ready</strong><span>Open app &amp; optional Chrome extension</span></div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="primary" id="btn-setup">Run setup</button>
+    <button class="secondary" id="btn-start">Start services</button>
+    <button class="secondary" id="btn-open" disabled>Open GlobalBridge</button>
+    <button class="secondary" id="btn-ext" disabled>Chrome extension guide</button>
+  </div>
+
+  <div id="log"></div>
+  <p class="note">
+    First live caption may download Whisper models (several hundred MB). Use tray → Setup if services fail.
+    Windows installer: <a href="https://github.com/001453/newtranslate/releases">GitHub Releases</a>.
+  </p>
+
+  <script>
+    const logEl = document.getElementById("log");
+    const btnSetup = document.getElementById("btn-setup");
+    const btnStart = document.getElementById("btn-start");
+    const btnOpen = document.getElementById("btn-open");
+    const btnExt = document.getElementById("btn-ext");
+
+    function appendLog(line) {
+      logEl.textContent += line;
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function setDot(id, state) {
+      const el = document.getElementById("dot-" + id);
+      el.className = "dot" + (state ? " " + state : "");
+    }
+
+    function applyState(s) {
+      setDot("python", s.python ? "ok" : "");
+      setDot("setup", s.setupComplete ? "ok" : s.setupRunning ? "run" : "");
+      setDot("services", s.health?.ready ? "ok" : s.servicesRunning ? "run" : "");
+      setDot("ready", s.health?.ready ? "ok" : "");
+
+      btnSetup.disabled = s.setupRunning || s.setupComplete;
+      btnStart.disabled = !s.setupComplete || s.health?.ready;
+      btnOpen.disabled = !s.health?.ready;
+      btnExt.disabled = !s.health?.ready;
+    }
+
+    window.desktopApi.onLog(appendLog);
+    window.desktopApi.onState(applyState);
+
+    btnSetup.addEventListener("click", async () => {
+      btnSetup.disabled = true;
+      appendLog("\n--- Starting setup ---\n");
+      await window.desktopApi.runSetup();
+      await refresh();
+    });
+
+    btnStart.addEventListener("click", async () => {
+      appendLog("\n--- Starting services ---\n");
+      await window.desktopApi.startServices();
+      await refresh();
+    });
+
+    btnOpen.addEventListener("click", () => window.desktopApi.openApp());
+    btnExt.addEventListener("click", () => window.desktopApi.openExtensionGuide());
+
+    async function refresh() {
+      const s = await window.desktopApi.getState();
+      applyState(s);
+    }
+
+    refresh();
+    setInterval(refresh, 3000);
+  </script>
+</body>
+</html>

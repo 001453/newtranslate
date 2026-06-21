@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chrome Extension — GlobalBridge</title>
+  <style>
+    :root { color-scheme: dark; --bg: #0f1419; --card: #1a2332; --text: #e7ecf3; --muted: #8b9cb3; --accent: #3b82f6; }
+    body { font-family: "Segoe UI", system-ui, sans-serif; background: var(--bg); color: var(--text); padding: 24px; line-height: 1.5; }
+    h1 { font-size: 1.2rem; margin-bottom: 8px; }
+    p, li { font-size: 0.92rem; color: var(--muted); }
+    ol { margin: 16px 0 16px 20px; }
+    li { margin-bottom: 8px; color: var(--text); }
+    code { background: #243044; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; }
+    button {
+      margin-top: 12px; margin-right: 8px;
+      background: var(--accent); color: #fff; border: none;
+      border-radius: 8px; padding: 10px 16px; font-weight: 600; cursor: pointer;
+    }
+    button.secondary { background: #243044; color: var(--text); }
+    .path { word-break: break-all; background: #0a0e14; padding: 10px; border-radius: 8px; margin-top: 12px; font-size: 0.82rem; }
+  </style>
+</head>
+<body>
+  <h1>Install Chrome Extension</h1>
+  <p>Live captions on any tab (YouTube, Meet, Keet). Requires GlobalBridge services running.</p>
+  <ol>
+    <li>Open <code>chrome://extensions</code></li>
+    <li>Enable <strong>Developer mode</strong> (top right)</li>
+    <li>Click <strong>Load unpacked</strong></li>
+    <li>Select the folder below (or the extracted zip)</li>
+    <li>Pin <strong>GlobalBridge Live Captions</strong> to the toolbar</li>
+    <li>Open a tab with speech → extension icon → <strong>Start captions</strong></li>
+  </ol>
+  <div class="path" id="ext-path">…</div>
+  <button id="btn-folder">Open extension folder</button>
+  <button class="secondary" id="btn-chrome">Open chrome://extensions</button>
+  <p style="margin-top: 20px; font-size: 0.85rem;">
+    <strong>Chrome Web Store:</strong> Zip the extension folder and submit at
+    <a href="https://chrome.google.com/webstore/devconsole" id="store-link">Chrome Web Store Developer Dashboard</a>.
+    See docs/DISTRIBUTION.md in the repo.
+  </p>
+  <script>
+    window.desktopApi.getExtensionInfo().then((info) => {
+      document.getElementById("ext-path").textContent = info.path;
+    });
+    document.getElementById("btn-folder").addEventListener("click", () => window.desktopApi.openExtensionFolder());
+    document.getElementById("btn-chrome").addEventListener("click", () => window.desktopApi.openChromeExtensions());
+  </script>
+</body>
+</html>

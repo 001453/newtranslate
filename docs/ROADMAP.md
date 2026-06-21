@@ -16,8 +16,9 @@ Aligned with the [Tether grant milestones](GRANT.md) and community feedback.
 | Keet deep links + builder docs | ✅ [KEET_PEARS_INTEGRATION.md](KEET_PEARS_INTEGRATION.md) |
 | PDF / DOCX translation | ✅ MVP |
 | Electron overlay | ⚠️ Experimental |
+| **Desktop launcher (tray)** | ✅ Phase 1 — [`desktop/`](../desktop/) |
 | Chrome extension | ✅ MVP — [extension/](../extension/) |
-| Desktop installer (Win/Mac) | ❌ Not yet |
+| Desktop installer (Win/Mac) | 🔄 Phase 1 — `npm run desktop:build` → NSIS |
 | Published latency benchmarks | ✅ [BENCHMARKS.md](BENCHMARKS.md) |
 | Unified STT router (whisper / QVAC) | ✅ [STT.md](STT.md) |
 
@@ -39,12 +40,13 @@ Aligned with the [Tether grant milestones](GRANT.md) and community feedback.
 - [ ] QVAC NMT quality evaluation across low-resource language pairs
 - [ ] Basic frontend e2e (Playwright)
 
-### Distribution *(from packaging plan — next phase)*
-- [ ] GitHub Releases with signed Windows `.exe` installer
+### Distribution *(Phase 1 — in progress)*
+- [x] Desktop tray launcher — `npm run desktop` ([desktop/](../desktop/))
+- [ ] GitHub Releases with Windows `.exe` installer — tag `v0.1.1-desktop` → CI builds (see [DISTRIBUTION.md](DISTRIBUTION.md))
+- [ ] Chrome Web Store publish ([docs/DISTRIBUTION.md](DISTRIBUTION.md))
 - [ ] Model download on first run (small installer, ~150 MB)
 - [ ] WinGet / Homebrew cask manifests
 - [x] Chrome extension MVP — live overlay via local API ([extension/](../extension/), grant **M4**)
-- [ ] Chrome Web Store publish
 
 ---
 

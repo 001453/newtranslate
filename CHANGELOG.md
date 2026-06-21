@@ -6,13 +6,24 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Added
-- Public demo video on [YouTube](https://youtu.be/1cxwP5S7-1A)
+- **Desktop launcher (Phase 1)** — Windows tray app: setup wizard, start/stop services, extension guide ([`desktop/`](../desktop/))
+- **Distribution docs** — [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md) (GitHub Releases + Chrome Web Store)
+- Grant submit walkthrough — [docs/GRANT_APPLY.md](docs/GRANT_APPLY.md)
+- `npm run desktop`, `npm run desktop:build`, `npm run extension:zip`
 
-### Planned
-- Demo GIF / screen recording in README
-- CPU-only latency benchmarks (`docs/BENCHMARKS.md`)
-- Chrome extension MVP (`extension/`)
-- Signed desktop installers (Windows / macOS)
+### Changed
+- README and ROADMAP updated for desktop distribution path
+
+---
+
+## [0.1.1] - 2026-06-21
+
+### Added
+- Public demo video on [YouTube](https://youtu.be/1cxwP5S7-1A)
+- CPU-only latency benchmarks ([docs/BENCHMARKS.md](docs/BENCHMARKS.md))
+- Chrome extension MVP ([extension/](extension/))
+- Keet/Pears builder guide ([docs/KEET_PEARS_INTEGRATION.md](docs/KEET_PEARS_INTEGRATION.md))
+- Unified STT router ([docs/STT.md](docs/STT.md))
 
 ---
 
@@ -43,5 +54,6 @@ First public MVP release — sovereign local translation bridge with QVAC + Keet
 
 ---
 
-[Unreleased]: https://github.com/001453/newtranslate/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/001453/newtranslate/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/001453/newtranslate/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/001453/newtranslate/releases/tag/v0.1.0

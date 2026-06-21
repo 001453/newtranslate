@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>GlobalBridge AI — Tether Grant Proposal</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      font-size: 10.5pt;
+      line-height: 1.45;
+      color: #111;
+    }
+    h1 { font-size: 20pt; margin: 0 0 8pt; color: #0f172a; }
+    h2 { font-size: 13pt; margin: 16pt 0 6pt; color: #1e293b; border-bottom: 1px solid #e2e8f0; padding-bottom: 4pt; }
+    h3 { font-size: 11pt; margin: 12pt 0 4pt; color: #334155; }
+    p { margin: 4pt 0 8pt; }
+    a { color: #2563eb; word-break: break-all; }
+    code, pre { font-family: Consolas, monospace; font-size: 9pt; background: #f1f5f9; }
+    pre { padding: 8pt 10pt; border-radius: 4pt; white-space: pre-wrap; border: 1px solid #e2e8f0; }
+    table { width: 100%; border-collapse: collapse; margin: 8pt 0 12pt; font-size: 9.5pt; }
+    th, td { border: 1px solid #cbd5e1; padding: 5pt 7pt; text-align: left; vertical-align: top; }
+    th { background: #f8fafc; font-weight: 600; }
+    hr { border: none; border-top: 1px solid #e2e8f0; margin: 12pt 0; }
+    ul, ol { margin: 4pt 0 10pt 18pt; }
+    li { margin-bottom: 3pt; }
+    .cover {
+      margin-bottom: 20pt; padding: 14pt; background: #f0f9ff;
+      border: 1px solid #bae6fd; border-radius: 6pt;
+    }
+    .cover p { margin: 3pt 0; font-size: 10pt; }
+    @media print { .no-print { display: none; } }
+  </style>
+</head>
+<body>
+  <p class="no-print" style="background:#fef3c7;padding:8pt;border-radius:4pt;">
+    Chrome: <strong>Ctrl+P</strong> → Destination: <strong>Save as PDF</strong> → Save
+  </p>
+  <div class="cover">
+    <p><strong>Applicant:</strong> Nihat Cetinkaya · nihatcetinkaya077@gmail.com · Turkey</p>
+    <p><strong>Repository:</strong> <a href="https://github.com/001453/newtranslate">github.com/001453/newtranslate</a></p>
+    <p><strong>Demo:</strong> <a href="https://youtu.be/1cxwP5S7-1A">youtu.be/1cxwP5S7-1A</a> · <strong>Request:</strong> 7,500 USD₮</p>
+  </div>
+  <h1>GlobalBridge AI — Tether Grant Application</h1>
+<p><strong>Apply at:</strong> <a href="https://tether.dev">https://tether.dev</a> → <strong>Apply for a grant</strong>  </p>
+<p><strong>Category:</strong> Applications on Tether’s open stack · QVAC integration · Pears / Keet (P2P)  </p>
+<p><strong>Program:</strong> <a href="https://tether.io/news/tether-launches-developer-grants-program-to-fund-local-first-ai-and-payments-infrastructure/">Tether Developer Grants — local-first AI &amp; payments</a>  </p>
+<p><strong>Repository:</strong> https://github.com/001453/newtranslate  </p>
+<p><strong>License:</strong> MIT  </p>
+<hr/>
+<h2>Copy-paste for application form</h2>
+<h3>Project title</h3>
+<pre><code>GlobalBridge AI — Sovereign Live Translation with QVAC + Keet P2P</code></pre>
+<h3>Short description (≤ 280 characters)</h3>
+<pre><code>Open-source app: local Whisper STT + QVAC @qvac/sdk translation + Keet P2P meeting captions. Zero audio egress in Sovereign Mode. Live subtitles, dictation, meeting export (.txt/.json/.srt). MIT, self-hostable.</code></pre>
+<h3>Long description</h3>
+<pre><code>GlobalBridge AI is a sovereign real-time translation bridge. Speech is transcribed locally (Faster-Whisper), translated and summarized via Tether QVAC (@qvac/sdk sidecar on port 8765), and shown as live captions — without sending audio or transcripts to the cloud when Sovereign Mode is enabled.
+
+We integrate with Keet (Holepunch P2P): users run encrypted calls in Keet while GlobalBridge captures tab audio locally and renders personalized subtitles in each participant’s native language (viewer_lang). The same pipeline powers YouTube, Zoom, Meet, and Teams via browser tab capture.
+
+Stack: Python FastAPI, Next.js 15, @qvac/sdk, faster-whisper. Working MVP is open source: https://github.com/001453/newtranslate
+
+Grant funds will deliver deeper Pear/Keet integration, VAD-based caption segmentation, a Chrome extension for live captions, benchmark documentation (see docs/BENCHMARKS.md — ~1.9 s live caption p50 on CPU), and a public demo video for the Tether ecosystem.</code></pre>
+<h3>Grant category (select / describe)</h3>
+<pre><code>☑ New applications powered by Tether’s open tech stack
+☑ Tooling, integrations (QVAC + Pears/Keet)
+☑ Documentation &amp; developer onboarding</code></pre>
+<h3>Requested amount</h3>
+<pre><code>7,500 USD₮ (milestone-based, see below)</code></pre>
+<h3>Payment preference</h3>
+<pre><code>USD₮</code></pre>
+<h3>Links</h3>
+<table><tr><th>Resource</th><th>URL</th></tr><tr><td>Source code</td><td>https://github.com/001453/newtranslate</td></tr><tr><td>Grant application</td><td>https://github.com/001453/newtranslate/blob/main/docs/GRANT.md</td></tr><tr><td><strong>Submit walkthrough</strong></td><td>https://github.com/001453/newtranslate/blob/main/docs/GRANT_APPLY.md</td></tr><tr><td>Demo site</td><td>https://001453.github.io/newtranslate/</td></tr><tr><td>Benchmarks</td><td>https://github.com/001453/newtranslate/blob/main/docs/BENCHMARKS.md</td></tr><tr><td>QVAC</td><td>https://qvac.tether.io/</td></tr><tr><td>Keet</td><td>https://keet.io/</td></tr></table>
+<h3>Team &amp; contact</h3>
+<table><tr><th>Field</th><th>Value</th></tr><tr><td>Applicant name</td><td>Nihat Cetinkaya</td></tr><tr><td>Email</td><td>nihatcetinkaya077@gmail.com</td></tr><tr><td>GitHub</td><td>https://github.com/001453</td></tr><tr><td>Location</td><td>Turkey</td></tr></table>
+<h3>Demo video</h3>
+<p>Public demo: <strong><a href="https://youtu.be/1cxwP5S7-1A">YouTube</a></strong> · <a href="DEMO.md">docs/DEMO.md</a></p>
+<hr/>
+<h2>One-line pitch</h2>
+<p><strong>GlobalBridge AI</strong> is an open-source, <strong>sovereign</strong> real-time translation and live-caption stack that combines <strong>Tether QVAC</strong> (on-device AI) with <strong>Keet</strong> (P2P encrypted calls) so multilingual communication never requires sending voice or transcripts to the cloud.</p>
+<hr/>
+<h2>Problem</h2>
+<ol><li><strong>Privacy</strong> — Enterprises, journalists, and activists cannot send meeting audio to Google/Microsoft cloud STT.</li><li><strong>Access</strong> — P2P tools like <strong>Keet</strong> have no built-in multilingual subtitles.</li><li><strong>Latency &amp; cost</strong> — Cloud translation adds 1–3 s delay and recurring API fees per caption line.</li><li><strong>Sovereignty</strong> — Regulated users need auditable proof that inference stays on-device.</li></ol>
+<p>Most AI still runs on remote servers (data leaves the device, latency, exposure). Tether’s <strong>QVAC</strong> and <strong>Pears/Keet</strong> stack offers the opposite: local inference and serverless communication. GlobalBridge connects them into one usable product.</p>
+<hr/>
+<h2>Solution (already built — open source MVP)</h2>
+<table><tr><th>Layer</th><th>Technology</th><th>Where it runs</th></tr><tr><td>Speech-to-text</td><td>Faster-Whisper</td><td>User machine</td></tr><tr><td>Translation &amp; summary</td><td><strong>QVAC <code>@qvac/sdk</code></strong></td><td>localhost:8765</td></tr><tr><td>P2P call</td><td><strong>Keet</strong> (Holepunch)</td><td>Peer-to-peer, E2E</td></tr><tr><td>UI</td><td>Next.js + WebSocket</td><td>localhost:3000</td></tr><tr><td>Meeting export</td><td>TXT / JSON / SRT</td><td>Auto-download on session end</td></tr></table>
+<p><strong>Sovereign Mode</strong> (<code>LOCAL_PROCESSING_ONLY=true</code>): no third-party egress for audio, transcripts, or documents.</p>
+<h3>Architecture</h3>
+<pre><code>Tab audio / Microphone (Chrome)
+  → WebSocket /api/v1/ws/live (localhost)
+  → Faster-Whisper STT
+  → QVAC bridge (@qvac/sdk) — Bergamot NMT + local LLM
+  → Live subtitles + transcript export</code></pre>
+<p><strong>Keet flow:</strong> User opens Keet call → GlobalBridge <code>/meeting</code> shares Keet tab audio → each viewer sees captions in <strong>their</strong> language via <code>viewer_lang</code>.</p>
+<hr/>
+<h2>QVAC integration (Tether)</h2>
+<ul><li>Sidecar: <code>qvac-service/server.js</code> using <strong><code>@qvac/sdk</code></strong></li><li>Backend client: <code>backend/services/qvac_client.py</code></li><li>Uses QVAC for <strong>live translation</strong>, <strong>meeting summaries</strong>, and <strong>document/PDF</strong> tasks</li><li>Cloud APIs (Together AI) are <strong>optional</strong> and disabled in Sovereign Mode</li></ul>
+<p><strong>Alignment with Tether grants program:</strong> Local-first AI, no cloud dependency, open modular stack — exactly what the <a href="https://tether.io/news/tether-launches-developer-grants-program-to-fund-local-first-ai-and-payments-infrastructure/">May 2026 grants announcement</a> describes for QVAC.</p>
+<hr/>
+<h2>Keet / Pears integration (Holepunch)</h2>
+<ul><li><code>/meeting</code> route with Keet invite links (<code>keet://</code>)</li><li>Personalized bilingual subtitles without a central media server</li><li>Grant phase will add <strong>Pear SDK research</strong>, deeper hooks, and published integration guide</li></ul>
+<hr/>
+<h2>What grant funding delivers (milestones)</h2>
+<table><tr><th>ID</th><th>Deliverable</th><th>Deadline</th><th>Payout</th></tr><tr><td><strong>M1</strong></td><td><strong>Public demo &amp; docs</strong> — 5–8 min video on <a href="DEMO.md">DEMO.md</a>; <a href="SOVEREIGN_EGRESS_CHECKLIST.md">egress checklist</a>; English setup guide (README)</td><td>+30 days</td><td><strong>1,500 USD₮</strong></td></tr><tr><td><strong>M2</strong></td><td><strong>QVAC hardening</strong> — Fix/unify QVAC STT path; benchmark latency (STT + NMT); publish results in <code>docs/BENCHMARKS.md</code></td><td>+60 days</td><td><strong>2,000 USD₮</strong></td></tr><tr><td><strong>M3</strong></td><td><strong>Pear / Keet integration v2</strong> — Pear SDK spike; improved meeting bridge; integration doc for Pears builders</td><td>+75 days</td><td><strong>2,000 USD₮</strong></td></tr><tr><td><strong>M4</strong></td><td><strong>Chrome extension MVP</strong> — Live captions overlay for tab audio (QVAC translation); publish on repo <code>extension/</code></td><td>+90 days</td><td><strong>2,000 USD₮</strong></td></tr><tr><td></td><td><strong>Total</strong></td><td><strong>~90 days</strong></td><td><strong>7,500 USD₮</strong></td></tr></table>
+<p>*M1 partially satisfied by existing repo + README; M1 payout on delivery of demo video + docs per Tether review.*</p>
+<hr/>
+<h2>Success metrics</h2>
+<table><tr><th>Metric</th><th>Target</th></tr><tr><td>Live caption end-to-end latency</td><td>≤ 2 s (documented)</td><td><a href="BENCHMARKS.md">BENCHMARKS.md</a> — <strong>~1.9 s p50</strong> ✓</td></tr><tr><td>STT languages (Whisper)</td><td>99+</td></tr><tr><td>Translation via QVAC</td><td>100+ language pairs (Bergamot packs)</td></tr><tr><td>Data egress in Sovereign Mode</td><td><strong>Zero</strong> (documented)</td></tr><tr><td>Keet meeting transcript export</td><td>TXT + JSON + SRT on session end</td></tr></table>
+<hr/>
+<h2>Why not a pre-defined bounty?</h2>
+<p><a href="https://tether.dev">tether.dev bounties</a> list WDK wallet tasks and ANE/CoreML QVAC tasks. GlobalBridge is an <strong>application layer</strong> combining <strong>QVAC + Pears/Keet</strong> for accessibility — a fit for <strong>“Applications on Tether’s open tech stack”</strong>, not WDK modules.</p>
+<hr/>
+<h2>Roadmap after grant</h2>
+<ol><li>Electron system-wide overlay  </li><li>VAD-based speech segmentation (cleaner long-form captions)  </li><li>Mobile LAN subtitle receiver  </li><li>Optional WDK integration for paid translation sessions (future)  </li></ol>
+<hr/>
+<h2>Budget justification</h2>
+<p>Tether’s program pays <strong>$1,500–$10,000</strong> per defined task. At <strong>$7,500</strong> over four milestones, funding covers:</p>
+<ul><li>Engineering (~120–150 h integration + extension work)  </li><li>Documentation and demo production for ecosystem onboarding  </li><li>No ongoing hosting costs — product is fully local/self-hosted  </li></ul>
+<hr/>
+<h2>Checklist before you click Apply</h2>
+<ul><li>[x] Team contact filled in above  </li><li>[x] Publish demo video → <a href="https://youtu.be/1cxwP5S7-1A">YouTube</a>  </li><li>[x] <a href="SOVEREIGN_EGRESS_CHECKLIST.md">SOVEREIGN_EGRESS_CHECKLIST.md</a> published  </li><li>[x] English setup guide (<a href="../README.md#quick-start">README</a>)  </li><li>[x] Latency benchmarks → <a href="BENCHMARKS.md">BENCHMARKS.md</a>  </li><li>[x] Step-by-step submit guide → <a href="GRANT_APPLY.md">GRANT_APPLY.md</a>  </li><li>[ ] Open https://tether.dev → <strong>Apply for a grant</strong> (not a fixed bounty)  </li><li>[ ] Follow <a href="GRANT_APPLY.md">GRANT_APPLY.md</a> — paste title, descriptions, links  </li><li>[ ] Payment: <strong>USD₮</strong> · Amount: <strong>7,500 USD₮</strong> (milestone-based)  </li><li>[ ] Save confirmation email / reference ID  </li></ul>
+<hr/>
+<h2>References</h2>
+<ul><li>Tether grants announcement: https://tether.io/news/tether-launches-developer-grants-program-to-fund-local-first-ai-and-payments-infrastructure/  </li><li>Apply / bounties: https://tether.dev  </li><li>QVAC: https://qvac.tether.io/  </li><li>Keet: https://keet.io/</li></ul>
+</body>
+</html>

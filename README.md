@@ -85,6 +85,8 @@ HTTP dictation endpoint: `POST /api/v1/transcribe` (PCM int16 @ 16 kHz → Whisp
 
 **Chrome extension:** Load unpacked from [`extension/`](extension/) — live caption overlay on any tab without opening the web UI. See [extension/README.md](extension/README.md).
 
+**Desktop app (Windows):** Tray launcher — setup wizard, start/stop services, open browser. Build installer with `npm run desktop:build`. See [desktop/README.md](desktop/README.md) and [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md) for GitHub Releases + Chrome Web Store.
+
 > Keet handles the call; GlobalBridge handles **local STT + QVAC translation**. No Keet SDK is required — integration is via standard browser tab audio capture, keeping the stack simple and fully local.
 
 **Builder guide:** [docs/KEET_PEARS_INTEGRATION.md](docs/KEET_PEARS_INTEGRATION.md) — deep links, WebSocket config, Pear SDK roadmap.
@@ -112,6 +114,7 @@ newtranslate/
 │       └── qvac_client.py
 ├── frontend/                # Next.js 15 — UI v2 (EN/TR UI locale)
 ├── qvac-service/            # @qvac/sdk sidecar (port 8765)
+├── desktop/                 # Phase 1 tray launcher (setup + services + extension guide)
 ├── electron/                # Optional floating caption overlay
 └── docker-compose.yml       # Sovereign profile
 ```
@@ -134,7 +137,20 @@ On Windows, install Python from [python.org](https://www.python.org/) and check 
 
 ---
 
-### 1. First-time install
+### Option A — Windows desktop app (easiest)
+
+1. Download **GlobalBridge-AI-*-setup.exe** from [GitHub Releases](https://github.com/001453/newtranslate/releases)
+2. Install → tray icon appears → **Run setup** (needs Python 3.11+)
+3. **Start services** → browser opens at http://localhost:3000
+4. Optional: install [Chrome extension](extension/README.md) for tab overlay
+
+Build locally: `npm run desktop:build` · Details: [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md)
+
+---
+
+### Option B — Developer install (git clone)
+
+#### 1. First-time install
 
 ```bash
 git clone https://github.com/001453/newtranslate.git
@@ -154,9 +170,9 @@ npm run setup
 
 ---
 
-### 2. Run all services
+#### 2. Run all services
 
-**Option A — single terminal (recommended):**
+**Single terminal (recommended):**
 
 ```bash
 npm run dev

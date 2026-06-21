@@ -31,7 +31,7 @@ We integrate with Keet (Holepunch P2P): users run encrypted calls in Keet while 
 
 Stack: Python FastAPI, Next.js 15, @qvac/sdk, faster-whisper. Working MVP is open source: https://github.com/001453/newtranslate
 
-Grant funds will deliver deeper Pear/Keet integration, VAD-based caption segmentation, a Chrome extension for live captions, benchmark documentation, and a public demo video for the Tether ecosystem.
+Grant funds will deliver deeper Pear/Keet integration, VAD-based caption segmentation, a Chrome extension for live captions, benchmark documentation (see docs/BENCHMARKS.md — ~1.9 s live caption p50 on CPU), and a public demo video for the Tether ecosystem.
 ```
 
 ### Grant category (select / describe)
@@ -59,7 +59,10 @@ USD₮
 | Resource | URL |
 |----------|-----|
 | Source code | https://github.com/001453/newtranslate |
-| This application | https://github.com/001453/newtranslate/blob/main/docs/GRANT.md |
+| Grant application | https://github.com/001453/newtranslate/blob/main/docs/GRANT.md |
+| **Submit walkthrough** | https://github.com/001453/newtranslate/blob/main/docs/GRANT_APPLY.md |
+| Demo site | https://001453.github.io/newtranslate/ |
+| Benchmarks | https://github.com/001453/newtranslate/blob/main/docs/BENCHMARKS.md |
 | QVAC | https://qvac.tether.io/ |
 | Keet | https://keet.io/ |
 
@@ -158,7 +161,7 @@ Tab audio / Microphone (Chrome)
 
 | Metric | Target |
 |--------|--------|
-| Live caption end-to-end latency | ≤ 2 s (documented benchmark) |
+| Live caption end-to-end latency | ≤ 2 s (documented) | [BENCHMARKS.md](BENCHMARKS.md) — **~1.9 s p50** ✓ |
 | STT languages (Whisper) | 99+ |
 | Translation via QVAC | 100+ language pairs (Bergamot packs) |
 | Data egress in Sovereign Mode | **Zero** (documented) |
@@ -197,13 +200,20 @@ Tether’s program pays **$1,500–$10,000** per defined task. At **$7,500** ove
 - [x] Publish demo video → [YouTube](https://youtu.be/1cxwP5S7-1A)  
 - [x] [SOVEREIGN_EGRESS_CHECKLIST.md](SOVEREIGN_EGRESS_CHECKLIST.md) published  
 - [x] English setup guide ([README](../README.md#quick-start))  
-- [ ] Open https://tether.dev → **Apply for a grant**  
-- [ ] Paste **Project title**, **Short description**, **Long description** from top of this file  
-- [ ] Attach link: `https://github.com/001453/newtranslate/blob/main/docs/GRANT.md`  
-- [ ] Select payment: **USD₮**  
-- [ ] Paste **Project title**, **Short description**, **Long description** from top of this file  
-- [ ] Attach link: `https://github.com/001453/newtranslate/blob/main/docs/GRANT.md`  
-- [ ] Select payment: **USD₮**  
+- [x] Latency benchmarks → [BENCHMARKS.md](BENCHMARKS.md)  
+- [x] Step-by-step submit guide → [GRANT_APPLY.md](GRANT_APPLY.md)  
+- [x] Open https://tether.dev → **Apply for a grant** (not a fixed bounty)  
+- [x] Follow [GRANT_APPLY.md](GRANT_APPLY.md) — paste title, descriptions, links  
+- [x] Payment: **USD₮** · Amount: **7,500 USD₮** (milestone-based)  
+- [ ] Save confirmation email / reference ID (if not saved yet)  
+
+---
+
+## After submission — next engineering focus
+
+1. **M3** — Pear / Keet integration v2 ([KEET_PEARS_INTEGRATION.md](KEET_PEARS_INTEGRATION.md))
+2. **Distribution** — GitHub Release desktop installer + Chrome Web Store ([DISTRIBUTION.md](DISTRIBUTION.md))
+3. Wait for Tether review; respond with repo + demo links if contacted
 
 ---
 

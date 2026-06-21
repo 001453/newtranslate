@@ -17,6 +17,8 @@ node_modules/
 frontend/.next/
 frontend/node_modules/
 qvac-service/node_modules/
+desktop/node_modules/
+desktop/dist/
 .npm
 *.tsbuildinfo
 

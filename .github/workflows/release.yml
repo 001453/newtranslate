@@ -9,11 +9,81 @@ permissions:
   contents: write
 
 jobs:
-  release:
-    name: Publish GitHub Release
+  build-windows:
+    name: Windows desktop installer
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: |
+            qvac-service/package-lock.json
+            frontend/package-lock.json
+            desktop/package-lock.json
+
+      - name: Install QVAC + frontend deps
+        run: |
+          npm ci --prefix qvac-service
+          npm ci --prefix frontend
+
+      - name: Build frontend (production)
+        run: npm run build --prefix frontend
+
+      - name: Build desktop installer
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+        run: |
+          npm ci --prefix desktop
+          npm run dist --prefix desktop
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-windows
+          path: |
+            desktop/dist/*.exe
+            desktop/dist/latest.yml
+
+  package-extension:
+    name: Chrome extension zip
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Zip extension
+        run: node scripts/package-extension.mjs
+
+      - name: Upload extension zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: chrome-extension
+          path: dist/GlobalBridge-Extension-*.zip
+
+  release:
+    name: Publish GitHub Release
+    runs-on: ubuntu-latest
+    needs: [build-windows, package-extension]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Windows artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: desktop-windows
+          path: release-assets/desktop
+
+      - name: Download extension zip
+        uses: actions/download-artifact@v4
+        with:
+          name: chrome-extension
+          path: release-assets/extension
 
       - name: Extract changelog section
         id: changelog
@@ -23,6 +93,11 @@ jobs:
           if [ ! -s release-notes.md ]; then
             echo "See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md)." > release-notes.md
           fi
+          echo "" >> release-notes.md
+          echo "### Downloads" >> release-notes.md
+          echo "- **Windows:** \`GlobalBridge-AI-*-setup.exe\` (installer) or portable \`.exe\`" >> release-notes.md
+          echo "- **Chrome extension:** \`GlobalBridge-Extension-*.zip\` → [Web Store guide](https://github.com/${{ github.repository }}/blob/main/docs/DISTRIBUTION.md)" >> release-notes.md
+          echo "- Requires **Python 3.11+** — run First-time setup from the tray app after install." >> release-notes.md
 
       - uses: softprops/action-gh-release@v2
         with:
@@ -31,3 +106,6 @@ jobs:
           draft: false
           prerelease: ${{ contains(github.ref_name, '-') }}
           generate_release_notes: false
+          files: |
+            release-assets/desktop/*
+            release-assets/extension/*
