@@ -78,6 +78,7 @@
       }
     ],
     "win": {
+      "signAndEditExecutable": false,
       "target": [
         {
           "target": "nsis",
@@ -92,21 +93,20 @@
           ]
         }
       ],
-      "icon": "icons/icon128.png"
+      "icon": "icons/icon256.png"
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "GlobalBridge AI"
+      "shortcutName": "GlobalBridge AI",
+      "installerIcon": "icons/icon256.png",
+      "uninstallerIcon": "icons/icon256.png"
     },
     "portable": {
       "artifactName": "GlobalBridge-AI-${version}-portable.exe"
     },
     "artifactName": "GlobalBridge-AI-${version}-${os}-${arch}.${ext}"
-  },
-  "dependencies": {
-    "newtranslate": "file:.."
   }
 }
