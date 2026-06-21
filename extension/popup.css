@@ -94,6 +94,15 @@ button.primary:disabled {
   color: #6b7280;
 }
 
+.hint a {
+  color: #6ee7b7;
+  text-decoration: none;
+}
+
+.hint a:hover {
+  text-decoration: underline;
+}
+
 code {
   font-size: 10px;
   color: #9ca3af;

@@ -10,7 +10,7 @@ import { fileURLToPath } from "node:url";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const extDir = join(root, "extension");
 const outDir = join(root, "dist");
-const outFile = join(outDir, "GlobalBridge-Extension-v0.1.0.zip");
+const outFile = join(outDir, "GlobalBridge-Extension-v0.1.1.zip");
 const isWin = process.platform === "win32";
 
 if (!existsSync(extDir)) {

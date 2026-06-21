@@ -1,0 +1,55 @@
+=== CHROME WEB STORE — COPY/PASTE FIELDS ===
+
+NAME:
+GlobalBridge Live Captions
+
+SUMMARY (132 chars):
+Live subtitles from tab audio. Requires GlobalBridge on your PC — local Whisper + QVAC, no cloud upload by default.
+
+CATEGORY:
+Productivity
+
+PRIVACY POLICY URL:
+https://001453.github.io/newtranslate/privacy.html
+
+HOMEPAGE URL:
+https://github.com/001453/newtranslate
+
+SUPPORT URL:
+https://github.com/001453/newtranslate/issues
+
+--- DESCRIPTION (full) ---
+
+GlobalBridge Live Captions adds sovereign live subtitles on any Chrome tab (YouTube, Google Meet, Zoom, Keet, etc.).
+
+HOW IT WORKS
+• Install GlobalBridge AI on your computer (free, open source):
+  https://github.com/001453/newtranslate/releases
+• Run First-time setup from the desktop tray app (Python 3.11+ required once).
+• Install this extension → open a tab with speech → click Start captions.
+
+PRIVACY
+• Tab audio is sent only to ws://127.0.0.1:8000 on YOUR machine — not to GlobalBridge servers.
+• No accounts, no analytics in the extension.
+• Privacy policy: https://001453.github.io/newtranslate/privacy.html
+
+REQUIREMENTS
+• GlobalBridge desktop app or npm run dev stack running locally (API :8000, QVAC :8765).
+• Google Chrome desktop (tab audio capture).
+
+Open source (MIT): https://github.com/001453/newtranslate
+Demo: https://youtu.be/1cxwP5S7-1A
+
+--- NOTES FOR REVIEWER ---
+
+Companion extension for GlobalBridge AI (localhost:8000 only).
+tabCapture: user-initiated tab audio for local STT.
+host_permissions: WebSocket to 127.0.0.1:8000 only — no remote hosts.
+content_scripts: caption overlay injection only.
+
+Test: clone repo → npm run setup && npm run dev → load extension → YouTube → Start captions.
+Demo video: https://youtu.be/1cxwP5S7-1A
+
+--- SINGLE PURPOSE ---
+
+Provide live translated captions on web pages by connecting to the user's locally installed GlobalBridge AI application.

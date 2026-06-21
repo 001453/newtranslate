@@ -65,7 +65,6 @@ jobs:
         with:
           name: chrome-extension
           path: dist/GlobalBridge-Extension-*.zip
-
   release:
     name: Publish GitHub Release
     runs-on: ubuntu-latest

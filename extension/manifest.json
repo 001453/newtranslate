@@ -1,8 +1,11 @@
 {
   "manifest_version": 3,
   "name": "GlobalBridge Live Captions",
-  "version": "0.1.0",
-  "description": "Sovereign live subtitles from tab audio — local Whisper STT + QVAC translation (localhost only).",
+  "short_name": "GlobalBridge",
+  "version": "0.1.1",
+  "description": "Live subtitles from tab audio via your local GlobalBridge app (Whisper + QVAC on localhost — no cloud by default).",
+  "homepage_url": "https://github.com/001453/newtranslate",
+  "minimum_chrome_version": "109",
   "permissions": ["tabCapture", "storage", "activeTab", "offscreen", "scripting"],
   "host_permissions": [
     "http://127.0.0.1:8000/*",

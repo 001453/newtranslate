@@ -9,7 +9,7 @@ How to ship **GlobalBridge AI** so non-developers can install and use it.
 | Channel | Artifact | Audience |
 |---------|----------|----------|
 | **GitHub Releases** | `GlobalBridge-AI-0.1.0-setup.exe` (NSIS) + portable `.exe` | Windows users |
-| **Chrome Web Store** | `dist/GlobalBridge-Extension-v0.1.0.zip` | Chrome users (still need local backend) |
+| **Chrome Web Store** | `dist/GlobalBridge-Extension-v0.1.1.zip` | Chrome users (still need local backend) |
 | **Repo** | `extension/` load unpacked | Developers |
 
 ---
@@ -69,7 +69,10 @@ Tray menu: Open app · Start/Stop · Setup wizard · Chrome extension guide.
 npm run extension:zip
 ```
 
-Upload `dist/GlobalBridge-Extension-v0.1.0.zip` to the [Developer Dashboard](https://chrome.google.com/webstore/devconsole).
+Upload `dist/GlobalBridge-Extension-v0.1.1.zip` to the [Developer Dashboard](https://chrome.google.com/webstore/devconsole).
+
+**Full walkthrough:** [docs/CHROME_WEB_STORE.md](CHROME_WEB_STORE.md)  
+**Privacy policy URL:** https://001453.github.io/newtranslate/privacy.html
 
 **One-time fee:** $5 Chrome Web Store developer registration.
 
@@ -89,7 +92,7 @@ Upload `dist/GlobalBridge-Extension-v0.1.0.zip` to the [Developer Dashboard](htt
 
 ### 4. Privacy policy
 
-Link: https://001453.github.io/newtranslate/ or https://github.com/001453/newtranslate/blob/main/docs/SECURITY.md
+Link: https://001453.github.io/newtranslate/privacy.html (required for Web Store submission)
 
 State clearly: **No audio or transcripts are sent to GlobalBridge servers** — processing is localhost only.
 

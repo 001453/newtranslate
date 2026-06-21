@@ -57,7 +57,18 @@ Audio never leaves your machine in Sovereign Mode. See [docs/SOVEREIGN_EGRESS_CH
 | No captions | Ensure tab has audible speech; check QVAC on :8765 |
 | Overlay missing | Refresh the tab after loading the extension |
 
+## Chrome Web Store
+
+See **[docs/CHROME_WEB_STORE.md](../docs/CHROME_WEB_STORE.md)** for listing copy and submission steps.
+
+Copy-paste fields: [store/LISTING.txt](store/LISTING.txt)
+
+```bash
+npm run extension:zip   # → dist/GlobalBridge-Extension-v0.1.1.zip
+```
+
 ## Related
 
+- [docs/CHROME_WEB_STORE.md](../docs/CHROME_WEB_STORE.md)
 - [docs/KEET_PEARS_INTEGRATION.md](../docs/KEET_PEARS_INTEGRATION.md)
 - [docs/STT.md](../docs/STT.md)
