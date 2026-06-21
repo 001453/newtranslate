@@ -49,7 +49,7 @@ export function MicSidebar({
   const meterActive = listening && !hideAudioMeter && mode === "live";
   const audioLevel = useMicLevel(meterActive, deviceId || undefined);
   const previewActive = mode === "dictation" && !listening;
-  const previewLevel = useMicLevel(previewActive, deviceId || undefined, { micProfile: "headset" });
+  const previewLevel = useMicLevel(previewActive, deviceId || undefined);
   const dictationMeterActive = listening && mode === "dictation" && dictationLevel != null;
   const deviceKnown =
     !deviceId || devices.length === 0 || devices.some((d) => d.deviceId === deviceId);

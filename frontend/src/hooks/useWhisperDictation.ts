@@ -12,6 +12,14 @@ import { mergeDictationChunk } from "@/lib/dictationMerge";
 
 const DICTATION_CHUNK_MS = 2000;
 const DICTATION_OVERLAP_MS = 400;
+/** Align with backend dictation_min_audio_rms (0.003). */
+const DICTATION_MIN_RMS = 0.0025;
+
+function resolveMicLabel(deviceId: string | undefined, devices: MediaDeviceInfo[]): string {
+  if (!deviceId) return "system default";
+  const match = devices.find((d) => d.deviceId === deviceId);
+  return match?.label?.trim() || deviceId.slice(0, 8);
+}
 
 function mapCaptureError(code: AudioCaptureError): string {
   if (code === "denied") return "denied";
@@ -70,9 +78,8 @@ export function useWhisperDictation(
         patchDebug({
           lang: langRef.current,
           lastText: text,
-          lastError: text ? "" : "empty_chunk",
           phase: text ? "result_final" : "empty_chunk",
-          speechStarted: Boolean(text),
+          speechStarted: Boolean(text) || transcriptRef.current.length > 0,
         });
 
         if (text) {
@@ -127,8 +134,8 @@ export function useWhisperDictation(
   );
 
   const { start: startCapture, stop: stopCapture, setDeviceId } = useAudioCapture(onChunk, onStats, {
-    minRmsToSend: 0.004,
-    micProfile: "headset",
+    minRmsToSend: DICTATION_MIN_RMS,
+    micProfile: "default",
     strictDevice: Boolean(deviceId),
     chunkMs: DICTATION_CHUNK_MS,
     overlapMs: DICTATION_OVERLAP_MS,
@@ -152,16 +159,24 @@ export function useWhisperDictation(
       lang: langRef.current,
     });
 
-    const err = await startCapture(deviceRef.current || undefined);
-    if (err) {
+    const result = await startCapture(deviceRef.current || undefined);
+    if (result.error) {
       setListening(false);
-      setError(mapCaptureError(err));
-      patchDebug({ phase: `error:${err}`, lastError: err, audioStarted: false });
+      setError(mapCaptureError(result.error));
+      patchDebug({ phase: `error:${result.error}`, lastError: result.error, audioStarted: false });
     } else {
+      let micLabel = "system default";
+      try {
+        const inputs = await navigator.mediaDevices.enumerateDevices();
+        micLabel = resolveMicLabel(result.deviceId, inputs);
+      } catch {
+        /* ignore */
+      }
       patchDebug({
         phase: "listening",
         audioStarted: true,
-        lastError: deviceRef.current ? "" : "default_mic",
+        lastError: "",
+        micDevice: micLabel,
       });
     }
   }, [patchDebug, startCapture]);

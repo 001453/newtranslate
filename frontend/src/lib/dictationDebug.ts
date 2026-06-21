@@ -6,6 +6,7 @@ export type DictationDebugState = {
   results: number;
   lastText: string;
   lastError: string;
+  micDevice: string;
   restarts: number;
   speechStarted: boolean;
   audioStarted: boolean;
@@ -20,6 +21,7 @@ export const EMPTY_DICTATION_DEBUG: DictationDebugState = {
   results: 0,
   lastText: "",
   lastError: "",
+  micDevice: "",
   restarts: 0,
   speechStarted: false,
   audioStarted: false,

@@ -22,6 +22,10 @@ export type AudioCaptureStats = {
   chunksSent: number;
 };
 
+export type CaptureStartResult =
+  | { error: null; deviceId?: string }
+  | { error: AudioCaptureError; deviceId?: undefined };
+
 function mapMediaError(err: unknown): AudioCaptureError {
   const name = (err as DOMException)?.name || "";
   if (name === "NotAllowedError" || name === "PermissionDeniedError") return "denied";
@@ -68,9 +72,9 @@ export function useAudioCapture(
     setRecording(false);
   }, []);
 
-  const start = useCallback(async (preferredDeviceId?: string): Promise<AudioCaptureError | null> => {
+  const start = useCallback(async (preferredDeviceId?: string): Promise<CaptureStartResult> => {
     if (typeof window !== "undefined" && !window.isSecureContext) {
-      return "secure_context";
+      return { error: "secure_context" };
     }
 
     stop();
@@ -98,16 +102,16 @@ export function useAudioCapture(
               stream = await tryGetUserMedia(activeDevice, "default", false);
             } catch (fallbackErr) {
               ctx.close();
-              return mapMediaError(fallbackErr);
+              return { error: mapMediaError(fallbackErr) };
             }
           } else {
             ctx.close();
-            return mapMediaError(retryErr);
+            return { error: mapMediaError(retryErr) };
           }
         }
       } else {
         ctx.close();
-        return mapMediaError(err);
+        return { error: mapMediaError(err) };
       }
     }
 
@@ -115,15 +119,17 @@ export function useAudioCapture(
     if (ctx.state !== "running") {
       stream.getTracks().forEach((t) => t.stop());
       ctx.close();
-      return "audio_suspended";
+      return { error: "audio_suspended" };
     }
 
     const track = stream.getAudioTracks()[0];
     if (!track || track.readyState === "ended") {
       stream.getTracks().forEach((t) => t.stop());
       ctx.close();
-      return "not_found";
+      return { error: "not_found" };
     }
+
+    const resolvedDeviceId = track.getSettings().deviceId || activeDevice;
 
     try {
       stopProcessorRef.current = await startPcmCapture(
@@ -136,11 +142,11 @@ export function useAudioCapture(
       streamRef.current = stream;
       ctxRef.current = ctx;
       setRecording(true);
-      return null;
+      return { error: null, deviceId: resolvedDeviceId };
     } catch {
       stream.getTracks().forEach((t) => t.stop());
       ctx.close();
-      return "unknown";
+      return { error: "unknown" };
     }
   }, [chunkMs, deviceId, micProfile, minRms, overlapMs, stop, strictDevice]);
 

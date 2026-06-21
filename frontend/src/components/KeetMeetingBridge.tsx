@@ -293,8 +293,8 @@ export function KeetMeetingBridge({
 
     const errors: string[] = [];
     if (audioSource === "mic") {
-      const err = await start();
-      if (err) errors.push(audioErrorText(err));
+      const result = await start();
+      if (result.error) errors.push(audioErrorText(result.error));
     } else {
       // tab or both — single tab stream (both would duplicate PCM to WS)
       const err = await startTabCapture();
@@ -699,7 +699,9 @@ export function KeetMeetingBridge({
                   stop();
                   return;
                 }
-                void start().then((err) => setAudioError(err ? audioErrorText(err) : null));
+                void start().then((result) =>
+                  setAudioError(result.error ? audioErrorText(result.error) : null)
+                );
               }}
               className={cn("gb-btn-ghost flex-1 text-xs", recording && "text-[var(--gb-danger)]")}
             >

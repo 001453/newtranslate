@@ -17,6 +17,7 @@ export function DictationDebugPanel({ debug }: { debug: DictationDebugState }) {
       <div>restarts: {debug.restarts}</div>
       <div>speech: {debug.speechStarted ? "yes" : "no"}</div>
       <div>audio: {debug.audioStarted ? "yes" : "no"}</div>
+      {debug.micDevice && <div>mic: {debug.micDevice}</div>}
       {debug.lastError && <div className="text-[var(--gb-danger)]">err: {debug.lastError}</div>}
       {debug.lastText && <div className="truncate">text: {debug.lastText}</div>}
     </div>

@@ -30,6 +30,15 @@ export function useMicDeviceGuard(
       return;
     }
 
+    if (!deviceId && count > 0) {
+      const labeled = devices.filter((d) => d.label && d.label !== "Mikrofon");
+      if (labeled.length > 0) {
+        const preferred = labeled.find((d) => PREFERRED_MIC.test(d.label));
+        update({ deviceId: preferred?.deviceId ?? labeled[0].deviceId });
+        return;
+      }
+    }
+
     if (!deviceId && pluggedNew) {
       const preferred = devices.find(
         (d) => PREFERRED_MIC.test(d.label) && d.deviceId && d.deviceId !== "default"
