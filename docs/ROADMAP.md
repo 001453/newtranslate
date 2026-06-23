@@ -25,7 +25,19 @@ Aligned with the [Tether grant milestones](GRANT.md) and community feedback.
 
 ---
 
-## Short term (0–3 months)
+## Platform priority (2026)
+
+**PC first** until QVAC mobile (Expo, Play Store, App Store) is mature and tested on real devices.
+
+| Priority | Channel | Focus |
+|----------|---------|--------|
+| **1 — Now** | Windows desktop + GitHub Releases | Tray app, bundled Python, one-click install |
+| **2 — Now** | Chrome Web Store | ✅ [GlobalBridge Live Captions](https://chromewebstore.google.com/detail/fpfojfkkilokgjbjphgdlcckoffekibi) — public |
+| **3 — Later** | Android / iOS (`mobile/`) | Code exists (MVP); Play/App Store **deferred** |
+
+Mobile work stays in repo for when QVAC + device testing are ready — not the main distribution path yet.
+
+---
 
 ### Developer experience
 - [x] GitHub Actions CI (lint + test on PRs)
@@ -44,11 +56,11 @@ Aligned with the [Tether grant milestones](GRANT.md) and community feedback.
 ### Distribution *(Phase 1 — in progress)*
 - [x] Desktop tray launcher — `npm run desktop` ([desktop/](../desktop/))
 - [x] GitHub Releases with Windows `.exe` installer — [USER_INSTALL.md](USER_INSTALL.md) · [v0.1.5+](https://github.com/001453/newtranslate/releases)
-- [ ] Chrome Web Store publish — submitted, pending review
+- [x] Chrome Web Store publish — [GlobalBridge Live Captions](https://chromewebstore.google.com/detail/fpfojfkkilokgjbjphgdlcckoffekibi) (v0.1.1, public)
 - [x] Bundled Python in Windows installer — no separate python.org step
-- [x] Mobile MVP (Expo + QVAC text translate) — [`mobile/`](../mobile/)
-- [ ] Play Store / App Store release
-- [ ] Mobile live STT (QVAC Whisper) + mic UI
+- [x] Mobile MVP (Expo + QVAC text translate) — [`mobile/`](../mobile/) *(code only; distribution deferred)*
+- [ ] Play Store / App Store release — **after QVAC mobile matures + PC path stable**
+- [ ] Mobile live STT (QVAC Whisper) + mic UI — **deferred**
 - [ ] Model download on first run (smaller installer, ~150 MB)
 - [ ] WinGet / Homebrew cask manifests
 - [x] Chrome extension MVP — live overlay via local API ([extension/](../extension/), grant **M4**)

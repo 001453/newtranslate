@@ -23,7 +23,13 @@
 </head>
 <body>
   <h1>Install Chrome Extension</h1>
-  <p>Live captions on any tab (YouTube, Meet, Keet). Requires GlobalBridge services running.</p>
+  <p>Live captions on any tab (YouTube, Meet, Keet). Requires GlobalBridge services running on this PC.</p>
+  <p style="margin-bottom: 16px;">
+    <a href="https://chromewebstore.google.com/detail/fpfojfkkilokgjbjphgdlcckoffekibi" id="store-link" style="color: var(--accent); font-weight: 600;">
+      Add GlobalBridge Live Captions from Chrome Web Store →
+    </a>
+  </p>
+  <p style="font-size: 0.88rem; margin-bottom: 12px;">Developer install (Load unpacked):</p>
   <ol>
     <li>Open <code>chrome://extensions</code></li>
     <li>Enable <strong>Developer mode</strong> (top right)</li>
@@ -36,9 +42,9 @@
   <button id="btn-folder">Open extension folder</button>
   <button class="secondary" id="btn-chrome">Open chrome://extensions</button>
   <p style="margin-top: 20px; font-size: 0.85rem;">
-    <strong>Chrome Web Store:</strong> Zip the extension folder and submit at
-    <a href="https://chrome.google.com/webstore/devconsole" id="store-link">Chrome Web Store Developer Dashboard</a>.
-    See docs/DISTRIBUTION.md in the repo.
+    <strong>Chrome Web Store:</strong>
+    <a href="https://chromewebstore.google.com/detail/fpfojfkkilokgjbjphgdlcckoffekibi">GlobalBridge Live Captions</a> (published).
+    Updates: Developer Dashboard → upload new zip. See docs/DISTRIBUTION.md.
   </p>
   <script>
     window.desktopApi.getExtensionInfo().then((info) => {

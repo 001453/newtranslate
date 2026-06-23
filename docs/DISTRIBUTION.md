@@ -102,7 +102,7 @@ Recommended user flow:
 
 1. Install **GlobalBridge AI** desktop app (GitHub Release)
 2. Complete **First-time setup** in tray wizard (Python venv + models)
-3. Install **Chrome extension** from Web Store (or Load unpacked from desktop guide)
+3. Install **Chrome extension** from [Chrome Web Store](https://chromewebstore.google.com/detail/fpfojfkkilokgjbjphgdlcckoffekibi) (or Load unpacked for dev)
 4. Start captions on any tab
 
 ---

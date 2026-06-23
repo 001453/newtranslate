@@ -21,17 +21,14 @@ Two parts work together: **desktop app** (translation engine) + **Chrome extensi
 
 The extension shows live captions on any tab. It needs Step 1 running on the same PC.
 
-### When Chrome Web Store is live
-
-1. Open the [GlobalBridge Live Captions](https://chromewebstore.google.com/detail/fpfojfkkilokgjbjphgdlcckoffekibi) listing *(available after Google approval)*.
+1. Open **[GlobalBridge Live Captions](https://chromewebstore.google.com/detail/fpfojfkkilokgjbjphgdlcckoffekibi)** on the Chrome Web Store.
 2. Click **Add to Chrome**.
-3. Open YouTube or a meeting tab → extension icon → **Start captions**.
+3. Pin the extension → open YouTube or a meeting tab → **Start captions**.
 
-### Until Store approval (now)
+### Developer fallback (Load unpacked)
 
 1. Chrome → `chrome://extensions` → **Developer mode** on.
-2. **Load unpacked** → select the `extension/` folder from the repo (or extract from [latest release zip](https://github.com/001453/newtranslate/releases)).
-3. Pin **GlobalBridge Live Captions** → **Start captions** on a tab with speech.
+2. **Load unpacked** → select the `extension/` folder (or extract from [latest release zip](https://github.com/001453/newtranslate/releases)).
 
 ---
 
@@ -69,8 +66,8 @@ Audio and transcripts stay on your machine in Sovereign Mode. See [privacy polic
 
 1. [GitHub Releases](https://github.com/001453/newtranslate/releases/latest) → **GlobalBridge-AI-*-setup.exe** indir ve kur.
 2. İlk açılışta kurulum otomatik başlar (~5–15 dk) — **ayrı Python kurmanıza gerek yok**.
-3. Bittiğinde tarayıcı açılır veya tepsi → **Start services**.
-4. Chrome extension: Store onayı gelince mağazadan; şimdilik `chrome://extensions` → **Load unpacked** → `extension/` klasörü.
+3. Bittiğinde tepsi → **Start services** (veya tarayıcı otomatik açılır).
+4. Chrome: [GlobalBridge Live Captions](https://chromewebstore.google.com/detail/fpfojfkkilokgjbjphgdlcckoffekibi) → **Chrome'a ekle**.
 5. YouTube aç → extension → **Start captions**.
 
 Sorun: [README](../README.md#troubleshooting) · [Issues](https://github.com/001453/newtranslate/issues)

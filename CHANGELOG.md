@@ -8,6 +8,9 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Added
 - **Mobile app (MVP)** — [`mobile/`](mobile/) Expo + QVAC on-device text translation (Android/iOS)
 
+### Changed
+- Chrome Web Store listing **published — public**; site, README, and install docs link to live Store URL
+
 ---
 
 ## [0.1.7] - 2026-06-21

@@ -1,6 +1,10 @@
 # Chrome Web Store — submission guide
 
-**Extension zip:** run `npm run extension:zip` → `dist/GlobalBridge-Extension-v0.1.0.zip`  
+**Status:** ✅ **Published — public** (Jun 23, 2026)  
+**Install:** https://chromewebstore.google.com/detail/fpfojfkkilokgjbjphgdlcckoffekibi  
+**Extension ID:** `fpfojfkkilokgjbjphgdlcckoffekibi`
+
+**Extension zip (updates):** run `npm run extension:zip` → `dist/GlobalBridge-Extension-v0.1.1.zip`  
 **Dashboard:** https://chrome.google.com/webstore/devconsole  
 **Privacy policy URL (required):** https://001453.github.io/newtranslate/privacy.html
 

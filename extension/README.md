@@ -2,6 +2,10 @@
 
 Sovereign live subtitles on **any tab** using the local GlobalBridge stack (Whisper STT + QVAC on `localhost:8000`).
 
+## Install (users)
+
+**[Add from Chrome Web Store](https://chromewebstore.google.com/detail/fpfojfkkilokgjbjphgdlcckoffekibi)** — then run the [Windows desktop app](https://github.com/001453/newtranslate/releases) on the same PC.
+
 ## Prerequisites
 
 1. Clone and run the full stack from the repo root:

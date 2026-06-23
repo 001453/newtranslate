@@ -83,7 +83,7 @@ HTTP dictation endpoint: `POST /api/v1/transcribe` (PCM int16 @ 16 kHz → Whisp
 4. Each participant sees subtitles in **their own language** (`viewer_lang` on the backend).
 5. When the session ends, transcript files download automatically.
 
-**Chrome extension:** Load unpacked from [`extension/`](extension/) — live caption overlay on any tab without opening the web UI. See [extension/README.md](extension/README.md).
+**Chrome extension:** [**Add from Chrome Web Store**](https://chromewebstore.google.com/detail/fpfojfkkilokgjbjphgdlcckoffekibi) — live caption overlay on any tab. Requires desktop app running locally. Dev: [Load unpacked](extension/README.md).
 
 **Desktop app (Windows):** Tray launcher — setup wizard, start/stop services, open browser. Build installer with `npm run desktop:build`. See [desktop/README.md](desktop/README.md) and [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md) for GitHub Releases + Chrome Web Store.
 
@@ -147,7 +147,7 @@ On Windows, install Python from [python.org](https://www.python.org/) and check 
 1. Download **GlobalBridge-AI-*-setup.exe** from [GitHub Releases](https://github.com/001453/newtranslate/releases/latest)
 2. Install → first-run setup runs automatically (Python included, ~5–15 min)
 3. Browser opens at http://localhost:3000 when services are ready
-4. Optional: [Chrome extension](extension/README.md) — [Store listing pending](docs/CHROME_WEB_STORE.md); use Load unpacked until approved
+4. **[Chrome extension](https://chromewebstore.google.com/detail/fpfojfkkilokgjbjphgdlcckoffekibi)** → Add to Chrome (desktop app must be running)
 
 Full guide: **[docs/USER_INSTALL.md](docs/USER_INSTALL.md)**
 
